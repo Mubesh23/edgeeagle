@@ -439,3 +439,25 @@ could not access uv's cache; the approved rerun passed. No hosted Actions run or
 fresh-checkout audit has occurred yet. Security and compatibility gates remain
 the next increments; an exploratory npm audit reported four moderate findings
 (uuid, decode-uri-component, and Vitest/mocker), which are not suppressed.
+
+## OpenAPI compatibility increment
+
+Added scripts/check-contracts with a digest-pinned official oasdiff image and a
+frozen copy of the health-only schema from 8b323ee. This is explicitly a
+pre-release checkpoint, not a released API. Baseline promotion and intentional
+breaking changes require review. No API/event schema was changed; no event
+compatibility is claimed before event contracts exist.
+
+The comparator receives only two temporary JSON files in a read-only mount,
+with network disabled and external references rejected. Errors and warnings
+fail validation; comparator failures are not ignored. The official latest image
+was resolved to an immutable digest and reports version 322d7ae; the attempted
+1.32.1 Docker tag was unavailable, so no tag is relied on by the wrapper.
+
+Validation passed: the current schema comparison, three real comparator
+regression tests (identity/addition, route removal/type change, external refs),
+and full scripts/validate including 9 existing local integration tests. Unchanged
+package checks used valid Turbo cache entries. The frozen snapshot is excluded
+from routine formatting/generation. No paid API, AWS credential, deployment,
+hosted CI run, or release was involved. Security scanning and fresh-checkout
+evidence remain outstanding.

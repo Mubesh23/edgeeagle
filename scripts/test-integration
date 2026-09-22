@@ -8,3 +8,4 @@ env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE \
   uv run --locked --offline --all-packages pytest \
   -o addopts= -q --strict-markers --allow-hosts=127.0.0.1 --allow-unix-socket \
   tests/integration "$@"
+node --test scripts/contract-tests/*.test.mjs

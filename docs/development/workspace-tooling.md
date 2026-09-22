@@ -73,8 +73,10 @@ The CDK shell adds ESLint, TypeScript, build, and resource/lookup assertions.
 `scripts/synth` runs independently of Docker and is included in `scripts/validate`.
 It clears inherited credentials and disables lookups, telemetry, and metadata
 credentials. See [CDK commands](../../infra/cdk/README.md) for expected warnings.
-There are no released-contract compatibility checks or
-security scans yet. Those are missing checks, not passes. Add root
+`scripts/check-contracts` uses a digest-pinned, network-disabled Docker comparator
+against a frozen pre-release snapshot. Actual comparator regression cases run in
+local integration tests. No released API or event baseline exists yet.
+There are no security scans yet. That is a missing check, not a pass. Add root
 wrappers together with their real implementations. Phase 1 exit requires the
 full roadmap gate, not merely this initial scripts/validate result.
 

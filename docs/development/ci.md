@@ -22,5 +22,6 @@ by this change.
 The workflow policy test runs in `scripts/test-unit`. It parses YAML and checks
 the action pins, triggers, permissions, command ordering, and cleanup. It is not
 a substitute for a real GitHub Actions run. Local validation does not prove
-Linux runner compatibility. Security and released-contract comparison are still
-pending until their root gates are implemented.
+Linux runner compatibility. OpenAPI compatibility is checked against a frozen
+pre-release foundation snapshot, not a released API. Security scanning remains
+pending until its root gate is implemented.

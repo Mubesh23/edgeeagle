@@ -8,7 +8,7 @@ for script in scripts/*; do
     bash -n "$script"
   fi
 done
-for script in scripts/*.mjs scripts/tests/*.mjs libs/typescript/api-client/tests/*.mjs; do
+for script in scripts/*.mjs scripts/tests/*.mjs scripts/contract-tests/*.mjs libs/typescript/api-client/tests/*.mjs; do
   node --check "$script"
 done
 uv run --locked --offline --all-packages ruff check .

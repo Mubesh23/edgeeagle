@@ -6,6 +6,7 @@ scripts/format-check
 scripts/lint
 scripts/typecheck
 scripts/test-unit
+scripts/check-contracts
 uv lock --check --offline
 scripts/build
 scripts/synth
@@ -13,4 +14,5 @@ scripts/test-integration
 echo 'Workspace, API, and client validation passed (generated drift, format, lint, typecheck, unit tests, lock, builds).'
 echo 'Local PostgreSQL, Floci, and provider-mock integration passed.'
 echo 'Credential-free CDK synthesis passed.'
-echo 'Remaining foundation gates: released-contract compatibility, security scan, and fresh-checkout evidence.'
+echo 'OpenAPI compatibility passed against the pre-release foundation checkpoint.'
+echo 'Remaining foundation gates: security scan and fresh-checkout evidence; no released API exists yet.'

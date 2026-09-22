@@ -26,8 +26,11 @@ Only `/health` is implemented. Future domain routes and MCP tools in the design
 are not exported until their backend capabilities exist. See the
 [client package](../libs/typescript/api-client/README.md) for usage.
 
-This is generated-drift detection, not released API compatibility analysis.
-Additive evolution remains the policy. Comparison against released contracts and
-baseline CI enforcement are still pending; breaking contracts require human review.
+Generated drift is separate from API compatibility. `scripts/check-contracts`
+now compares against a [frozen foundation checkpoint](baselines/README.md) with
+a pinned oasdiff container, enforced by root validation and CI. No API has been
+released yet; the checkpoint is not described as a released contract. Additive
+evolution remains the policy; breaking changes and baseline updates require
+human review.
 
 Generator reference: [openapi-typescript Node API](https://openapi-ts.dev/node).

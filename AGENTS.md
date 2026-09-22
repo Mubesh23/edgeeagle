@@ -26,6 +26,9 @@ The resource-free CDK shell is included in root checks; `scripts/synth` runs
 without AWS credentials or Docker. See [CDK commands](infra/cdk/README.md).
 The [foundation CI workflow](docs/development/ci.md) runs bootstrap/validate on
 GitHub-hosted Linux with no provider or AWS credentials; no deployment is defined.
+`scripts/check-contracts` compares OpenAPI with the frozen pre-release foundation
+checkpoint using a pinned, network-disabled Docker comparator. See
+[baseline policy](contracts/baselines/README.md).
 The table below describes the target
 command set; unimplemented commands are not yet available. See
 [`docs/development/workspace-tooling.md`](docs/development/workspace-tooling.md)
@@ -118,6 +121,10 @@ The final handoff for an implementation session must report the commits created,
 Generated paths must be documented with their source and regeneration command. Do not hand-edit generated OpenAPI clients or generated event/schema artifacts.
 
 ## Protected/high-risk areas
+
+Compatibility snapshots in `contracts/baselines/` are immutable captured artifacts;
+their provenance and capture command are documented there. Changes require human
+review and are not part of normal contract regeneration.
 
 Human review is mandatory for:
 

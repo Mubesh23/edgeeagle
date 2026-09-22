@@ -14,4 +14,5 @@ build/
 cdk.out/
 # Generated output is formatted only by its generator.
 contracts/openapi/edgeeagle.json
+contracts/baselines/*.json
 libs/typescript/api-client/src/generated/

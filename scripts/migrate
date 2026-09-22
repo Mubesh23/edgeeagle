@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+port="${EDGEEAGLE_POSTGRES_PORT:-55432}"
+case "$port" in
+  ''|*[!0-9]*) echo 'EDGEEAGLE_POSTGRES_PORT must be numeric' >&2; exit 2 ;;
+esac
+if [[ $# -eq 0 ]]; then
+  set -- upgrade head
+fi
+# This developer wrapper always targets the loopback Compose database.
+EDGEEAGLE_DATABASE_URL="postgresql+psycopg://edgeeagle:edgeeagle-local@127.0.0.1:$port/edgeeagle" \
+  uv run --locked --offline --package edgeeagle-api alembic -c apps/api/alembic.ini "$@"

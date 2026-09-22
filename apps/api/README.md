@@ -24,3 +24,6 @@ Use root `scripts/format-check`, `scripts/lint`, `scripts/typecheck`,
 Tests use the [FastAPI in-process test client](https://fastapi.tiangolo.com/tutorial/testing/).
 pytest-socket blocks IP sockets; local Unix sockets remain available for the
 event loop. Builds use the locked Hatchling installation without network access.
+
+The [migration framework](migrations/README.md) establishes the local Alembic
+baseline. It does not add domain tables or database access to the health endpoint.

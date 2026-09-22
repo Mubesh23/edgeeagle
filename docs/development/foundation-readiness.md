@@ -238,3 +238,30 @@ round trip. Smoke tests remove their own temporary resources. No paid provider
 calls, production resources, IAM changes, or domain schemas are involved.
 Full scripts/validate passed including the existing API/client/contract checks
 and both local integration tests. Services are left healthy and running.
+
+## Migration framework increment
+
+Local services landed as `888de74 feat(dev): Add PostgreSQL and Floci environment`.
+The next increment adds Alembic configuration, a revision template, and the empty
+0001_foundation baseline under apps/api/migrations. scripts/migrate targets only
+the local Compose database by default and does not run at API startup. No domain
+tables or business API changes were introduced; autogeneration awaits Phase 2
+metadata. Migration files are checkout assets, not packaged in the API wheel.
+
+Validation passed: bootstrap with regenerated lockfile; Ruff and strict mypy
+(9 files); full scripts/validate with 3 Python unit tests, the generation regression
+test, existing client checks, and 3 local integration tests. Unchanged TypeScript
+tasks used valid Turbo cache results in the final run. Migration tests verify
+offline SQL, one head, repeat upgrade, committed state, downgrade, and reapplication
+in a unique test database. Test resources were removed after use.
+
+scripts/migrate applied the baseline to the development database. A real
+scripts/local-down -> scripts/local-up -> scripts/migrate current cycle returned
+0001_foundation (head), proving the database state survived container replacement.
+Named volumes were retained, and PostgreSQL/Floci are healthy and running.
+
+Remaining gates: provider fixture/mock server, client applications, CDK synth,
+released-contract compatibility, security scanning, and CI. No provider credentials,
+paid API calls, production deployment, or new ADR decision was required. The
+next increment is the provider fixture/mock harness. Existing two upstream Python
+deprecation warnings remain unsuppressed.

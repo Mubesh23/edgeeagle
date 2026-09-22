@@ -37,8 +37,14 @@ Python socket connections are restricted to 127.0.0.1 during integration tests.
 
 `scripts/validate` includes these tests and leaves healthy containers running for
 development. Unit tests remain separately network-blocked. Provider mocks,
-queue/DLQ consumers, and migrations arrive in subsequent increments; the diagram
+queue/DLQ consumers arrive in subsequent increments; the diagram
 below describes the target stack, not additional implemented services.
+
+The Alembic framework is implemented under `apps/api/migrations`. After starting
+services, run `scripts/migrate` to establish its empty baseline and
+`scripts/migrate current` to inspect it. Migration round-trip tests run in their
+own temporary database; they never downgrade/reset the application database.
+See [migration operations](../../apps/api/migrations/README.md).
 
 Image sources verified 2026-09-22:
 [official PostgreSQL images](https://github.com/docker-library/official-images/blob/master/library/postgres)

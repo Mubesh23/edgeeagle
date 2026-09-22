@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+scripts/local-up
+env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE \
+  AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null \
+  AWS_EC2_METADATA_DISABLED=true \
+  uv run --locked --offline --all-packages pytest \
+  -o addopts= -q --strict-markers --allow-hosts=127.0.0.1 --allow-unix-socket \
+  tests/integration "$@"

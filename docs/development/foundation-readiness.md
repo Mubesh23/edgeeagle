@@ -218,3 +218,23 @@ directory with no node_modules, .venv, or Turbo cache; scripts/bootstrap and
 scripts/validate succeeded on Node 20.20.1 using existing download caches.
 All client tasks executed before build-output reuse at the final build step.
 This was local validation, not a CI or deployed-environment run.
+
+## Local-services increment
+
+Added Compose project edgeeagle-local with PostgreSQL 17.11-alpine3.23 and Floci
+2.1.0, loopback-only ports, named persistent volumes, and health checks. Root
+local-up/local-down/test-integration commands manage this stack; full validation
+now includes it. Unit tests remain network-free and integration tests use only
+explicit loopback endpoints. Migrations and provider mocks follow separately.
+
+Docker Desktop was installed but stopped; it was started with approval. Image
+downloads succeeded. The native Floci image uses its own healthcheck.sh and lacks
+wget; startup testing exposed this distinction from the upstream JVM Dockerfile.
+The corrected health check passed and persistent storage was enabled explicitly.
+
+Validated Compose configuration, bootstrap/lock generation, format/lint, strict
+Python checks, and two local smoke tests: PostgreSQL transaction and Floci S3
+round trip. Smoke tests remove their own temporary resources. No paid provider
+calls, production resources, IAM changes, or domain schemas are involved.
+Full scripts/validate passed including the existing API/client/contract checks
+and both local integration tests. Services are left healthy and running.

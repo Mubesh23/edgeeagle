@@ -9,6 +9,41 @@ A normal developer or coding agent should be able to bootstrap, run, and validat
 
 ## Local stack
 
+Implemented foundation: `compose.yaml` pins PostgreSQL 17.11-alpine3.23 and
+Floci 2.1.0. Docker with Compose v2.15+ must be running. `scripts/local-up`
+starts project `edgeeagle-local` and waits for health checks. Initial image
+downloads require internet access, but no provider or AWS credentials.
+
+Host ports bind only to 127.0.0.1: PostgreSQL 55432 and Floci 4566. Override using
+exported `EDGEEAGLE_POSTGRES_PORT` / `EDGEEAGLE_FLOCI_PORT`; use the same values
+for all commands. No environment file needs to be copied. PostgreSQL uses
+database/user `edgeeagle` and the public local-only password `edgeeagle-local`.
+These credentials are never production configuration.
+
+`scripts/local-down` removes project containers and its Compose network, while
+preserving `edgeeagle-local_postgres-data` and `edgeeagle-local_floci-data`.
+It never requests volume deletion or removal of unrelated containers.
+No Docker socket is mounted in Floci; its UI sidecar is disabled.
+Floci explicitly uses persistent storage mode. The native 2.1.0 image's supplied
+`/usr/local/bin/healthcheck.sh` is used; unlike the JVM Dockerfile, this image
+does not contain wget. This image difference was verified during local startup.
+
+`scripts/test-integration` starts the stack, checks a PostgreSQL temporary-table
+transaction, and checks Floci S3 put/get with a unique temporary bucket. Test
+resources are cleaned up; PostgreSQL application data is not reset. AWS SDK
+clients use explicit dummy credentials, an explicit loopback endpoint, path-style
+S3, and disabled proxies. Profile/config discovery is disabled in the wrapper.
+Python socket connections are restricted to 127.0.0.1 during integration tests.
+
+`scripts/validate` includes these tests and leaves healthy containers running for
+development. Unit tests remain separately network-blocked. Provider mocks,
+queue/DLQ consumers, and migrations arrive in subsequent increments; the diagram
+below describes the target stack, not additional implemented services.
+
+Image sources verified 2026-09-22:
+[official PostgreSQL images](https://github.com/docker-library/official-images/blob/master/library/postgres)
+and [Floci 2.1.0](https://github.com/floci-io/floci/releases/tag/2.1.0).
+
 ```text
 Docker/containers
   PostgreSQL

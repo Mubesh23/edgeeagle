@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+# Deliberately preserve named volumes; never add --volumes here.
+docker compose -p edgeeagle-local -f compose.yaml down

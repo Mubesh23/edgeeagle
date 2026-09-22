@@ -11,6 +11,9 @@ Read `docs/README.md`, `docs/product/PRD.md`, and `docs/architecture/TDD.md` bef
 Implementation status: workspace/API increments implement `bootstrap`,
 `format-check`, `lint`, `typecheck`, `test-unit`, `build`, and `validate`.
 `generate-contracts` and `check-generated` now export and verify local API artifacts.
+`local-up`, `local-down`, and `test-integration` now manage/test PostgreSQL and
+Floci. `validate` starts these local services and leaves them running; named data
+volumes survive `local-down`. Provider mocks and migrations are not yet included.
 The table below describes the target
 command set; unimplemented commands are not yet available. See
 [`docs/development/workspace-tooling.md`](docs/development/workspace-tooling.md)

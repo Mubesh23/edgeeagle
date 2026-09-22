@@ -17,7 +17,10 @@ resolve the package manager when executing workspace tasks. No global shim is in
 Run `scripts/bootstrap` from the checkout. Initial installation requires access
 to public package registries and may populate package-manager caches. No AWS
 credentials or provider API calls are used. Subsequent quality checks use locally
-installed dependencies. Neither bootstrap nor validation starts containers.
+installed dependencies. Bootstrap does not start containers. Full validation now
+starts PostgreSQL and Floci through `scripts/test-integration` and requires a
+running Docker daemon with Compose v2.15+. Services remain running afterward;
+use `scripts/local-down` to stop them while retaining their named data volumes.
 
 ## Implemented commands
 
@@ -48,7 +51,9 @@ pytest, and an offline sdist/wheel build. Use `scripts/typecheck`,
 Generated drift checks now run first in validation. TypeScript build/typecheck/test
 tasks run through Turbo; client tests depend on their build. Python arguments
 passed to `scripts/test-unit` apply only to pytest. No client tests use real HTTP.
-There are no client applications, released-contract compatibility checks, integration checks,
+PostgreSQL and Floci smoke tests now run at the end of validation. See
+[local development](local-development-testing.md) for ports and lifecycle.
+There are no client applications, released-contract compatibility checks, provider-mock tests,
 security scans, or CDK synth yet. Those are missing checks, not passes. Add root
 wrappers together with their real implementations. Phase 1 exit requires the
 full roadmap gate, not merely this initial scripts/validate result.

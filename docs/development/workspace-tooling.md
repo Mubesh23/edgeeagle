@@ -35,6 +35,7 @@ use `scripts/local-down` to stop them while retaining their named data volumes.
 | `scripts/build`              | Offline API sdist/wheel and TypeScript client build                                    |
 | `scripts/generate-contracts` | Local OpenAPI export and generated TypeScript types                                    |
 | `scripts/check-generated`    | Non-mutating comparison of generated artifacts with source                             |
+| `scripts/synth`              | Credential-free, lookup-disabled synthesis of the resource-free CDK shell              |
 | `scripts/validate`           | All current checks, offline uv lock freshness, Turbo graph parsing                     |
 
 Use `corepack pnpm run format` to format maintained files. The supplied design
@@ -68,8 +69,12 @@ offline iOS/Android bundle exports to the same commands. These exports are not
 native binary builds. See [mobile commands](../../apps/mobile/README.md).
 The stdio MCP shell adds ESLint, TypeScript, build, and subprocess protocol tests.
 See [MCP commands](../../apps/mcp/README.md); its tool list is intentionally empty.
-There are no released-contract compatibility checks,
-security scans, or CDK synth yet. Those are missing checks, not passes. Add root
+The CDK shell adds ESLint, TypeScript, build, and resource/lookup assertions.
+`scripts/synth` runs independently of Docker and is included in `scripts/validate`.
+It clears inherited credentials and disables lookups, telemetry, and metadata
+credentials. See [CDK commands](../../infra/cdk/README.md) for expected warnings.
+There are no released-contract compatibility checks or
+security scans yet. Those are missing checks, not passes. Add root
 wrappers together with their real implementations. Phase 1 exit requires the
 full roadmap gate, not merely this initial scripts/validate result.
 

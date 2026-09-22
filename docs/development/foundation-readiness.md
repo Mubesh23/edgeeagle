@@ -393,3 +393,33 @@ close their child processes; local Docker services remain healthy and running.
 No new ADR is needed for this scoped implementation of the existing plan.
 Next recommended increment: an empty CDK foundation with credential-free synth;
 CI, security scanning, and released-contract compatibility remain outstanding.
+
+## CDK foundation increment
+
+Added infra/cdk as a TypeScript workspace with one environment-agnostic, empty
+stack and a credential-free scripts/synth wrapper. This implements the existing
+TDD and roadmap choice, with no new ADR, resource, IAM/networking change, account,
+region, or deployment. The CLI runs with an allowlisted environment, no inherited
+credentials/profiles, metadata credentials disabled, and context lookups disabled.
+Standalone synthesis is independent of Docker/Floci; root validation includes it.
+
+Validation passed: regenerated lockfile and frozen bootstrap, CDK ESLint,
+TypeScript/build, one synthesis assertion test, standalone scripts/synth, and
+full scripts/validate. The full run passed generated drift, formatting, lint,
+typechecks, 16 Python unit tests, the generation regression, lock freshness,
+builds, and 9 local integration tests. Unchanged application checks reused valid
+Turbo cache results. Local Docker services remain healthy and running.
+
+The first CDK test incorrectly rejected the default synthesizer's template file
+asset; it was corrected to allow only that generated template, not application
+assets or Docker images. The template is exactly {} with no missing context.
+CDK's empty-Resources warning is expected: this scaffold cannot be deployed.
+Its unconfigured-feature-flags message remains visible for future resource work.
+Bootstrap-version validation is disabled only for this resource-free scaffold
+and must be revisited before deployable resources are added.
+
+No AWS deployment, paid provider calls, fresh-checkout audit, security scan, or
+released-contract compatibility check was performed. The latter three remain
+foundation work, not implied passes. Existing Python deprecation warnings remain.
+Next recommended increment: baseline CI and the remaining validation gates,
+followed by a fresh-checkout Phase 1 exit audit.

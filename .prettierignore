@@ -11,6 +11,7 @@ node_modules/
 .turbo/
 dist/
 build/
+cdk.out/
 # Generated output is formatted only by its generator.
 contracts/openapi/edgeeagle.json
 libs/typescript/api-client/src/generated/

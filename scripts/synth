@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+corepack pnpm --filter @edgeeagle/infra build
+cd infra/cdk
+# Do not inherit AWS credentials, profiles, web identity, container credentials,
+# endpoint overrides, or CDK deployment environment from the caller.
+env -i PATH="$PATH" \
+  AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null \
+  AWS_EC2_METADATA_DISABLED=true \
+  node node_modules/aws-cdk/bin/cdk synth \
+  --no-lookups --no-version-reporting --no-path-metadata --no-asset-metadata \
+  --no-notices --no-telemetry

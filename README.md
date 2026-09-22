@@ -36,3 +36,6 @@ shell and credential-free iOS/Android bundle exports.
 
 The [MCP foundation](apps/mcp/README.md) provides a local stdio protocol shell
 with an empty tool list; business tools remain deferred.
+
+The [CDK foundation](infra/cdk/README.md) provides credential-free synthesis of
+an empty stack. It creates no AWS resources and is not deployable yet.

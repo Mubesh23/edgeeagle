@@ -53,6 +53,11 @@ released-contract compatibility comparison remains a future gate.
 
 ## MCP mapping
 
+Phase 1 now includes a local stdio protocol shell in apps/mcp: initialization,
+ping, and empty tool discovery. It exposes no business tools and performs no
+backend/provider calls. See [MCP foundation](../../apps/mcp/README.md).
+The tool list below describes future product capabilities, not the current shell.
+
 Initial MCP tools:
 
 - `search_events`

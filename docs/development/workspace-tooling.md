@@ -66,7 +66,9 @@ tests, and the static Vite build. See [web commands](../../apps/web/README.md).
 The Expo mobile shell adds ESLint, TypeScript, a native component test, and
 offline iOS/Android bundle exports to the same commands. These exports are not
 native binary builds. See [mobile commands](../../apps/mobile/README.md).
-There are no MCP applications, released-contract compatibility checks,
+The stdio MCP shell adds ESLint, TypeScript, build, and subprocess protocol tests.
+See [MCP commands](../../apps/mcp/README.md); its tool list is intentionally empty.
+There are no released-contract compatibility checks,
 security scans, or CDK synth yet. Those are missing checks, not passes. Add root
 wrappers together with their real implementations. Phase 1 exit requires the
 full roadmap gate, not merely this initial scripts/validate result.

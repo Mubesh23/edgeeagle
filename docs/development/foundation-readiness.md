@@ -363,3 +363,33 @@ fresh-checkout check was performed. simctl is unavailable on this machine.
 Native bundles do not prove native runtime behavior. EAS, production identifiers,
 auth, push, and provider calls remain absent. Next recommended increment: MCP
 server foundation over the existing authoritative API boundary.
+
+## MCP protocol foundation increment
+
+Added apps/mcp with the official TypeScript MCP SDK, local stdio transport,
+initialization/ping, and an explicitly empty tool list. Calls to unavailable
+tools fail with InvalidParams. No speculative research tools, domain logic,
+API calls, credentials, HTTP listeners, or client installations were introduced.
+The API-client dependency will be added when a backend capability is exposed.
+Stdio is a local foundation transport, not a production deployment/auth decision.
+
+Validation passed: regenerated lockfile and frozen bootstrap, package ESLint,
+strict TypeScript/build, and two real subprocess protocol tests. An official
+SDK client exercises handshake, ping, discovery, unavailable-tool rejection, and
+continued liveness; a separate process verifies clean EOF exit and quiet stdout.
+The initial lint failure for an undeclared URL global was fixed with a Node import.
+
+Full scripts/validate passed: generated drift, formatting, lint/typechecks,
+16 Python unit tests, one generation regression, two MCP tests, one mobile
+component test, 9 local integration tests, and all builds. Unchanged web/client
+checks used valid Turbo cache results. Mobile bundles/tests reran after lockfile
+peer resolution changed Node types to the pinned Node 20 types. Final build steps
+reused outputs already verified by the same run. Existing dependency/Python
+deprecation warnings remain.
+
+No desktop-agent application integration, remote/authenticated MCP transport,
+fresh-checkout check, or production deployment was performed. Protocol tests
+close their child processes; local Docker services remain healthy and running.
+No new ADR is needed for this scoped implementation of the existing plan.
+Next recommended increment: an empty CDK foundation with credential-free synth;
+CI, security scanning, and released-contract compatibility remain outstanding.

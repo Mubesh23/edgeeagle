@@ -33,3 +33,6 @@ with a generated-client API liveness check.
 
 The [mobile foundation](apps/mobile/README.md) provides an offline Expo Router
 shell and credential-free iOS/Android bundle exports.
+
+The [MCP foundation](apps/mcp/README.md) provides a local stdio protocol shell
+with an empty tool list; business tools remain deferred.

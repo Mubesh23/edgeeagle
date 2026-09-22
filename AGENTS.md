@@ -16,6 +16,8 @@ Floci. `validate` starts these local services and leaves them running; named dat
 volumes survive `local-down`. `scripts/migrate` manages the local Alembic history.
 The synthetic provider mock now runs with local-up and is covered by unit and
 HTTP integration tests; real provider adapters/contract tests are not implemented.
+The React/Vite web shell uses the generated API client for liveness; see
+[`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The table below describes the target
 command set; unimplemented commands are not yet available. See
 [`docs/development/workspace-tooling.md`](docs/development/workspace-tooling.md)
@@ -93,6 +95,8 @@ The final handoff for an implementation session must report the commits created,
   artifacts without modifying files. See `contracts/README.md`.
 - `libs/typescript/api-client/dist/`: ignored TypeScript build output from the
   client sources; regenerate with `scripts/build`.
+- `apps/web/dist/`: ignored static output from apps/web source and Vite config;
+  regenerate with `scripts/build`.
 
 Generated paths must be documented with their source and regeneration command. Do not hand-edit generated OpenAPI clients or generated event/schema artifacts.
 

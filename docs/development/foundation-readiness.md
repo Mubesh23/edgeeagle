@@ -293,3 +293,32 @@ provider calls, credentials, production deployment, or licensing assumptions wer
 required. Live provider contract tests, released-contract compatibility checks,
 security scans, CDK synth, client applications, and CI remain unimplemented.
 The next planned increment is the React/Vite web shell using the generated client.
+
+## Web foundation increment
+
+Added apps/web with React, TypeScript, Vite, TanStack Query, and the generated
+API client. A neutral research shell displays loading, process liveness, and
+failure/retry states. It contains no market fixtures, pricing logic, authentication,
+or trading capabilities. Router/Table packages remain deferred until used.
+This follows the existing TDD; no new architectural decision or ADR is needed.
+
+Development uses a loopback-only Vite proxy from /api to the local FastAPI
+process. Static hosting must supply that routing separately; no production
+deployment or backend CORS change was made. Fetching consumes cancellation,
+has a five-second timeout, and requires explicit user retries.
+
+Validation passed: frozen bootstrap after lock generation, web ESLint/strict
+TypeScript, six injected-transport component tests, and full scripts/validate.
+That run also passed 16 Python unit tests, the generated-contract regression,
+9 local integration tests, generated drift, formatting, lock freshness, and
+API/web builds. Existing client checks used valid Turbo cache results.
+A real Vite server served HTML and proxied /api/health to FastAPI, returning
+200 with status ok. Both temporary development servers were then stopped;
+PostgreSQL, Floci, and provider mocks remain running.
+
+No real-browser rendering/E2E or fresh-checkout validation was performed in this
+increment. No provider calls or AWS credentials were used. npm reported ESLint 9
+and transitive whatwg-encoding deprecations; pnpm blocked esbuild's install script,
+but its optional platform binary successfully ran the local build and tests.
+Existing Python deprecation warnings remain. CI/security scans and mobile/MCP/CDK
+shells remain pending. Next recommended increment: the Expo mobile foundation.

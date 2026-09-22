@@ -27,3 +27,6 @@ See [local development](docs/development/local-development-testing.md).
 
 The [synthetic provider mock](tests/mock_providers/README.md) is also started and
 tested by those commands, without API keys or provider traffic.
+
+The [web foundation](apps/web/README.md) now provides a local React/Vite shell
+with a generated-client API liveness check.

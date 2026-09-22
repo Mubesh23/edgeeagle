@@ -59,7 +59,10 @@ run with integration tests. Neither bootstrap nor API startup migrates a databas
 Provider fixture routing tests now run with unit tests, and real loopback HTTP
 mock tests run with integration tests. local-up builds the small fixture image
 from a restricted Docker context; no Python package installation is needed inside it.
-There are no client applications, released-contract compatibility checks,
+The React/Vite web shell now consumes the generated client for API liveness.
+Root checks include web ESLint, strict TypeScript, injected-transport component
+tests, and the static Vite build. See [web commands](../../apps/web/README.md).
+There are no mobile/MCP applications, released-contract compatibility checks,
 security scans, or CDK synth yet. Those are missing checks, not passes. Add root
 wrappers together with their real implementations. Phase 1 exit requires the
 full roadmap gate, not merely this initial scripts/validate result.

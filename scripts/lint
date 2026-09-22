@@ -12,3 +12,4 @@ for script in scripts/*.mjs scripts/tests/*.mjs libs/typescript/api-client/tests
   node --check "$script"
 done
 uv run --locked --offline --all-packages ruff check .
+PATH="$(pwd)/node_modules/.bin:$PATH" TURBO_TELEMETRY_DISABLED=1 node_modules/.bin/turbo run lint

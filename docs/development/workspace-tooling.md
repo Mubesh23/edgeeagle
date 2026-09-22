@@ -56,7 +56,10 @@ PostgreSQL and Floci smoke tests now run at the end of validation. See
 `scripts/migrate` applies the local Alembic baseline (no domain tables yet).
 Migration offline-SQL tests run with unit tests and isolated-database round trips
 run with integration tests. Neither bootstrap nor API startup migrates a database.
-There are no client applications, released-contract compatibility checks, provider-mock tests,
+Provider fixture routing tests now run with unit tests, and real loopback HTTP
+mock tests run with integration tests. local-up builds the small fixture image
+from a restricted Docker context; no Python package installation is needed inside it.
+There are no client applications, released-contract compatibility checks,
 security scans, or CDK synth yet. Those are missing checks, not passes. Add root
 wrappers together with their real implementations. Phase 1 exit requires the
 full roadmap gate, not merely this initial scripts/validate result.

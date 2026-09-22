@@ -1,0 +1,8 @@
+**
+!mock_providers/
+!mock_providers/*.py
+!mock_providers/Dockerfile
+!fixtures/
+!fixtures/providers/
+!fixtures/providers/the_odds_api/
+!fixtures/providers/the_odds_api/*.json

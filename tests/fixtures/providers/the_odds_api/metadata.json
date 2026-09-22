@@ -1,0 +1,20 @@
+{
+  "fixture_id": "the-odds-api-soccer-h2h-v1",
+  "fixture_version": 1,
+  "data_source": "THE_ODDS_API",
+  "api_version": "v4",
+  "endpoint": "/v4/sports/soccer_epl/odds",
+  "parameters": {
+    "regions": "us",
+    "markets": "h2h",
+    "oddsFormat": "decimal",
+    "dateFormat": "iso"
+  },
+  "payload": "odds-success.json",
+  "origin": "synthetic",
+  "created_at": "2026-09-22T00:00:00Z",
+  "captured_at": null,
+  "documentation_reference": "https://the-odds-api.com/liveapi/guides/v4/",
+  "documentation_reviewed_at": "2026-09-22",
+  "notes": "Authored test data; not downloaded or observed market prices. Bookmaker identity is distinct from the data source. No live-contract or redistribution-rights claim."
+}

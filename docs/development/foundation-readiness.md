@@ -265,3 +265,31 @@ released-contract compatibility, security scanning, and CI. No provider credenti
 paid API calls, production deployment, or new ADR decision was required. The
 next increment is the provider fixture/mock harness. Existing two upstream Python
 deprecation warnings remain unsuppressed.
+
+## Provider fixture/mock increment
+
+Added a deliberately limited synthetic The Odds API-shaped soccer fixture with
+explicit provenance and separate data-source/bookmaker identity. The stdlib-only
+mock serves success, empty, rate-limit, server-error, and malformed responses;
+scenarios are per-request and never call upstream providers. This is a testing
+harness, not a provider adapter or evidence of live contract compatibility.
+
+Compose now builds the mock from a restricted test-only context and runs it as
+a non-root user with a read-only filesystem, published on loopback port 9080.
+local-up rebuilds the image to pick up fixture edits. Root unit tests include
+network-disabled routing tests; integration tests exercise real loopback HTTP.
+No application contract, domain model, dependencies, or ADR decisions changed.
+
+Validation passed: 13 targeted mock unit tests, 9 local integration tests, and
+full scripts/validate (16 Python unit tests, 1 generation regression test,
+generated-artifact freshness, formatting, Ruff, strict mypy over 14 files,
+lock freshness, and builds). Unchanged TypeScript typecheck, two client tests,
+and client build reused valid Turbo cache results. An initial pytest import-path
+failure was corrected by explicitly including the repository root in pythonpath.
+The two existing upstream Python deprecation warnings remain unsuppressed.
+
+PostgreSQL, Floci, and the provider mock are healthy and left running. No paid
+provider calls, credentials, production deployment, or licensing assumptions were
+required. Live provider contract tests, released-contract compatibility checks,
+security scans, CDK synth, client applications, and CI remain unimplemented.
+The next planned increment is the React/Vite web shell using the generated client.

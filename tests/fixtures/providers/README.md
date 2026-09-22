@@ -1,0 +1,20 @@
+# Provider fixtures
+
+Initial fixtures are authored synthetic test data, not captured provider responses.
+The first set uses a limited subset of The Odds API v4 soccer h2h odds shape,
+referenced from [official documentation](https://the-odds-api.com/liveapi/guides/v4/).
+Teams, event IDs, times, and prices are invented; a bookmaker key is retained to
+exercise the distinction between venue identity and data source identity.
+
+Each provider directory includes payloads and metadata with fixture ID/version,
+provider, endpoint/API version, supported parameters, provenance, creation date,
+and documentation reference. Synthetic data uses `captured_at: null`. Future
+captured fixtures must record the actual capture date, be sanitized, and have
+their retention/redistribution permission reviewed before they are committed.
+This increment makes no claims about provider data licensing or live compatibility.
+
+These are test inputs, not historical research datasets: the displayed quote
+timestamps must not be treated as real observed/available-at evidence. No canonical
+normalizer, provider adapter, or live provider contract test is implemented yet.
+
+See [mock server usage](../../mock_providers/README.md).

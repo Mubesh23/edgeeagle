@@ -1,0 +1,28 @@
+[
+  {
+    "id": "synthetic-soccer-event-001",
+    "sport_key": "soccer_epl",
+    "sport_title": "EPL",
+    "commence_time": "2026-10-01T18:00:00Z",
+    "home_team": "Synthetic Home FC",
+    "away_team": "Synthetic Away FC",
+    "bookmakers": [
+      {
+        "key": "bovada",
+        "title": "Bovada",
+        "last_update": "2026-09-22T12:00:00Z",
+        "markets": [
+          {
+            "key": "h2h",
+            "last_update": "2026-09-22T12:00:00Z",
+            "outcomes": [
+              { "name": "Synthetic Home FC", "price": 2.1 },
+              { "name": "Synthetic Away FC", "price": 3.4 },
+              { "name": "Draw", "price": 3.2 }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

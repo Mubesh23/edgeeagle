@@ -24,3 +24,6 @@ with `scripts/generate-contracts` and verified by `scripts/check-generated`.
 Full validation now needs Docker with Compose v2.15+ and starts local PostgreSQL
 and Floci. `scripts/local-down` stops the stack while preserving its data volumes.
 See [local development](docs/development/local-development-testing.md).
+
+The [synthetic provider mock](tests/mock_providers/README.md) is also started and
+tested by those commands, without API keys or provider traffic.

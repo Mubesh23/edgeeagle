@@ -32,11 +32,15 @@ src = ["apps/api/src"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["tests"]
+
 [tool.mypy]
 python_version = "3.11"
 strict = true
-files = ["apps/api/src", "apps/api/tests", "apps/api/migrations", "tests/integration"]
+files = ["apps/api/src", "apps/api/tests", "apps/api/migrations", "tests"]
 
 [tool.pytest.ini_options]
-testpaths = ["apps/api/tests"]
+pythonpath = ["."]
+testpaths = ["apps/api/tests", "tests/unit"]
 addopts = "-q --strict-markers --disable-socket --allow-unix-socket"

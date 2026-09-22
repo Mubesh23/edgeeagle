@@ -14,7 +14,8 @@ Implementation status: workspace/API increments implement `bootstrap`,
 `local-up`, `local-down`, and `test-integration` now manage/test PostgreSQL and
 Floci. `validate` starts these local services and leaves them running; named data
 volumes survive `local-down`. `scripts/migrate` manages the local Alembic history.
-Provider mocks are not yet included.
+The synthetic provider mock now runs with local-up and is covered by unit and
+HTTP integration tests; real provider adapters/contract tests are not implemented.
 The table below describes the target
 command set; unimplemented commands are not yet available. See
 [`docs/development/workspace-tooling.md`](docs/development/workspace-tooling.md)

@@ -10,7 +10,8 @@ A normal developer or coding agent should be able to bootstrap, run, and validat
 ## Local stack
 
 Implemented foundation: `compose.yaml` pins PostgreSQL 17.11-alpine3.23 and
-Floci 2.1.0. Docker with Compose v2.15+ must be running. `scripts/local-up`
+Floci 2.1.0, plus a stdlib-only synthetic provider mock on Python 3.11.16.
+Docker with Compose v2.15+ must be running. `scripts/local-up`
 starts project `edgeeagle-local` and waits for health checks. Initial image
 downloads require internet access, but no provider or AWS credentials.
 
@@ -36,9 +37,17 @@ S3, and disabled proxies. Profile/config discovery is disabled in the wrapper.
 Python socket connections are restricted to 127.0.0.1 during integration tests.
 
 `scripts/validate` includes these tests and leaves healthy containers running for
-development. Unit tests remain separately network-blocked. Provider mocks,
-queue/DLQ consumers arrive in subsequent increments; the diagram
+development. Unit tests remain separately network-blocked. Queue/DLQ consumers
+arrive in subsequent increments; the diagram
 below describes the target stack, not additional implemented services.
+
+The provider mock runs on host loopback port 9080 (override with exported
+`EDGEEAGLE_MOCK_PROVIDER_PORT`). It serves synthetic soccer odds plus deterministic
+empty, rate-limit, server-error, and malformed responses, with no upstream calls.
+`local-up` rebuilds its image so fixture edits cannot leave a stale container.
+See [mock usage](../../tests/mock_providers/README.md) and
+[fixture provenance](../../tests/fixtures/providers/README.md). No live provider
+compatibility is claimed by these tests.
 
 The Alembic framework is implemented under `apps/api/migrations`. After starting
 services, run `scripts/migrate` to establish its empty baseline and

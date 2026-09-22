@@ -78,6 +78,10 @@ security scans yet. Those are missing checks, not passes. Add root
 wrappers together with their real implementations. Phase 1 exit requires the
 full roadmap gate, not merely this initial scripts/validate result.
 
+The [foundation CI workflow](ci.md) invokes bootstrap and validation on a fresh
+GitHub-hosted Linux runner without provider/AWS credentials. Its YAML policy test
+runs with unit tests. A locally passing command is not a hosted CI run.
+
 ## Dependency and generated-file policy
 
 TypeScript packages use `workspace:*` for internal dependencies. Python members

@@ -13,4 +13,4 @@ scripts/test-integration
 echo 'Workspace, API, and client validation passed (generated drift, format, lint, typecheck, unit tests, lock, builds).'
 echo 'Local PostgreSQL, Floci, and provider-mock integration passed.'
 echo 'Credential-free CDK synthesis passed.'
-echo 'Phase 1 remains incomplete: no released-contract compatibility, security scan, or CI yet.'
+echo 'Remaining foundation gates: released-contract compatibility, security scan, and fresh-checkout evidence.'

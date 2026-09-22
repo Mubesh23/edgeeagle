@@ -24,6 +24,8 @@ The local stdio MCP shell supports protocol discovery with no business tools;
 see [MCP commands](apps/mcp/README.md).
 The resource-free CDK shell is included in root checks; `scripts/synth` runs
 without AWS credentials or Docker. See [CDK commands](infra/cdk/README.md).
+The [foundation CI workflow](docs/development/ci.md) runs bootstrap/validate on
+GitHub-hosted Linux with no provider or AWS credentials; no deployment is defined.
 The table below describes the target
 command set; unimplemented commands are not yet available. See
 [`docs/development/workspace-tooling.md`](docs/development/workspace-tooling.md)

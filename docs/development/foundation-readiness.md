@@ -423,3 +423,19 @@ released-contract compatibility check was performed. The latter three remain
 foundation work, not implied passes. Existing Python deprecation warnings remain.
 Next recommended increment: baseline CI and the remaining validation gates,
 followed by a fresh-checkout Phase 1 exit audit.
+
+## Baseline CI increment
+
+Added a GitHub Actions workflow with SHA-pinned checkout/Node/uv actions,
+read-only contents permission, no persisted checkout token or secrets, an
+ephemeral Ubuntu runner, timeout/concurrency controls, and always-run local
+service cleanup without volume deletion. It invokes the existing root commands;
+no deployment, branch-protection mutation, or remote push was performed.
+
+Validation passed: frozen bootstrap, workflow YAML/policy unit test, formatting,
+and full scripts/validate (16 Python tests, 2 script tests, all package tests and
+builds, CDK synth, and 9 integration tests). The initial sandboxed validation
+could not access uv's cache; the approved rerun passed. No hosted Actions run or
+fresh-checkout audit has occurred yet. Security and compatibility gates remain
+the next increments; an exploratory npm audit reported four moderate findings
+(uuid, decode-uri-component, and Vitest/mocker), which are not suppressed.

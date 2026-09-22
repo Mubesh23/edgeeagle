@@ -185,3 +185,36 @@ validation record belong to `feat(api): Add FastAPI application skeleton`.
 Next increment: persisted OpenAPI export, generated TypeScript API client, and
 deterministic generated-drift checks. Remaining Phase 1 gates listed above still
 apply, except the API shell and its Python quality/test/build checks are now done.
+
+## OpenAPI and typed-client increment
+
+The next coherent increment implements local FastAPI export to
+`contracts/openapi/edgeeagle.json`, generated types under
+`libs/typescript/api-client/src/generated/schema.ts`, and a maintained
+openapi-fetch entry point in `@edgeeagle/api-client`. No new application routes,
+domain behavior, or ADR decisions are introduced. Generation uses pinned
+openapi-typescript and Prettier and rejects external references.
+
+`scripts/generate-contracts` writes both artifacts. `scripts/check-generated`
+recomputes them in memory and fails without repairing missing or stale files.
+Root validation now includes drift checks and actual Turbo client tasks.
+Bootstrap creates a local Corepack pnpm shim; root scripts expose its absolute
+path to Turbo. Client types explicitly exclude ambient packages from ancestor
+directories. These resolve issues discovered by exercising the first TS package.
+
+Validation: bootstrap and full scripts/validate passed; strict mypy checked four
+Python files, TypeScript checked both positive and negative contract examples,
+two API tests passed, one generation regression test passed (repeatability,
+missing output, independent JSON/TS drift, non-mutating comparison), and two
+injected-fetch client tests passed. API sdist/wheel and client ESM/declarations
+built. Existing two upstream Python deprecation warnings remain unsuppressed.
+
+Released-contract compatibility, container integration, CDK synth, security scans,
+CI, and web/mobile/MCP apps remain pending. No provider or production calls were
+required. Next planned increment is local PostgreSQL/Floci and migrations.
+
+Clean-snapshot check also passed: staged files copied to a new temporary
+directory with no node_modules, .venv, or Turbo cache; scripts/bootstrap and
+scripts/validate succeeded on Node 20.20.1 using existing download caches.
+All client tasks executed before build-output reuse at the final build step.
+This was local validation, not a CI or deployed-environment run.

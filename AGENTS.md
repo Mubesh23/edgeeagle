@@ -10,6 +10,7 @@ Read `docs/README.md`, `docs/product/PRD.md`, and `docs/architecture/TDD.md` bef
 
 Implementation status: workspace/API increments implement `bootstrap`,
 `format-check`, `lint`, `typecheck`, `test-unit`, `build`, and `validate`.
+`generate-contracts` and `check-generated` now export and verify local API artifacts.
 The table below describes the target
 command set; unimplemented commands are not yet available. See
 [`docs/development/workspace-tooling.md`](docs/development/workspace-tooling.md)
@@ -80,6 +81,13 @@ The final handoff for an implementation session must report the commits created,
 - `pnpm-lock.yaml`: source is root/member package manifests and
   `pnpm-workspace.yaml`; regenerate with `corepack pnpm install --lockfile-only`.
 - `uv.lock`: source is root/member `pyproject.toml`; regenerate with `uv lock`.
+- `contracts/openapi/edgeeagle.json` and
+  `libs/typescript/api-client/src/generated/schema.ts`: source is FastAPI routes
+  and response models in `apps/api/src/edgeeagle_api`; regenerate with
+  `scripts/generate-contracts`. `scripts/check-generated` fails on missing/stale
+  artifacts without modifying files. See `contracts/README.md`.
+- `libs/typescript/api-client/dist/`: ignored TypeScript build output from the
+  client sources; regenerate with `scripts/build`.
 
 Generated paths must be documented with their source and regeneration command. Do not hand-edit generated OpenAPI clients or generated event/schema artifacts.
 

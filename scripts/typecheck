@@ -2,3 +2,4 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 uv run --locked --offline --all-packages mypy
+PATH="$(pwd)/node_modules/.bin:$PATH" TURBO_TELEMETRY_DISABLED=1 node_modules/.bin/turbo run typecheck

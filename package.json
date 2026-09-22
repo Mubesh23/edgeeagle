@@ -13,7 +13,9 @@
     "lint": "node --check scripts/check-workspace.mjs && node scripts/check-workspace.mjs"
   },
   "devDependencies": {
+    "openapi-typescript": "7.13.0",
     "prettier": "3.9.8",
+    "typescript": "5.9.3",
     "turbo": "2.11.3"
   }
 }

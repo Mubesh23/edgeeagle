@@ -3,8 +3,12 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 corepack pnpm run lint
 for script in scripts/*; do
+  [[ -f "$script" ]] || continue
   if [[ "$(head -n 1 "$script")" == '#!/usr/bin/env bash' ]]; then
     bash -n "$script"
   fi
+done
+for script in scripts/*.mjs scripts/tests/*.mjs libs/typescript/api-client/tests/*.mjs; do
+  node --check "$script"
 done
 uv run --locked --offline --all-packages ruff check .

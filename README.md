@@ -18,3 +18,5 @@ For implemented commands and prerequisites, see
 `scripts/bootstrap`, then `scripts/validate`.
 
 The first application is the [FastAPI health-only shell](apps/api/README.md).
+Its [OpenAPI snapshot and typed client](contracts/README.md) are generated locally
+with `scripts/generate-contracts` and verified by `scripts/check-generated`.

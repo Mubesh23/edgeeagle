@@ -5,4 +5,5 @@ command -v node >/dev/null
 command -v corepack >/dev/null
 command -v uv >/dev/null
 corepack pnpm install --frozen-lockfile
+corepack enable --install-directory node_modules/.bin pnpm
 uv sync --locked --all-packages

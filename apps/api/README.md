@@ -10,8 +10,11 @@ uv run --locked --package edgeeagle-api uvicorn edgeeagle_api.main:app --host 12
 It does not assert database, queue, model, or provider readiness. The application
 starts without cloud/provider credentials or database configuration.
 
-FastAPI exposes `/openapi.json` from the typed route definition. Persisted OpenAPI,
-TypeScript client generation, and compatibility/drift checks are the next increment.
+FastAPI exposes `/openapi.json` from the typed route definition. Root
+`scripts/generate-contracts` exports its snapshot and TypeScript types;
+`scripts/check-generated` checks drift without changing files. See
+[contracts](../../contracts/README.md). Released-contract compatibility checks
+remain pending.
 There are no authoritative business records, authentication flows, provider
 adapters, or execution capabilities in this shell. Bind locally for development;
 production configuration and authentication require their own review.

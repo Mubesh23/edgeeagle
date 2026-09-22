@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+scripts/check-generated
 scripts/format-check
 scripts/lint
 scripts/typecheck
 scripts/test-unit
 uv lock --check --offline
-TURBO_TELEMETRY_DISABLED=1 corepack pnpm exec turbo run build lint typecheck test --dry=json >/dev/null
 scripts/build
-echo 'Workspace and API validation passed (format, lint, typecheck, unit tests, lock, Turbo graph, API build).'
-echo 'Phase 1 remains incomplete: no client applications, integration, generated-contract checks, security scan, or CDK synth yet.'
+echo 'Workspace, API, and client validation passed (generated drift, format, lint, typecheck, unit tests, lock, builds).'
+echo 'Phase 1 remains incomplete: no client applications, integration, released-contract compatibility, security scan, or CDK synth yet.'

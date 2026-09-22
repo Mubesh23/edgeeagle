@@ -8,6 +8,12 @@ The API is the authoritative application boundary. MCP orchestrates API/domain c
 
 ## REST/OpenAPI domains
 
+Foundation implementation currently exposes only `GET /health`. Its OpenAPI
+snapshot and TypeScript client types are generated locally; see
+[`contracts/README.md`](../../contracts/README.md). The domains below remain
+planned capabilities. Generated drift is enforced by `scripts/validate`;
+released-contract compatibility comparison remains a future gate.
+
 ### Events/Markets
 
 - `GET /v1/events`

@@ -1,0 +1,13 @@
+# Preserve the supplied architecture baseline without mechanical reformatting.
+AGENTS.md
+CLAUDE.md
+docs/**/*.md
+!docs/development/workspace-tooling.md
+!docs/development/foundation-readiness.md
+pnpm-lock.yaml
+uv.lock
+node_modules/
+.venv/
+.turbo/
+dist/
+build/

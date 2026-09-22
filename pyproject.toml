@@ -1,0 +1,12 @@
+[project]
+name = "edgeeagle-workspace"
+version = "0.0.0"
+description = "EdgeEagle Python workspace; not a deployable application"
+requires-python = ">=3.11,<3.12"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = []

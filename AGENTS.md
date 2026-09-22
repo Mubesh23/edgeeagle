@@ -8,6 +8,12 @@ Read `docs/README.md`, `docs/product/PRD.md`, and `docs/architecture/TDD.md` bef
 
 ## Commands
 
+Implementation status: the workspace-tooling increment implements `bootstrap`,
+`format-check`, `lint`, and `validate`. The table below describes the target
+command set; unimplemented commands are not yet available. See
+[`docs/development/workspace-tooling.md`](docs/development/workspace-tooling.md)
+for current validation coverage and prerequisites.
+
 All standard commands run from repository root.
 
 | Command | Purpose | Credentials | External paid APIs | Deployed env |
@@ -69,6 +75,10 @@ Preserve dependency order between commits where practical. Do not mix unrelated 
 The final handoff for an implementation session must report the commits created, validation performed, current working-tree status, and any uncommitted changes.
 
 ## Generated files
+
+- `pnpm-lock.yaml`: source is root/member package manifests and
+  `pnpm-workspace.yaml`; regenerate with `corepack pnpm install --lockfile-only`.
+- `uv.lock`: source is root/member `pyproject.toml`; regenerate with `uv lock`.
 
 Generated paths must be documented with their source and regeneration command. Do not hand-edit generated OpenAPI clients or generated event/schema artifacts.
 

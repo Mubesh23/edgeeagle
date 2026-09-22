@@ -85,19 +85,19 @@ Tool versions and formatting configuration are reversible implementation choices
 
 ## Phase 1 increments
 
-| Increment / intended commit | Objective and paths | Dependencies | Acceptance and validation |
-| --- | --- | --- | --- |
-| `docs: Record repository baseline and foundation plan` | Preserve supplied docs; add README, ignore rules, this review | None | Review staged diff and local document links |
-| `chore: Initialize polyglot workspace tooling` | pnpm/Turbo/uv configs, lockfiles, scripts, tooling documentation | Baseline | Reproducible bootstrap; format/lint and workspace checks via scripts/validate |
-| `feat(api): Add FastAPI application skeleton` | apps/api, health endpoint, Python quality checks | Workspace | Health endpoint offline tests, typecheck, package build |
-| `feat(contracts): Generate OpenAPI TypeScript client` | contracts/openapi, libs/typescript/api-client, generation scripts | API | Repeatable generation, generated-drift check, client typecheck |
-| `feat(dev): Add PostgreSQL and Floci environment` | Compose config, migration framework, local-up/local-down | API | Container readiness, migration round trip, local integration |
-| `test(providers): Add local fixture and mock harness` | tests/fixtures/providers, mock server, integration tests | Local stack | Synthetic fixture HTTP integration without provider traffic |
-| `feat(web): Initialize terminal application` | apps/web React/Vite shell | Client | Typecheck and production build |
-| `feat(mobile): Initialize Expo application` | apps/mobile Expo shell | Client | Typecheck and Expo export; device validation reported separately |
-| `feat(mcp): Initialize MCP server` | apps/mcp protocol shell | API/client | Protocol handshake smoke test and build; no speculative business tools |
-| `feat(infra): Initialize credential-free CDK skeleton` | infra/cdk, scripts/synth | Workspace | Empty stack synthesizes without credentials or context lookups |
-| `ci: Add foundation validation workflow` | .github/workflows, full scripts/validate | All preceding | Fresh-checkout validation, drift, quality, tests, integration, synth, security scan, build |
+| Increment / intended commit                            | Objective and paths                                               | Dependencies  | Acceptance and validation                                                                  |
+| ------------------------------------------------------ | ----------------------------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------ |
+| `docs: Record repository baseline and foundation plan` | Preserve supplied docs; add README, ignore rules, this review     | None          | Review staged diff and local document links                                                |
+| `chore: Initialize polyglot workspace tooling`         | pnpm/Turbo/uv configs, lockfiles, scripts, tooling documentation  | Baseline      | Reproducible bootstrap; format/lint and workspace checks via scripts/validate              |
+| `feat(api): Add FastAPI application skeleton`          | apps/api, health endpoint, Python quality checks                  | Workspace     | Health endpoint offline tests, typecheck, package build                                    |
+| `feat(contracts): Generate OpenAPI TypeScript client`  | contracts/openapi, libs/typescript/api-client, generation scripts | API           | Repeatable generation, generated-drift check, client typecheck                             |
+| `feat(dev): Add PostgreSQL and Floci environment`      | Compose config, migration framework, local-up/local-down          | API           | Container readiness, migration round trip, local integration                               |
+| `test(providers): Add local fixture and mock harness`  | tests/fixtures/providers, mock server, integration tests          | Local stack   | Synthetic fixture HTTP integration without provider traffic                                |
+| `feat(web): Initialize terminal application`           | apps/web React/Vite shell                                         | Client        | Typecheck and production build                                                             |
+| `feat(mobile): Initialize Expo application`            | apps/mobile Expo shell                                            | Client        | Typecheck and Expo export; device validation reported separately                           |
+| `feat(mcp): Initialize MCP server`                     | apps/mcp protocol shell                                           | API/client    | Protocol handshake smoke test and build; no speculative business tools                     |
+| `feat(infra): Initialize credential-free CDK skeleton` | infra/cdk, scripts/synth                                          | Workspace     | Empty stack synthesizes without credentials or context lookups                             |
+| `ci: Add foundation validation workflow`               | .github/workflows, full scripts/validate                          | All preceding | Fresh-checkout validation, drift, quality, tests, integration, synth, security scan, build |
 
 Introduce canonical root commands as their checks become real. Do not create
 success-returning placeholders for unimplemented tests or services. Until phase
@@ -139,3 +139,21 @@ Baseline validation: 27 Markdown files inspected, all 23 relative Markdown links
 resolved. Git's initial whitespace check flagged the supplied Markdown hard
 line breaks; .gitattributes permits Markdown end-of-line spaces, preserving the
 source documents unchanged. The adjusted staged diff check passed.
+
+Workspace increment implemented: private pnpm 10.34.5 workspace, Turbo 2.11.3
+task graph, Prettier 3.9.8, Python 3.11 virtual uv workspace, generated lockfiles,
+and bootstrap/format-check/lint/validate scripts. No application packages yet.
+
+Validation performed: dependency installation and lock generation; frozen/locked
+scripts/bootstrap; Prettier formatting check; JavaScript and shell syntax checks;
+workspace invariants and 25 relative documentation links; offline uv lock check;
+Turbo task graph dry run. The combined scripts/validate passed. Sandbox runs
+first hit Corepack/uv cache permissions and pnpm's noninteractive cache-directory
+handling; approved runs with normal cache access succeeded. Dependency downloads
+used public registries; no sports provider or AWS calls were made deliberately.
+Turbo telemetry is disabled in the validation wrapper.
+
+Not yet implemented or validated: API/web/mobile/MCP applications, application
+typechecks/unit tests/builds, generated API/client contracts, PostgreSQL migrations,
+Floci/mock integration, CDK synth, security scanning, and baseline CI. The next
+increment is the FastAPI health-only skeleton and Python quality/test/build tools.

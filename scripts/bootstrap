@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+command -v node >/dev/null
+command -v corepack >/dev/null
+command -v uv >/dev/null
+corepack pnpm install --frozen-lockfile
+uv sync --locked --all-packages

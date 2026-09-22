@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+scripts/format-check
+scripts/lint
+uv lock --check --offline
+TURBO_TELEMETRY_DISABLED=1 corepack pnpm exec turbo run build lint typecheck test --dry=json >/dev/null
+echo 'Workspace validation passed (format, tooling, links, shell syntax, Python lock, Turbo graph).'
+echo 'Phase 1 remains incomplete: no application tests, integration, generated contracts, security scan, builds, or CDK synth yet.'

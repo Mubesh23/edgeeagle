@@ -1,0 +1,19 @@
+{
+  "name": "edgeeagle",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=20.19.0",
+    "pnpm": "10.34.5"
+  },
+  "scripts": {
+    "format-check": "prettier --check .",
+    "format": "prettier --write .",
+    "lint": "node --check scripts/check-workspace.mjs && node scripts/check-workspace.mjs"
+  },
+  "devDependencies": {
+    "prettier": "3.9.8",
+    "turbo": "2.11.3"
+  }
+}

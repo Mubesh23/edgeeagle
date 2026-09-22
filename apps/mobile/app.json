@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "EdgeEagle",
+    "slug": "edgeeagle",
+    "version": "0.0.0",
+    "scheme": "edgeeagle",
+    "platforms": ["ios", "android"],
+    "plugins": ["expo-router"],
+    "userInterfaceStyle": "dark"
+  }
+}

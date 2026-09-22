@@ -30,3 +30,6 @@ tested by those commands, without API keys or provider traffic.
 
 The [web foundation](apps/web/README.md) now provides a local React/Vite shell
 with a generated-client API liveness check.
+
+The [mobile foundation](apps/mobile/README.md) provides an offline Expo Router
+shell and credential-free iOS/Android bundle exports.

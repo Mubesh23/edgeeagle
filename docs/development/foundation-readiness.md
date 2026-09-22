@@ -322,3 +322,44 @@ and transitive whatwg-encoding deprecations; pnpm blocked esbuild's install scri
 but its optional platform binary successfully ran the local build and tests.
 Existing Python deprecation warnings remain. CI/security scans and mobile/MCP/CDK
 shells remain pending. Next recommended increment: the Expo mobile foundation.
+
+## Mobile foundation increment
+
+Added an offline Expo Router native-stack shell under apps/mobile, following
+ADR-007 and the TDD. It uses selectable, font-scalable native text and safe-area
+spacing, with no network calls, credentials, product tabs, or business logic.
+The generated client and Query layer await an actual mobile data workflow.
+No new architecture decision or production infrastructure was introduced.
+
+Pinned SDK 56 to match the existing Node 20.20.1 environment, with its React
+19.2.3/React Native 0.85.3/TypeScript 6.0.3 compatibility set. Root Node engines
+now reflect the native runtime tooling requirements. Expo's public dependency
+check passed after resolving initially mismatched auto-installed native peers
+and the TypeScript recommendation. These pins remain local to mobile.
+
+Validation passed: lock generation and frozen bootstrap, mobile ESLint and
+strict TypeScript, one jest-expo native component test, offline iOS and Android
+Metro/Hermes exports, and full scripts/validate. The full run also executed six
+web tests, two client tests, the generation regression, 16 Python unit tests,
+9 local integration tests, generated drift, formatting, and all builds.
+Build outputs were reused at the final build step after running earlier in the
+same validation. Dependency deprecations and the two existing Python warnings
+remain unsuppressed.
+
+Expo Go mode started without credentials; an iOS manifest was served. The smoke
+check found localhost binding on IPv6 while Expo advertised IPv4. The development
+command now uses IPv4-first DNS resolution; the advertised 127.0.0.1 endpoint
+then returned packager-status:running. The temporary Metro server was stopped.
+PostgreSQL, Floci, and the provider mock remain running.
+
+The mobile-design skill's heuristic audit ran and returned FAIL: it mistook the
+test viewport width 390 for a 39px touch target. There are no interactive controls
+in this increment. Its additional theme/typography/safe-area warnings were reviewed;
+the screen uses RN's default font scaling, native safe-area insets, and the PRD's
+dark analytical palette. This is not an accessibility certification or audit pass.
+
+No simulator/device runtime, screen-reader, native binary build, signing, or
+fresh-checkout check was performed. simctl is unavailable on this machine.
+Native bundles do not prove native runtime behavior. EAS, production identifiers,
+auth, push, and provider calls remain absent. Next recommended increment: MCP
+server foundation over the existing authoritative API boundary.

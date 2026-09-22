@@ -7,7 +7,8 @@ planned directory tree. Python members are registered as they land.
 
 ## Prerequisites and bootstrap
 
-Use Node >=20.19 (prefer a supported LTS), Corepack, Python 3.11, and uv >=0.7.3.
+Use a Node version matching the root engine range (prefer a supported LTS),
+Corepack, Python 3.11, and uv >=0.7.3.
 The initial workspace was exercised with Node 20.20.1 and Python 3.11.5; this is
 local compatibility evidence, not a production runtime policy. pnpm is pinned
 in package.json and invoked through Corepack without a global pnpm installation.
@@ -62,7 +63,10 @@ from a restricted Docker context; no Python package installation is needed insid
 The React/Vite web shell now consumes the generated client for API liveness.
 Root checks include web ESLint, strict TypeScript, injected-transport component
 tests, and the static Vite build. See [web commands](../../apps/web/README.md).
-There are no mobile/MCP applications, released-contract compatibility checks,
+The Expo mobile shell adds ESLint, TypeScript, a native component test, and
+offline iOS/Android bundle exports to the same commands. These exports are not
+native binary builds. See [mobile commands](../../apps/mobile/README.md).
+There are no MCP applications, released-contract compatibility checks,
 security scans, or CDK synth yet. Those are missing checks, not passes. Add root
 wrappers together with their real implementations. Phase 1 exit requires the
 full roadmap gate, not merely this initial scripts/validate result.

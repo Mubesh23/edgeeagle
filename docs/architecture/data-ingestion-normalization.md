@@ -1,0 +1,98 @@
+# Data Ingestion & Normalization Design
+
+**Status:** Draft
+
+## Objectives
+
+- Preserve every externally acquired payload before transformation.
+- Normalize multiple providers into canonical sport/market entities.
+- Make replay/reprocessing deterministic.
+- Prevent provider-specific concepts leaking into modeling and product code.
+- Preserve timestamps needed for leakage-safe backtesting.
+
+## Pipeline
+
+```text
+External source
+ -> provider adapter
+ -> raw immutable object
+ -> validation
+ -> provider-native staging record
+ -> entity resolution
+ -> canonical normalization
+ -> current-state store + historical Parquet
+ -> domain event
+```
+
+## Raw storage
+
+Raw responses should be stored in S3 by source, acquisition date, endpoint/resource type, and checksum. Where licensing prohibits retention, record the restriction and retain only allowed derived metadata.
+
+Example key:
+
+`raw/source=the_odds_api/resource=odds/date=2026-09-22/<request-id>.json`
+
+## Provider adapters
+
+Separate interfaces by capability:
+
+- `SportsDataAdapter`
+- `SportsbookOddsAdapter`
+- `PredictionMarketDataAdapter`
+- `ExecutionVenueAdapter` (future)
+- `OfflineDatasetImporter`
+
+Kalshi and Polymarket may implement both market-data and eventual execution capabilities. Football-Data.co.uk is an offline dataset importer rather than a runtime API.
+
+## Entity resolution
+
+Resolve provider IDs to canonical participants/events/competitions using explicit mapping tables. Automated matching may propose mappings; ambiguous mappings require review.
+
+## Market normalization
+
+Provider-specific labels map to canonical `MarketDefinition` + `Selection` structures. Normalizers must be deterministic and versioned.
+
+## Time semantics
+
+Store the best available meaning of:
+
+- `effective_at` — when the underlying fact became true
+- `observed_at` — provider's observation/snapshot time
+- `available_at` — earliest time our simulated strategy could have known it
+- `ingested_at` — when our system stored it
+
+Backtests use `available_at` rather than hindsight timestamps.
+
+## Idempotency
+
+Ingestion writes use source-native IDs plus version/snapshot timestamps or payload hashes as idempotency keys. Replayed messages must not create duplicate canonical effects.
+
+## Provider failures
+
+Each adapter defines timeout/retry/backoff and degradation behavior. Provider outages must not corrupt canonical state. Last-known data must carry freshness timestamps so stale data cannot appear current.
+
+## Reprocessing
+
+Normalization is versioned. A new normalizer version can replay retained raw payloads into a new historical dataset without mutating the prior research snapshot.
+
+## Data quality checks
+
+- Missing/duplicate participants
+- Impossible event times
+- Odds <= 1.0 in decimal representation
+- Invalid line values
+- Stale quotes
+- Unknown market mapping
+- Event/provider mismatch
+- Impossible score/state transitions
+- Unexpected schema additions/removals
+
+Questionable records are quarantined rather than silently coerced.
+
+## Cost control
+
+- Cache immutable/reference resources.
+- Fetch once and reuse historical snapshots.
+- Never let a backtest call a paid provider directly.
+- Provider contract tests have explicit call budgets.
+- Persist quota headers/usage where providers expose them.

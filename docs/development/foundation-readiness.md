@@ -157,3 +157,31 @@ Not yet implemented or validated: API/web/mobile/MCP applications, application
 typechecks/unit tests/builds, generated API/client contracts, PostgreSQL migrations,
 Floci/mock integration, CDK synth, security scanning, and baseline CI. The next
 increment is the FastAPI health-only skeleton and Python quality/test/build tools.
+
+API increment implemented: installable apps/api uv member with a typed `/health`
+liveness operation and `/openapi.json`. Root wrappers now include strict mypy,
+Ruff, network-blocked pytest, and offline package builds. There is no database,
+provider, authentication, risk, or execution behavior in this application shell.
+
+API validation: scripts/bootstrap passed after regenerating uv.lock;
+scripts/validate passed formatting, lint, typechecking (3 Python files), 2 API
+tests with IP sockets disabled, lock freshness, Turbo graph parsing, and building
+both sdist and wheel. Initial formatting/import configuration failures were fixed
+before the successful run. Two upstream deprecation warnings remain: Starlette's
+httpx test transport and its AnyIO BlockingPortal alias. They did not fail tests
+and are not suppressed. No production runtime or cloud deployment was attempted.
+
+Clean-snapshot verification: copied the staged repository files into a new
+temporary directory without node_modules or .venv, then ran scripts/bootstrap
+and scripts/validate successfully using existing package-manager caches. The
+temporary location initially selected Node 18 through shell defaults; the checks
+were repeated successfully with Node 20.20.1 explicitly selected. This proves
+fresh local environment creation, not an empty-cache or container/CI run.
+
+Created history so far: `d502954 docs: Record repository baseline and foundation plan`
+and `26e43f5 chore: Initialize polyglot workspace tooling`. The API changes and this
+validation record belong to `feat(api): Add FastAPI application skeleton`.
+
+Next increment: persisted OpenAPI export, generated TypeScript API client, and
+deterministic generated-drift checks. Remaining Phase 1 gates listed above still
+apply, except the API shell and its Python quality/test/build checks are now done.

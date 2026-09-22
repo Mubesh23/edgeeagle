@@ -1,8 +1,9 @@
 # Workspace tooling
 
 Phase 1 starts with a private pnpm workspace, Turborepo task graph, and a virtual
-uv workspace. No application or future domain package is created merely to fill
-the planned directory tree. Python members will be registered as they land.
+uv workspace. apps/api is the first Python member; it supplies a health-only
+FastAPI application. No future domain package is created merely to fill the
+planned directory tree. Python members are registered as they land.
 
 ## Prerequisites and bootstrap
 
@@ -18,19 +19,29 @@ installed dependencies. Neither bootstrap nor validation starts containers.
 
 ## Implemented commands
 
-| Command                | Current coverage                                                            |
-| ---------------------- | --------------------------------------------------------------------------- |
-| `scripts/bootstrap`    | Frozen pnpm install and locked uv workspace sync                            |
-| `scripts/format-check` | Prettier checks tooling and new documentation                               |
-| `scripts/lint`         | JavaScript syntax, workspace invariants, local Markdown links, shell syntax |
-| `scripts/validate`     | All current checks, offline uv lock freshness, Turbo graph parsing          |
+| Command                | Current coverage                                                    |
+| ---------------------- | ------------------------------------------------------------------- |
+| `scripts/bootstrap`    | Frozen pnpm install and locked uv workspace sync                    |
+| `scripts/format-check` | Prettier and Ruff formatting                                        |
+| `scripts/lint`         | JavaScript/shell syntax, workspace invariants, Markdown links, Ruff |
+| `scripts/typecheck`    | Strict mypy for API source and tests                                |
+| `scripts/test-unit`    | In-process API tests with IP sockets blocked                        |
+| `scripts/build`        | Offline API sdist and wheel using locked Hatchling                  |
+| `scripts/validate`     | All current checks, offline uv lock freshness, Turbo graph parsing  |
 
 Use `corepack pnpm run format` to format maintained files. The supplied design
 documents are deliberately excluded from mechanical formatting to preserve the
 baseline. Markdown hard breaks are permitted by .gitattributes.
 
-Validation currently covers workspace tooling only. There are no application
-tests, application typechecks/builds, generated contracts, integration checks,
+Use `uv run --locked --offline --all-packages ruff format apps/api` for Python
+formatting. The build wrapper expects `scripts/bootstrap` to have installed the
+locked build backend first.
+
+Validation now also covers API Ruff format/lint, strict mypy, network-blocked
+pytest, and an offline sdist/wheel build. Use `scripts/typecheck`,
+`scripts/test-unit`, and `scripts/build` to run those gates separately.
+`scripts/format-check` and `scripts/lint` include Python checks as well.
+There are no client applications, generated-contract checks, integration checks,
 security scans, or CDK synth yet. Those are missing checks, not passes. Add root
 wrappers together with their real implementations. Phase 1 exit requires the
 full roadmap gate, not merely this initial scripts/validate result.

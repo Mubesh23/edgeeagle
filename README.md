@@ -16,3 +16,5 @@ Commands described in the architecture are targets until explicitly implemented.
 For implemented commands and prerequisites, see
 [workspace tooling](docs/development/workspace-tooling.md). Start with
 `scripts/bootstrap`, then `scripts/validate`.
+
+The first application is the [FastAPI health-only shell](apps/api/README.md).

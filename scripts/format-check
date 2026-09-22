@@ -2,3 +2,4 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 corepack pnpm run format-check
+uv run --locked --offline --all-packages ruff format --check .

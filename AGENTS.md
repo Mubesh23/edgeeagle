@@ -8,8 +8,9 @@ Read `docs/README.md`, `docs/product/PRD.md`, and `docs/architecture/TDD.md` bef
 
 ## Commands
 
-Implementation status: the workspace-tooling increment implements `bootstrap`,
-`format-check`, `lint`, and `validate`. The table below describes the target
+Implementation status: workspace/API increments implement `bootstrap`,
+`format-check`, `lint`, `typecheck`, `test-unit`, `build`, and `validate`.
+The table below describes the target
 command set; unimplemented commands are not yet available. See
 [`docs/development/workspace-tooling.md`](docs/development/workspace-tooling.md)
 for current validation coverage and prerequisites.

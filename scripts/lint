@@ -7,3 +7,4 @@ for script in scripts/*; do
     bash -n "$script"
   fi
 done
+uv run --locked --offline --all-packages ruff check .

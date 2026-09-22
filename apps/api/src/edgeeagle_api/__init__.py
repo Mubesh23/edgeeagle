@@ -1,0 +1,1 @@
+"""EdgeEagle HTTP application adapter."""

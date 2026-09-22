@@ -5,8 +5,35 @@ description = "EdgeEagle Python workspace; not a deployable application"
 requires-python = ">=3.11,<3.12"
 dependencies = []
 
+[dependency-groups]
+dev = [
+    "hatchling>=1.27,<2",
+    "httpx>=0.28,<0.29",
+    "mypy>=1.15,<2",
+    "pytest>=8,<10",
+    "pytest-socket>=0.7,<1",
+    "ruff>=0.11,<1",
+]
+
 [tool.uv]
 package = false
 
 [tool.uv.workspace]
-members = []
+members = ["apps/api"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["apps/api/src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["apps/api/src", "apps/api/tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["apps/api/tests"]
+addopts = "-q --strict-markers --disable-socket --allow-unix-socket"

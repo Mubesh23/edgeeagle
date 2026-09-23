@@ -1,6 +1,6 @@
 # Replay Dataset Snapshot Manifest — v1
 
-**Status:** Internal contract defined; implementation pending  
+**Status:** Values and strict codec implemented; artifact verification/storage pending  
 **Decision:** [ADR-026](../adr/ADR-026-replay-dataset-manifest.md)
 
 ## Purpose and scope
@@ -180,5 +180,9 @@ none are implemented or authorized by replay success.
 Run normal credential-free root validation for each implementation handoff.
 Unit tests use no network; storage integration uses disposable Floci resources.
 No provider calls, paid data, new production resources, or licensing changes are
-required. Manifest value objects, codecs, golden vectors, storage, and verifiers
-remain pending; this document is not evidence that those tests already pass.
+required. Manifest values, strict codec, and offline golden vectors now exist in
+`edgeeagle_ingestion.manifests` and `tests/unit/test_dataset_manifest.py`.
+Run `scripts/test-unit tests/unit/test_dataset_manifest.py tests/unit/test_mapped_receipts.py`
+for metadata/compatibility checks. The persistence receipt adapter supplies the
+inward-owned codec port, with no database access. Storage and complete-snapshot
+verification remain pending; successful decoding never claims those checks passed.

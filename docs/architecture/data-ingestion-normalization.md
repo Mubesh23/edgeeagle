@@ -102,8 +102,9 @@ Normalization is versioned. A new normalizer version can replay retained raw pay
 
 The first bounded [dataset manifest contract](dataset-snapshot-manifest.md) pins
 complete raw captures and embedded mapped receipts under a content-derived version;
-see [ADR-026](../adr/ADR-026-replay-dataset-manifest.md). It is defined but not yet
-implemented. Its `REPLAY_ONLY` restriction preserves unknown availability and
+see [ADR-026](../adr/ADR-026-replay-dataset-manifest.md). Frozen values and the
+strict, bounded metadata codec are implemented; snapshot verification/storage
+remain pending. Its `REPLAY_ONLY` restriction preserves unknown availability and
 prohibits historical decision-input use; it does not implement historical Parquet,
 feature/model datasets, or a snapshot catalog.
 

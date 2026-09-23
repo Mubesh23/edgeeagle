@@ -1,6 +1,6 @@
 # ADR-026 — Versioned replay dataset manifests
 
-**Status:** Accepted for the internal contract; implementation pending  
+**Status:** Accepted; values/codec implemented, snapshot verification/storage pending  
 **Date:** 2026-09-23
 
 ## Context
@@ -87,5 +87,22 @@ content and pins. Export/retention rights remain a caller responsibility.
    availability evidence. Do not claim either from an in-memory value object.
 
 Each increment is independently validated and committed. The specification lists
-the acceptance cases for subsequent implementation. This documentation increment
-adds no executable manifest validation or snapshot-building command.
+the acceptance cases for subsequent implementation.
+
+## Implementation status
+
+Ingestion's `manifests` module now implements frozen `ManifestCapture` and
+`ReplayDatasetManifest` values plus `encode_manifest`/`decode_manifest`. Its
+`EventReceiptCodec` protocol is implemented by the pure persistence adapter
+`receipts.EventReceiptCodec`, delegating to the unchanged receipt codec. No codec
+ownership was moved. Encoding checks receipt decoding and derives the pins;
+decoding reconstructs validated values and requires exact canonical re-encoding,
+recomputing all pins rather than accepting or repairing supplied hashes.
+
+Offline tests pin independently assembled golden bytes/hashes, ordering/offset
+equivalence, output drift, immutable values, duplicate identities, malformed and
+noncanonical inputs, and the inclusive 1 MiB limit. The size check precedes JSON
+parsing on reads. Existing format-1/2 compatibility tests remain unchanged.
+This is structural metadata validation only: empty receipt groups are not verified
+empty captures, and no raw reads, acceptance checks, snapshot verifier, persistence,
+historical eligibility service, or new root command are implemented.

@@ -114,6 +114,30 @@ Authored event ID, status, context version, and reference values are replay inpu
 not independently verified facts. Unknown availability stays unknown. Format-1
 receipts have no retained mapping context and are deliberately unsupported here.
 
+## Replay dataset metadata
+
+`manifests.ManifestCapture(raw=..., candidates=(...))` and
+`ReplayDatasetManifest(captures=(...))` are immutable replay-only values.
+`encode_manifest(manifest, codec)` returns canonical envelope bytes containing the
+content-derived `dataset_version`, full receipt pins, and capture metadata.
+`decode_manifest(body, codec)` verifies strict structure, supported versions,
+duplicates, hashes, and byte-for-byte canonical encoding. Both codec paths enforce
+the inclusive 1 MiB envelope limit; reads reject oversize input before JSON parsing.
+Builders canonicalize capture/pin order, while wire readers reject noncanonical
+ordering rather than repair it. The pure `EventReceiptCodec` port keeps receipt
+serialization in persistence; `edgeeagle_persistence.receipts.EventReceiptCodec`
+implements it using the existing format-1/2 codec without database access.
+
+The fixed `REPLAY_ONLY` usage is not historical eligibility. Structural validation
+does not verify raw storage, complete capture coverage, or actual acceptance;
+even an empty receipt group still needs later raw verification. Complete-snapshot
+verification and manifest persistence remain separate increments. See
+[ADR-026](../../../docs/adr/ADR-026-replay-dataset-manifest.md) and run
+`scripts/test-unit tests/unit/test_dataset_manifest.py tests/unit/test_mapped_receipts.py`.
+Golden vectors were independently assembled from the contract and existing receipt
+codec before manifest implementation; they are test expectations, not generated
+artifacts to refresh automatically when serialization changes.
+
 ## Initial event acceptance
 
 Candidates now optionally carry `FixtureMappingEvidence`: resolved canonical

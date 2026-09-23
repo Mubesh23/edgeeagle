@@ -74,9 +74,10 @@ The next snapshot increment is contract-first:
 [ADR-026](../adr/ADR-026-replay-dataset-manifest.md) and its
 [manifest specification](../architecture/dataset-snapshot-manifest.md) define a
 bounded, content-versioned collection of complete captures and mapped receipts.
-Implementation is pending. This replay-only metadata contract does not complete
-historical datasets or permit backtesting; pure values/codec and then read-only
-snapshot verification are the next separately verifiable increments.
+Frozen values, strict serialization, content hashes, and offline golden vectors
+are implemented. This replay-only metadata contract does not complete historical
+datasets or permit backtesting; read-only complete-snapshot verification is the
+next separately verifiable increment. Manifest storage/cataloging remains pending.
 
 ## Phase 3 — V1 Provider Adapters
 

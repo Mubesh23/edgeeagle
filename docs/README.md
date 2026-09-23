@@ -34,7 +34,7 @@ Broker publication design: [ADR-022 — EventBridge adapter](adr/ADR-022-eventbr
 Consumer design: [ADR-023 — verification and local queues](adr/ADR-023-event-acceptance-consumer.md).
 Event reads: [ADR-024 — current-state API](adr/ADR-024-event-read-api.md).
 Mapping-backed fixture context: [ADR-025 — resolution and receipt compatibility](adr/ADR-025-mapping-backed-fixture-context.md).
-Replay dataset manifests: [ADR-026 — internal contract, implementation pending](adr/ADR-026-replay-dataset-manifest.md)
+Replay dataset manifests: [ADR-026 — values/codec implemented, verification pending](adr/ADR-026-replay-dataset-manifest.md)
 and [manifest v1 specification](architecture/dataset-snapshot-manifest.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.

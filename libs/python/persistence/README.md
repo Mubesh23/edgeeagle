@@ -312,6 +312,15 @@ must already be allocated; no provider catalog or ID-generation policy is added.
 Alembic remains the schema authority; adapters do not create tables or enable
 ORM metadata/autogeneration.
 
+## Receipt codec adapter
+
+`receipts.EventReceiptCodec` implements the ingestion-owned manifest codec port
+by delegating to the existing private format-1/2 receipt codec. It requires no
+database, storage client, or credentials. Receipt bytes and acceptance keys are
+unchanged; manifest v1 accepts only supported mapped format-2 candidates. See
+[ADR-026](../../../docs/adr/ADR-026-replay-dataset-manifest.md). Manifest encoding
+does not attest that a caller-supplied candidate was accepted by PostgreSQL.
+
 ## Validation
 
 From repository root:

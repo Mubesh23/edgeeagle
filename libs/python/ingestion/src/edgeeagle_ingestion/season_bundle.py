@@ -33,6 +33,10 @@ ROOT_KIND = "FOOTBALL_DATA_SEASON_INDEX"
 PAGE_KIND = "FOOTBALL_DATA_SEASON_RECEIPTS"
 
 
+class SeasonObjectIntegrityError(ValueError):
+    """Stored bytes or a storage acknowledgement violate the object identity."""
+
+
 class SeasonObjectStore(Protocol):
     """Immutable canonical objects; get validates identity, not complete replay."""
 

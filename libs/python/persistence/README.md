@@ -324,6 +324,15 @@ does not attest that a caller-supplied candidate was accepted by PostgreSQL.
 
 ## Replay manifest storage
 
+Whole-season roots/pages use the separate `season_storage.S3SeasonObjectStore`
+and `snapshots/football-data-seasons/v1/<sha256>.json` namespace. The inward codec
+validates canonical bodies; conditional writes require exact-byte retries, reads
+are bounded and always close their streams. Roots remain 64 KiB, pages 1 MiB.
+This store does not read raw captures or establish complete replay by itself.
+See [ADR-029](../../../docs/adr/ADR-029-football-data-season-replay.md);
+run `scripts/test-unit tests/unit/test_season_storage.py` and
+`scripts/test-integration -k season_storage`. Legacy manifest storage below is unchanged.
+
 `manifest_storage.S3ReplayManifestStore(client, bucket, codec)` implements ingestion's
 `ReplayManifestStore`. Supply the existing `receipts.EventReceiptCodec` and an
 explicitly configured S3 client/bucket; local tests use Floci and dummy credentials.

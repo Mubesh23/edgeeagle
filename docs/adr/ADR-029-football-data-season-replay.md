@@ -1,6 +1,6 @@
 # ADR-029 — Bounded whole-season CSV replay
 
-**Status:** Accepted; normalization and paged replay codecs implemented, storage pending  
+**Status:** Accepted; normalization, codecs and S3 storage implemented, composition pending  
 **Date:** 2026-09-23
 
 ## Context
@@ -158,5 +158,23 @@ All objects require integer `format: 1` (not Boolean), exact `kind`, and
 
 Run `scripts/test-unit tests/unit/test_season_bundle.py` for canonical ordering,
 380/512-row bundles, final-page loss/corruption, invalid types/pins/counts, oversize
-objects and replay without writes. Storage, transactional composition and the
-real-data import remain pending. Codec success is structural evidence only.
+objects and replay without writes. Codec success is structural evidence only.
+
+### Storage adapter
+
+`S3SeasonObjectStore` implements the inward-owned port at
+`snapshots/football-data-seasons/v1/<sha256>.json` for both roots and pages.
+It validates canonical bytes before conditional `IfNoneMatch: "*"` writes.
+A precondition failure succeeds only after an integrity-checked, exact-byte read.
+Reads validate the requested digest before I/O, cap the stream at 1 MiB + 1 byte,
+check declared length and full-body identity, and always close the stream.
+The codec additionally enforces the 64 KiB root limit before root decoding.
+Only `NoSuchKey` means absence. Corruption raises `SeasonObjectIntegrityError`;
+other service/transport failures propagate without application retries.
+
+Run `scripts/test-unit tests/unit/test_season_storage.py` and
+`scripts/test-integration -k season_storage` for stream bounds/cleanup,
+conditional writes, concurrent retries and corruption rejection. Tests use only
+authored receipts and disposable Floci buckets. This is application immutability,
+not Object Lock, backups or production IAM enforcement. No resources are deployed.
+Transactional composition and the real-data import remain pending.

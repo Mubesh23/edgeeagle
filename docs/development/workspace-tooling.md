@@ -28,7 +28,10 @@ completion/retry operations now exist under
 EventBridge publisher now implement claim/commit/send/ack with broker acceptance
 and crash-replay tests in Floci; see
 [ADR-022](../adr/ADR-022-eventbridge-outbox-publisher.md). Consumer routing,
-deduplication, monitoring/DLQ validation, and API wiring remain next.
+transactional deduplication, retries, processing-DLQ redrive, and queue-depth
+monitoring now have local coverage under [ADR-023](../adr/ADR-023-event-acceptance-consumer.md).
+The EventBridge delivery-DLQ probe is an explicit strict expected failure due to
+the pinned emulator's limitation. Worker supervision and API wiring remain later work.
 
 ## Prerequisites and bootstrap
 

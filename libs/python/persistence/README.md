@@ -227,14 +227,30 @@ provider error messages are not copied into the adapter's exception messages.
 
 Bus preflight cannot prevent deletion between describe and put. Stable resource
 lifecycle and downstream routing/consumer monitoring are prerequisites for unattended
-operation. Broker acceptance does not mean consumer delivery; consumer deduplication,
-queues/DLQs, monitoring, and worker composition remain next increments.
+operation. Broker acceptance does not mean consumer delivery. Worker supervision
+and hosted monitoring remain later increments.
 See [ADR-022](../../../docs/adr/ADR-022-eventbridge-outbox-publisher.md).
 
 `scripts/test-integration -k eventbridge` verifies Floci broker acceptance, PostgreSQL
 acknowledgement, stable-ID replay after a simulated crash, and missing-bus rejection.
 Tests create/delete only their own uniquely named buses and disposable databases.
-There are no targets or queues in this test scope; no IAM enforcement is claimed.
+The separate SQS tests below add targets and queues; no IAM enforcement is claimed.
+
+## SQS verification transport
+
+`sqs.SqsNotificationQueue` receives one message per short poll, validates the
+EventBridge envelope, and deletes only when called after a committed handler.
+Supply an explicitly configured SQS client with one SDK attempt and finite
+connect/read timeouts at most five seconds; supply a visibility timeout suited to
+the bounded handler. No credentials, resources, worker loop, or automatic replay
+are created by the adapter. `depth()` reports approximate visible, in-flight, and
+delayed counts, failing closed on invalid responses; these are not hosted alarms.
+
+Run `scripts/test-integration -k 'sqs or target_failure'` for disposable routing,
+duplicate effects, commit/delete failure replay, and actual processing-DLQ redrive.
+Only exact test-rule/queue policies are created. The EventBridge delivery-DLQ
+probe is a strict expected failure on Floci 2.1.0, not a validated failure path.
+See [ADR-023](../../../docs/adr/ADR-023-event-acceptance-consumer.md).
 
 ## Transaction ownership details
 

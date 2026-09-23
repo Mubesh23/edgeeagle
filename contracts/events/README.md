@@ -15,8 +15,10 @@ The outbox stores pending envelopes with `published_at: null`. The EventBridge p
 supplies a publication-attempt time at or after occurrence in the delivered copy.
 The schema accepts both states; temporal ordering is also enforced by the Python
 serializer. IDs and occurrence/trace metadata remain unchanged across retries.
-The bounded dispatcher and EventBridge publisher now exist; no worker loop or
-delivered-message consumer exists yet. See
+The bounded dispatcher, EventBridge publisher, and SQS verification consumer now
+exist; there is no worker loop. The consumer validates known fields while allowing
+additive delivered fields and deduplicates by notification identity, not publication
+time. See [consumer scope and emulator gap](../../docs/adr/ADR-023-event-acceptance-consumer.md) and
 [publisher scope](../../docs/adr/ADR-022-eventbridge-outbox-publisher.md).
 
 There is no released event baseline. Future evolution is additive by default;

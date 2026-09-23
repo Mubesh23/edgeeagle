@@ -43,7 +43,9 @@ dispatcher now commits claims before sending and completes them in a new transac
 the EventBridge adapter now verifies its explicit destination and per-entry broker
 acceptance, with local Floci tests. A transactional verification consumer now
 deduplicates accepted notifications in PostgreSQL and commits before queue deletion.
-Concrete SQS routing and DLQ validation remain next. See
+SQS routing, retries, processing-DLQ redrive, and queue-depth probes now have local
+tests. EventBridge delivery-DLQ forwarding is a documented Floci 2.1.0 gap with a
+strict expected-failure probe; no production permission enforcement is claimed. See
 [ADR-023](docs/adr/ADR-023-event-acceptance-consumer.md),
 [ADR-022](docs/adr/ADR-022-eventbridge-outbox-publisher.md),
 [ADR-021](docs/adr/ADR-021-outbox-dispatch-boundary.md),

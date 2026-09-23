@@ -127,8 +127,9 @@ Neither protocol creates clients or discovers credentials.
 
 Crash recovery may resend the same notification after lease expiry. Consumers
 must deduplicate; this is not exactly-once delivery. EventBridge transport now lives
-in persistence; worker composition, SQS transport, DLQ, and monitoring remain
-unimplemented.
+in persistence alongside SQS transport and queue-depth probes. Disposable local tests
+cover processing-DLQ redrive; EventBridge delivery-DLQ forwarding remains a documented
+emulator gap. Worker composition and hosted monitoring remain unimplemented.
 See [ADR-021](../../../docs/adr/ADR-021-outbox-dispatch-boundary.md).
 `scripts/test-integration -k dispatch` verifies actual PostgreSQL commit/rollback
 boundaries with a recording publisher, not Floci event delivery.

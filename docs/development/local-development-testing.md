@@ -39,13 +39,19 @@ Python socket connections are restricted to 127.0.0.1 during integration tests.
 EventBridge publisher tests now create uniquely named disposable Floci buses and
 exercise actual broker acceptance, missing-bus rejection, and PostgreSQL dispatcher
 crash/replay. Run `scripts/test-integration -k eventbridge`. Tests delete only their
-own buses/databases. No targets, queues, or IAM policies are created; these checks
-do not prove consumer delivery or AWS permission enforcement. See
+own buses/databases. Publisher-only checks do not prove consumer delivery or
+AWS permission enforcement. See
 [publisher boundary](../adr/ADR-022-eventbridge-outbox-publisher.md).
 
 `scripts/validate` includes these tests and leaves healthy containers running for
-development. Unit tests remain separately network-blocked. Queue/DLQ consumers
-arrive in subsequent increments; the diagram
+development. Unit tests remain separately network-blocked. Run
+`scripts/test-integration -k 'sqs or target_failure'` for disposable EventBridge/SQS
+routing, exact scoped test resource policies, transactional duplicate handling,
+commit/delete failure replay, processing-DLQ redrive, and queue-depth monitoring.
+These resources are cleaned up; no production policies or CDK resources change.
+The delivery-DLQ failure probe has a strict expected failure for Floci 2.1.0's
+missing forwarding behavior; see [the documented gap](../adr/ADR-023-event-acceptance-consumer.md).
+No AWS permission enforcement or hosted alarm coverage is claimed. The diagram
 below describes the target stack, not additional implemented services.
 
 Full validation also runs OpenAPI compatibility in a pinned, network-disabled

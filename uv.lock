@@ -109,6 +109,9 @@ events = [
 s3 = [
     { name = "mypy-boto3-s3" },
 ]
+sqs = [
+    { name = "mypy-boto3-sqs" },
+]
 
 [[package]]
 name = "botocore"
@@ -341,7 +344,7 @@ source = { virtual = "." }
 [package.dev-dependencies]
 dev = [
     { name = "boto3" },
-    { name = "boto3-stubs", extra = ["events", "s3"] },
+    { name = "boto3-stubs", extra = ["events", "s3", "sqs"] },
     { name = "hatchling" },
     { name = "httpx" },
     { name = "jsonschema" },
@@ -360,7 +363,7 @@ dev = [
 [package.metadata.requires-dev]
 dev = [
     { name = "boto3", specifier = ">=1.40,<2" },
-    { name = "boto3-stubs", extras = ["events", "s3"], specifier = ">=1.40,<2" },
+    { name = "boto3-stubs", extras = ["events", "s3", "sqs"], specifier = ">=1.40,<2" },
     { name = "hatchling", specifier = ">=1.27,<2" },
     { name = "httpx", specifier = ">=0.28,<0.29" },
     { name = "jsonschema", specifier = ">=4.23,<5" },
@@ -674,6 +677,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/97/3b/8ca4c299090b3a7fe97c6db8e17a6d7db92cb9b456804e59426ddea84824/mypy_boto3_s3-1.43.93.tar.gz", hash = "sha256:858e1ffe738ece3fa83ebc2b50f19aa53d0d69c1084739b37ec671b060713192", size = 79411, upload-time = "2026-09-11T19:44:36.959Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2a/f1/7ebc5d419bda7ab80dba0e59d5484a70229e617cf346665882f70fa499c3/mypy_boto3_s3-1.43.93-py3-none-any.whl", hash = "sha256:52be1672a8b65ff3a1f779b46f7ed4fab85e78f15b353ce7eb5e20a9f15e7b9b", size = 86721, upload-time = "2026-09-11T19:44:35.263Z" },
+]
+
+[[package]]
+name = "mypy-boto3-sqs"
+version = "1.43.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/42/1e/226725696a99c7dadfe8ebfba01575107fa15146029a7fb0082c650d8689/mypy_boto3_sqs-1.43.0.tar.gz", hash = "sha256:3ec8e1e651e830affcf7fe151b2e3090b8ea98d73cb069053b09ca4c7f4c8636", size = 23318, upload-time = "2026-04-29T23:06:17.614Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f2/5e/5d4deb1ee7aec7fcdddbca616c623f07bfc72a1cd3e80b0e2a0c39904fae/mypy_boto3_sqs-1.43.0-py3-none-any.whl", hash = "sha256:f90225486756a4041db9f056967cb3cee202264bbe57682031c1e94d83e8ca39", size = 33604, upload-time = "2026-04-29T23:06:15.339Z" },
 ]
 
 [[package]]

@@ -62,6 +62,21 @@ Floci tests cover routing, duplicate effects, retry, delete-loss replay, poison
 redrive, and queue/DLQ depth. Emulator gaps must be reported, never papered over
 by manually placing a message in the DLQ and calling it a redrive test.
 
+### Known emulator gap
+
+Floci 2.1.0 routes valid events and redrives failed SQS consumption, but its
+[EventBridgeInvoker](https://github.com/floci-io/floci/blob/2.1.0/src/main/java/io/github/hectorvent/floci/services/eventbridge/EventBridgeInvoker.java)
+only logs target-delivery exceptions; it does not forward them to the configured
+delivery DLQ. Confirmed by the missing-target integration probe on 2026-09-23.
+That probe runs with a strict expected failure limited to an empty delivery DLQ;
+setup, SDK, routing, and payload errors still fail normally. A future successful
+delivery fails as XPASS until the marker is removed. No messages are manually
+inserted into either DLQ. EventBridge delivery-DLQ behavior remains unvalidated;
+this blocks claiming full failure-path coverage or unattended readiness. Keep
+Floci pinned; evaluate a supporting version in a separate reviewed increment.
+
+### References
+
 AWS references verified 2026-09-23:
 
 - [SQS receive and receipt handles](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_ReceiveMessage.html)

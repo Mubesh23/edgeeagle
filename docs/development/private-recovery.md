@@ -108,3 +108,31 @@ scripts/validate
 The integration test uses authored results and disposable PostgreSQL/Floci
 resources, not the private capture. It verifies dump/restore, matching receipts,
 source preservation and cleanup. The explicit operator command is not run by CI.
+
+## Local research evidence — 2026-09-23
+
+The first private EPL 2024/25 recovery exercise completed using PostgreSQL 17.11:
+380 replayed results matched all 380 restored canonical receipts, across six
+receipt pages plus the root and raw capture (eight stored objects). The restored
+database contained 380 events, 380 receipts, 20 participants and zero outbox rows.
+Raw SHA-256 and the trusted replay root were unchanged. Source server/database
+identity, selected counts, receipts, schema and object listings matched before
+and after. The exercise-owned database and bucket were removed successfully;
+the owner-only archive and reports remain Git-ignored locally.
+
+A second invocation used only the retained archive name and separately recorded
+inventory hash, with no source database/bucket inputs. It independently restored
+and verified all 380 receipts again and removed its own fresh targets.
+
+`scripts/validate` then passed: 843 Python unit tests, 139 local integration tests
+and one existing expected Floci EventBridge delivery-DLQ failure, plus generated
+contracts, formatting/lint, type checks, OpenAPI compatibility, offline lock/build
+checks, credential-free CDK synthesis and dependency advisory scans. Targeted
+recovery tests achieved 100% statement coverage across the four new modules.
+Unchanged TypeScript tasks used the existing local Turbo cache. Hosted CI and a
+fresh-checkout run were not performed in this local session.
+
+This is local recovery evidence, not a hosted CI run, provider authenticity
+verification or proof of off-device durability. The approved Europe/London
+assumption remains explicitly private/replay-only, and historical availability
+remains unknown. No source downloads or eligibility changes were involved.

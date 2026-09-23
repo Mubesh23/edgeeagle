@@ -22,6 +22,9 @@ validation exercises authored synthetic recovery data only.
 `scripts/datasets` lists explicitly pinned local season roots and freshly inspects
 their retained replay/provenance; see [catalog commands](docs/development/dataset-catalog.md).
 It is read-only, private/local, and never upgrades backtest eligibility.
+The opt-in local catalog API exposes the same listing/fresh-inspection results;
+see [API setup](apps/api/README.md) and [ADR-032](docs/adr/ADR-032-local-dataset-api.md).
+The default app is unconfigured; no hosted exposure or authentication is provided.
 The synthetic provider mock now runs with local-up and is covered by unit and
 HTTP integration tests. The first offline Football-Data results CSV adapter now
 retains raw bytes, atomically accepts score-bearing receipts, and stores replay-only

@@ -32,6 +32,23 @@ sanitized 503, never a partial success. Responses use `Cache-Control: no-store`.
 See [ADR-032](../../docs/adr/ADR-032-local-dataset-api.md). There is no public hosting,
 authentication decision, UI or MCP tool in this slice.
 
+To enable the catalog only, from the repository root with Floci running:
+
+```sh
+EDGEEAGLE_DATASET_CATALOG=.data/dataset-catalog.json \
+uv run --locked --offline --package edgeeagle-api uvicorn \
+  edgeeagle_api.local_datasets:create_local_dataset_app \
+  --factory --host 127.0.0.1 --port 8000 --no-proxy-headers
+```
+
+Use the [catalog configuration guide](../../docs/development/dataset-catalog.md).
+Configuration is loaded once; restart to change pins. Storage clients are scoped
+to requests and always closed. No PostgreSQL connection, migration, bucket creation
+or provider request occurs. Event reads remain unconfigured in this factory;
+the existing event factory remains separate and unchanged. This development
+interface has no authentication: do not bind publicly, proxy, tunnel or deploy it.
+No CORS access is enabled. Test with `scripts/test-integration -k dataset_api`.
+
 ## Local event reads
 
 `GET /v1/events` supports exact `sport_id`, `competition_id`, and `status` filters,

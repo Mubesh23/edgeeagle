@@ -91,8 +91,11 @@ edits, while distinguishing missing manifests from lost raw artifacts.
 The first narrow catalog is now a private local operator interface under
 [ADR-031](../adr/ADR-031-local-dataset-catalog.md): explicitly pinned ADR-029 roots
 can be listed and freshly inspected with provenance and replay-only restrictions.
-It adds no SQL catalog, HTTP/UI exposure, historical eligibility or provider calls;
+It adds no SQL catalog, UI exposure, historical eligibility or provider calls;
 older manifest formats and production catalog publication remain separate work.
+The additive [ADR-032](../adr/ADR-032-local-dataset-api.md) local HTTP consumer now
+supports listing and fresh inspection through the generated client contract,
+with explicit opt-in configuration and no hosted access or authentication changes.
 
 ## Phase 3 — V1 Provider Adapters
 

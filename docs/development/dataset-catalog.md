@@ -1,7 +1,8 @@
 # Private retained-dataset catalog
 
-The first catalog is a read-only **local operator interface**, not an API or web
-screen. It selects trusted ADR-029 whole-season roots explicitly; it neither
+The catalog is a read-only **local operator interface**, with a CLI and an opt-in
+local API, not a hosted service or web screen. It selects trusted ADR-029
+whole-season roots explicitly; it neither
 scans buckets nor creates a PostgreSQL registry. See
 [ADR-031](../adr/ADR-031-local-dataset-catalog.md).
 
@@ -92,10 +93,15 @@ then deliberately removes a test-owned page: root metadata still lists, but
 inspection fails without repair. No private capture is used in routine tests.
 
 Only ADR-029 season roots are supported initially, not the older ADR-026 envelope
-formats. Those identities are not interchangeable. An additive API/UI consumer,
+formats. Those identities are not interchangeable. A web/MCP consumer,
 durable catalog publication/consistency rules, multi-user access, and hosted
-display remain separate increments and reviews. Existing API/client contracts
-are unchanged.
+display remain separate increments and reviews. API/client contracts now have
+additive private catalog reads under
+[ADR-032](../adr/ADR-032-local-dataset-api.md); see
+[local API setup](../../apps/api/README.md). The default app still has no catalog
+configured. The HTTP list and inspection preserve these same replay-only results,
+use no-store responses and never persist verification status. No web/MCP consumer
+or hosted access is added.
 
 ## Local inspection evidence — 2026-09-23
 

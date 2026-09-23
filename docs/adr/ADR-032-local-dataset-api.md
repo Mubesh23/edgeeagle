@@ -1,6 +1,6 @@
 # ADR-032 — Private local retained-dataset API
 
-**Status:** Accepted for local implementation
+**Status:** Accepted; local API and generated-client contract implemented
 **Date:** 2026-09-23
 
 ## Decision

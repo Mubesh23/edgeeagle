@@ -75,3 +75,6 @@ existing Floci stores and emits all-or-error JSON. See the
 [operator guide](../development/dataset-catalog.md). Synthetic integration proves
 fresh replay without PostgreSQL and rejects lost pages while leaving root
 metadata readable. This does not add an HTTP contract or stored verification flag.
+
+The later [ADR-032](ADR-032-local-dataset-api.md) adds an opt-in local HTTP consumer
+without changing this CLI contract, replay semantics or private-only restriction.

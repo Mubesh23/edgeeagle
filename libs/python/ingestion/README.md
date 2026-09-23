@@ -126,7 +126,7 @@ the inclusive 1 MiB envelope limit; reads reject oversize input before JSON pars
 Builders canonicalize capture/pin order, while wire readers reject noncanonical
 ordering rather than repair it. The pure `EventReceiptCodec` port keeps receipt
 serialization in persistence; `edgeeagle_persistence.receipts.EventReceiptCodec`
-implements it using the existing format-1/2 codec without database access.
+implements it using the format-1/2/3 codec without database access.
 
 The fixed `REPLAY_ONLY` usage is not historical eligibility. Structural validation
 does not verify raw storage, complete capture coverage, or actual acceptance;
@@ -180,7 +180,14 @@ Run `scripts/test-unit tests/unit/test_football_data.py`.
 Manifest construction selects `FOOTBALL_DATA_RESULTS_REPLAY` for nonempty CSV
 capture groups; mixed CSV/synthetic manifests are rejected. The existing strict
 codec, immutable storage port and `verify_manifest` support that kind without
-changing original synthetic manifest bytes. Transactional composition follows separately.
+changing original synthetic manifest bytes.
+
+`football_data_import.import_results_dataset` composes raw acquisition, normalization,
+batch acceptance and readback in one caller-owned transaction, then manifest storage
+after commit. It returns the content-derived dataset version. It publishes no events
+and adds no application database setup. See the
+[workflow guide](../../../docs/development/football-data-import.md) for prerequisites,
+composition, failure/retry semantics, and the local acceptance command.
 
 ## Initial event acceptance
 

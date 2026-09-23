@@ -92,9 +92,14 @@ edits, while distinguishing missing manifests from lost raw artifacts.
 
 First bounded goal: [ADR-028](../adr/ADR-028-football-data-results-import.md) defines
 a local Football-Data results CSV import with retained raw bytes, additive score
-receipts, stored replay snapshots, and authored offline fixtures. Implementation
-is pending. It excludes odds, full archives, cataloging, historical eligibility,
+receipts, stored replay snapshots, and authored offline fixtures. This bounded
+workflow is implemented and exercised with disposable PostgreSQL/Floci, including
+concurrent retries, batch rollback and retained-context replay. It excludes odds,
+full archives, cataloging, historical eligibility,
 provider downloads/licensing approval, and production resources.
+This completes the local results-import goal, not Phase 3's multi-provider exit.
+Next: review evidence/rights and availability requirements for a real research
+dataset before expanding supported file shapes or starting model training.
 
 - Football-Data.co.uk importer
 - Sportmonks free-tier adapter

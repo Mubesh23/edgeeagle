@@ -15,7 +15,11 @@ Implementation status: workspace/API increments implement `bootstrap`,
 Floci. `validate` starts these local services and leaves them running; named data
 volumes survive `local-down`. `scripts/migrate` manages the local Alembic history.
 The synthetic provider mock now runs with local-up and is covered by unit and
-HTTP integration tests; real provider adapters/contract tests are not implemented.
+HTTP integration tests. The first offline Football-Data results CSV adapter now
+retains raw bytes, atomically accepts score-bearing receipts, and stores replay-only
+snapshots using authored fixtures; live provider contract tests remain unimplemented.
+See [CSV workflow](docs/development/football-data-import.md). Migration
+`0010_soccer_receipts` permits additive format-3 receipts with a safe downgrade guard.
 Migration `0002_source_venue` adds source/venue tables and capability sets; see
 [migration scope](apps/api/migrations/README.md). Validation migrates disposable
 test databases only, not the developer's application database.

@@ -1,11 +1,11 @@
 # ADR-028 — Retained Football-Data CSV results imports
 
-**Status:** Accepted for bounded local implementation; implementation pending  
+**Status:** Accepted; bounded local workflow implemented with synthetic-fixture validation  
 **Date:** 2026-09-23
 
 Receipt rollout status: `SoccerResultEvidence`, format-3 codec and migration
 `0010_soccer_receipts` are implemented. CSV normalization and retained-receipt
-replay and snapshot-kind dispatch are implemented; end-to-end composition remains pending.
+replay, snapshot-kind dispatch, and end-to-end composition are implemented.
 Legacy byte/digest golden tests and local PostgreSQL rollout/
 downgrade guards cover the additive reader/schema increment.
 
@@ -135,3 +135,15 @@ failures, and full-output drift. Run `scripts/test-unit tests/unit/test_football
 `tests/unit/test_football_data_manifest.py` covers CSV snapshot round trips, kind
 dispatch, mixed/empty-group rejection and score drift. Existing synthetic manifest
 goldens and storage tests remain unchanged and pass with the additive reader.
+
+`football_data_import.import_results_dataset` now composes acquisition, pinned
+normalization, complete-batch transactional acceptance and receipt reads, then
+manifest storage after commit. It validates manifest size before commit, orders
+event locks by ID, and rejects a mismatched storage acknowledgement. It creates
+no outbox notifications. Caller-supplied transaction contexts own commit/rollback,
+connection lifecycle and timeouts; no application database is migrated automatically.
+Run `scripts/test-integration -k football_data_import` for disposable PostgreSQL/
+Floci evidence: exact/concurrent retries, final-row conflict rollback, malformed
+raw retention without canonical writes, post-commit manifest failure recovery,
+reference revocation/edits, and missing/corrupt raw artifacts. See the
+[local workflow guide](../development/football-data-import.md).

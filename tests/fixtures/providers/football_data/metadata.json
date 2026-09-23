@@ -1,0 +1,12 @@
+{
+  "fixture_id": "football-data-results-synthetic-v1",
+  "provider": "football_data",
+  "interface": "local CSV results subset; no API version",
+  "schema_reference": "https://football-data.co.uk/notes.txt",
+  "created_at": "2026-09-23",
+  "captured_at": null,
+  "provenance": "Wholly authored synthetic rows, not downloaded provider data",
+  "payload": "results.csv",
+  "supported_parameters": "Explicit resource, reference mappings and per-row UTC offsets",
+  "source_identity": "synthetic-fixtures"
+}

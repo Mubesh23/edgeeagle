@@ -1,5 +1,8 @@
 # Provider fixtures
 
+The [Football-Data-shaped CSV](football_data/README.md) is authored synthetic
+completed-results data for the offline adapter. It is not a downloaded provider file.
+
 Initial fixtures are authored synthetic test data, not captured provider responses.
 The first set uses a limited subset of The Odds API v4 soccer h2h odds shape,
 referenced from [official documentation](https://the-odds-api.com/liveapi/guides/v4/).

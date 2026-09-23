@@ -315,9 +315,10 @@ ORM metadata/autogeneration.
 ## Receipt codec adapter
 
 `receipts.EventReceiptCodec` implements the ingestion-owned manifest codec port
-by delegating to the existing private format-1/2 receipt codec. It requires no
+by delegating to the private format-1/2/3 receipt codec. It requires no
 database, storage client, or credentials. Receipt bytes and acceptance keys are
-unchanged; manifest v1 accepts only supported mapped format-2 candidates. See
+unchanged for legacy data; the original manifest kind accepts mapped format-2
+candidates and ADR-028's CSV kind accepts supported format-3 score receipts. See
 [ADR-026](../../../docs/adr/ADR-026-replay-dataset-manifest.md). Manifest encoding
 does not attest that a caller-supplied candidate was accepted by PostgreSQL.
 

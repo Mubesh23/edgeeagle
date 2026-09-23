@@ -1,6 +1,6 @@
 # ADR-030 — Private local research recovery
 
-**Status:** Accepted; implementation pending
+**Status:** Accepted; portable replay implemented, local archive/restore pending
 **Date:** 2026-09-23
 
 ## Context
@@ -85,3 +85,12 @@ guarantee is added.
 
 Backup durability against disk loss requires a separately approved destination
 and storage/security policy. This decision does not silently introduce one.
+
+## Implementation status
+
+`edgeeagle_ingestion.season_recovery` exports, verifies and restores a bounded
+in-memory set (`root.json`, numbered pages and `raw.bin`). It reuses ADR-029
+complete-capture replay, rejects missing/extra/corrupt members before writes,
+preserves raw metadata, checks storage acknowledgements and publishes the root
+last. This layer has no filesystem, database or provider access. Local archive
+inventory and PostgreSQL recovery composition are the next increment.

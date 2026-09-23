@@ -32,6 +32,7 @@ Delivery coordination: [ADR-020 — fenced leases](adr/ADR-020-outbox-delivery-l
 Dispatcher orchestration: [ADR-021 — transaction boundary](adr/ADR-021-outbox-dispatch-boundary.md).
 Broker publication design: [ADR-022 — EventBridge adapter](adr/ADR-022-eventbridge-outbox-publisher.md).
 Consumer design: [ADR-023 — verification and local queues](adr/ADR-023-event-acceptance-consumer.md).
+Event reads: [ADR-024 — current-state API](adr/ADR-024-event-read-api.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.

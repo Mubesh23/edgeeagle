@@ -1,5 +1,7 @@
 # API contracts
 
+Authored domain event schemas are documented separately in [events](events/README.md).
+
 FastAPI route/response definitions in `apps/api/src/edgeeagle_api` are authoritative.
 `scripts/generate-contracts` imports the application locally and generates:
 

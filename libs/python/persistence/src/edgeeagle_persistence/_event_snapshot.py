@@ -1,6 +1,5 @@
 """Private receipt format 1 codec; not an API or provider wire contract."""
 
-import hashlib
 import json
 from dataclasses import asdict, replace
 from datetime import UTC, datetime
@@ -19,6 +18,7 @@ from edgeeagle_domain.sports import (
     SportId,
 )
 from edgeeagle_ingestion.events import EventCandidate
+from edgeeagle_ingestion.identity import acceptance_key as acceptance_key
 
 
 def canonical(candidate: EventCandidate) -> EventCandidate:
@@ -41,12 +41,6 @@ def _json(value: object) -> str:
 
 def encode(candidate: EventCandidate) -> str:
     return _json({"format": 1, "candidate": asdict(canonical(candidate))})
-
-
-def acceptance_key(candidate: EventCandidate) -> str:
-    fields = asdict(canonical(candidate))
-    del fields["event"], fields["entries"]
-    return hashlib.sha256(_json(fields).encode("utf-8")).hexdigest()
 
 
 def decode(snapshot: Any) -> EventCandidate:

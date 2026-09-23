@@ -65,6 +65,13 @@ normalization itself still performs no writes.
 
 ## Initial event acceptance
 
+`notifications.EventAccepted.for_candidate(...)` creates a validated publication
+intent with explicit stable notification ID, occurrence timestamp, correlation ID,
+and causation ID. It references the accepted canonical event and lineage digest.
+`identity.acceptance_key(candidate)` owns that deterministic digest (unchanged
+from receipt format 1). See [event contracts](../../../contracts/events/README.md).
+The notification type and `EventPublicationRepository` port are transport-neutral.
+
 `events.EventAcceptanceRepository.accept(candidate)` returns True for first
 acceptance, False for an exact replay, and raises `EventAcceptanceConflict` for
 conflicting accepted output/lineage. `get(event_id)` returns the immutable accepted

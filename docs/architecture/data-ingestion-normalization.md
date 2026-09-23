@@ -45,7 +45,14 @@ synthetic fixtures, not live feeds. [ADR-017](../adr/ADR-017-synthetic-event-nor
 adds retained-fixture parsing and explicit canonical event candidates.
 [ADR-018](../adr/ADR-018-event-acceptance-lineage.md) adds transactional canonical
 acceptance; [ADR-019](../adr/ADR-019-event-outbox.md) adds atomic publication intents.
-Actual event delivery and the read-only API remain deferred.
+EventBridge/SQS verification delivery and current-state event API reads now exist.
+The [fixture acceptance test](../../tests/integration/test_fixture_ingestion.py)
+connects retained raw bytes, explicit fixture bindings, canonical acceptance/outbox,
+broker delivery, consumer deduplication, and API list/detail reads. Run
+`scripts/test-integration -k fixture_raw_to_api`. This is synthetic local evidence,
+not real-provider acquisition, historical Parquet, or production worker readiness.
+The EventBridge delivery-DLQ gap remains documented in
+[ADR-023](../adr/ADR-023-event-acceptance-consumer.md).
 
 Separate interfaces by capability:
 

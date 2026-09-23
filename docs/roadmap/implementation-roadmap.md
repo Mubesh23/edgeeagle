@@ -52,6 +52,15 @@ Exit: `scripts/validate` succeeds on a fresh checkout with no AWS credentials or
 
 Exit: a fixture can flow raw -> canonical -> event -> API.
 
+Local acceptance evidence: `scripts/test-integration -k fixture_raw_to_api`
+now exercises this path using retained synthetic bytes, explicit fixture bindings,
+PostgreSQL, Floci S3/EventBridge/SQS, and the in-process FastAPI boundary. Exact
+reingestion and real duplicate broker delivery leave one canonical event and
+one consumer verification receipt. This demonstrates the narrow fixture-flow
+exit criterion, not completion of every Phase 2 capability or production readiness.
+Dynamic provider-mapping integration, historical datasets, worker supervision,
+and the known EventBridge delivery-DLQ emulator gap remain explicit follow-ups.
+
 ## Phase 3 — V1 Provider Adapters
 
 - Football-Data.co.uk importer

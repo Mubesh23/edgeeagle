@@ -55,6 +55,9 @@ The API now exposes current-state event list/detail contracts, with explicit loc
 PostgreSQL composition, bounded ID pagination, and read-only request transactions.
 The default credential-free app returns 503 for unconfigured event reads; see
 [API setup](apps/api/README.md) and [ADR-024](docs/adr/ADR-024-event-read-api.md).
+`scripts/test-integration -k fixture_raw_to_api` exercises the composed local
+fixture path with retained provenance, exact reingestion, actual broker duplicates,
+consumer deduplication, and unchanged API reads. It does not close the Floci DLQ gap.
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports

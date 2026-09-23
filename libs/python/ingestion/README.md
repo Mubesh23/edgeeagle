@@ -90,7 +90,8 @@ acquisition independently of output event ID. This is initial insertion only,
 not updates, multi-source reconciliation, or historical eligibility. Retain raw
 bytes before accepting; the database cannot verify S3 durability. Receipt lineage
 does not replace the caller's retained immutable fixture context. Publication uses
-the dispatcher and outer EventBridge adapter; API exposure remains a next step.
+the dispatcher and outer EventBridge adapter. Current-state API exposure and the
+composed fixture-to-API acceptance test now exist; this is not a hosted worker.
 
 `delivery.OutboxDeliveryRepository` now describes leased delivery coordination:
 claim one intent, acknowledge a live claim, schedule its retry, and inspect state.

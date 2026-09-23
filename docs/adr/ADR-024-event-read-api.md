@@ -47,4 +47,8 @@ and errors. Disposable PostgreSQL tests cover filtering, pagination, committed v
 rolled-back visibility, and detail consistency. Generate OpenAPI/client artifacts
 from routes and verify additive compatibility. Keep the existing Floci delivery-DLQ
 gap explicit; these synchronous reads do not depend on that unsupported behavior.
-The full raw-to-API composition test remains a separate Phase 2 acceptance increment.
+The [raw-to-API composition test](../../tests/integration/test_fixture_ingestion.py)
+now exercises the local fixture path, including actual EventBridge/SQS duplicate
+delivery. It verifies both API visibility immediately after canonical commit and
+unchanged reads after consumer verification/replay; it does not introduce an
+asynchronous projection dependency or prove production readiness.

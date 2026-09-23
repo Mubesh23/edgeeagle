@@ -1,6 +1,6 @@
 # ADR-013 — Immutable provider mapping revisions
 
-**Status:** Accepted for the internal Phase 2 domain slice; persistence and review workflow deferred
+**Status:** Accepted for the internal Phase 2 domain slice; persistence in ADR-014, review workflow deferred
 **Date:** 2026-09-22
 
 ## Context
@@ -50,8 +50,8 @@ Overwriting a mapping would make retained research impossible to reproduce.
 ## Boundaries and consequences
 
 Physical storage follow-up: [ADR-014](ADR-014-provider-mapping-storage.md) defines
-the mapping schema. Repository concurrency/replay and review workflow remain
-separate increments; the pure decision and resolution rules here are unchanged.
+the mapping schema and compare-and-append repository. Review workflow remains
+deferred; the pure decision and resolution rules here are unchanged.
 
 The initial implementation is pure, network-free, and in-memory. It cannot detect
 an omitted tail of history; callers must supply a complete per-key history from a

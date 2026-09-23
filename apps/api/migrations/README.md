@@ -77,17 +77,18 @@ instants. PostgreSQL representation limits still apply.
 
 Statement triggers reject UPDATE, DELETE, and TRUNCATE on the two mapping tables.
 This prevents accidental mutation, not a privileged owner disabling triggers.
-There are no role/grant or authentication changes. The future mapping repository
-must lock keys, reuse complete-history validation, allocate revisions, and handle
-exact replay. Inter-revision timestamp ordering and revocation target retention
-are not enforced by this schema alone. No runtime mapping write path exists yet.
+There are no role/grant or authentication changes. The mapping repository now
+locks keys, reuses complete-history validation, accepts the next proposed revision,
+and handles exact replay. Inter-revision timestamp ordering and revocation target
+retention are enforced by that repository, not this schema alone. No ingestion
+or API mapping write path is wired yet.
 
 These are schema-only increments, not a runtime repository or an HTTP ownership
 boundary: API startup still owns no business data or database connection.
-Source/venue and sports/event repository adapters now live in the separate
+Source/venue, sports/event, and mapping repository adapters now live in the separate
 [persistence package](../../../libs/python/persistence/README.md), using caller-owned
-transactions. Mapping repository operations and seed workflows remain
-later increments. Revisions own explicit DDL; ORM metadata and migration
+transactions. Ingestion/seed workflows remain later increments.
+Revisions own explicit DDL; ORM metadata and migration
 autogeneration are not enabled.
 
 An explicit downgrade from `0003_sports_events` drops its six sports tables and

@@ -1,6 +1,6 @@
 # ADR-014 — PostgreSQL storage for provider mapping history
 
-**Status:** Accepted for the internal Phase 2 schema; repository workflow pending
+**Status:** Accepted for the internal Phase 2 schema and compare-and-append repository
 **Date:** 2026-09-22
 
 ## Context
@@ -15,7 +15,7 @@ let PostgreSQL enforce existence in the correct canonical namespace.
 - Add `provider_mapping_keys`, keyed by source ID, provider entity type, and
   provider entity ID. Preserve opaque case-sensitive strings with C collation.
   Store an immutable target kind on this key; it also supplies a per-key row that
-  a future repository can lock before allocating a revision.
+  the repository locks before accepting a revision.
 - Add `provider_mapping_revisions`, keyed by the provider key plus a positive
   bigint revision. Store the ADR-013 decision provenance, timestamps, status, and
   optional arbitrary-scale numeric confidence. PostgreSQL's numeric/bigint limits
@@ -35,28 +35,23 @@ let PostgreSQL enforce existence in the correct canonical namespace.
   triggers. No roles, grants, reviewer authentication, or production IAM changes
   are introduced. Populated destructive migrations still require human review.
 
-## Repository follow-up and limits
+## Repository guarantees and limits
 
-The schema increment is not a complete mapping persistence workflow. The next
-repository increment must lock the provider-key row, load the complete history,
-reuse ADR-013 validation, allocate the next revision, and append in one caller-owned
-transaction. It must enforce nondecreasing inter-revision timestamps and revocation
-target retention; these cross-row rules are not duplicated in this migration.
-It must distinguish exact transport replays from conflicting writes, with a stable
-replay identity and field comparison, and test concurrent writers. No schema-only
-claim of replay handling or safe concurrent allocation is made.
+The repository locks the provider-key row, loads complete visible history, reuses
+ADR-013 validation, and accepts the next revision in one caller-owned transaction.
+It enforces nondecreasing inter-revision timestamps and revocation target retention;
+these cross-row rules are not duplicated in the migration. Tests exercise exact
+replay and conflicting concurrent writers, including first-key creation races.
 
-Until that repository exists, no ingestion path or API writes these tables.
-Direct SQL can still create histories violating the deferred cross-row rules;
-the pure resolver rejects such histories rather than returning a mapping.
+No ingestion path or API is wired to this repository yet. Direct SQL can still
+create histories violating the repository's cross-row rules; repository reads,
+appends, and replays reject those histories through the pure resolver.
 Reads used for research need a pinned snapshot, not only an availability cutoff.
 Reviewer names remain provenance, not proof of authorization.
 
-## Alternatives
-
 ## Repository append/replay contract
 
-The internal repository will accept a complete `ProviderMappingRevision`. Its
+The internal repository accepts a complete `ProviderMappingRevision`. Its
 `(key, revision)` is the stable replay identity and optimistic concurrency token.
 Within a caller-owned READ COMMITTED transaction, create the key if absent, lock
 its row, load and validate complete history, then compute the next revision as

@@ -19,7 +19,7 @@ being silently repaired. SQL values are bound parameters.
 Inserts are deliberately **not upserts**: an existing identity raises the
 inward-owned `DuplicateRecordError`, including when the incoming record matches.
 This is not ingestion replay/idempotency handling. There are no update, delete,
-list, historical/as-of, entity-resolution, or provider-mapping operations yet.
+list, or historical/as-of operations for these source/venue records yet.
 
 ## Sports and event records
 
@@ -48,7 +48,36 @@ must choose suitable transaction isolation (for example REPEATABLE READ) and
 invoke domain validation as needed. Timestamps preserve instants, not original
 offsets or timezone labels. No historical/as-of query is implied.
 
-## Caller-owned transactions
+## Mapping history and replay
+
+`PostgresMappingRepository` implements the domain `MappingRepository` port over
+migration `0004_mapping_history`. Its methods are:
+
+- `append(revision)`: under a per-key row lock, accept the next proposed revision
+  or return an identical existing revision. `(key, revision)` is the stable replay
+  identity. Changed content or a skipped revision raises `MappingConflictError`.
+  Do not refresh timestamps or blindly renumber a delivery on retry.
+- `history(key)`: return the complete, validated, ordered tuple of visible revisions.
+- `resolve(key, as_of=...)`: load complete visible history, then use the pure
+  resolver's availability cutoff. Revocation returns None without falling back.
+
+Mapping writes require READ COMMITTED isolation so a blocked writer sees the
+previous writer's commit after taking the key lock. The key and revision share
+a savepoint; failed validation or missing canonical references leave no partial
+key. Existing references are enforced by SQL foreign keys. No counter, updates,
+or deletes are used. Stored history is validated even for old replays and earlier
+as-of queries. A malformed future revision fails closed. Changing the target kind,
+decreasing decision availability/ingestion, or revoking a different target fails.
+
+All mapping timestamp comparisons and returned records use UTC instants; equal
+Decimal values are equivalent despite display scale. The caller supplies the
+proposed number; only the next number is accepted under the lock. There is no
+unconditional auto-number operation. For repeatable multi-read research, the
+caller can use a pinned REPEATABLE READ transaction, but cannot append within it.
+An as-of cutoff does not substitute for dataset snapshots or no-lookahead checks
+on other data. Reading full histories is intentionally linear in history length.
+
+## Shared transaction ownership
 
 The caller supplies an active PostgreSQL/psycopg SQLAlchemy connection transaction,
 normally through `with engine.begin() as connection`. Autocommit is rejected.
@@ -62,6 +91,9 @@ otherwise the error propagates to the transaction context and rolls back the
 entire batch. Unique violations become `DuplicateRecordError`; other SQLAlchemy
 database exceptions propagate, preserving their cause. Transaction retries and
 error-to-HTTP translation belong to future application orchestration, not here.
+Locks remain held until the caller commits/rolls back. Keep transactions short;
+the caller configures lock/statement timeouts and deterministic multi-key ordering
+to avoid deadlocks. No automatic retry or changes to engine settings are hidden here.
 Repository instances must not be shared across threads or used outside their
 supplied connection's active transaction. Async API callers must not execute
 these synchronous operations directly on an event loop.
@@ -91,6 +123,10 @@ transactions after failure, partial-write rollback, and autocommit rejection.
 Sports tests also cover hierarchy round trips, optional fields, timezone instants,
 12-participant events, repeated roles, invalid resolved contexts, reference FK
 failures, duplicate identities, and atomic event/entry rollback.
+Mapping tests cover all six target types, correction/revocation, exact replays,
+conflicts, first-key/existing-key concurrent writers, transaction rollback,
+history corruption, and repeatable-read snapshots. No API/ingestion mapping path
+or reviewer-authentication workflow is implemented by this adapter.
 No paid provider or AWS credentials are used.
 
 Root checks include this package; `scripts/build` regenerates its ignored sdist

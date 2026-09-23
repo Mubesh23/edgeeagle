@@ -22,8 +22,9 @@ test databases only, not the developer's application database.
 Migration `0003_sports_events` adds the sports/event hierarchy and cross-record
 foreign keys. Source/venue and sports/event transactional adapters now live in
 [Python persistence](libs/python/persistence/README.md). Migration
-`0004_mapping_history` adds append-only mapping storage; its repository workflow
-and historical datasets remain deferred. No business API endpoints are wired yet.
+`0004_mapping_history` adds append-only mapping storage. The mapping repository
+supports compare-and-append, exact replay, and availability-based resolution;
+ingestion/API wiring and pinned historical datasets remain deferred.
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports

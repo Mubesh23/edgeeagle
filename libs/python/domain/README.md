@@ -58,8 +58,9 @@ Corrections and revocations append records; they do not rewrite earlier decision
 Confidence is optional match-quality metadata and never an approval threshold.
 These records preserve validation provenance, but do not authenticate reviewers
 or accept ambiguous candidate proposals. Database uniqueness/transactions,
-append-only persistence, canonical-reference checks, replay idempotency, review
-workflow, and dataset snapshot completeness remain caller/storage responsibilities.
+append-only persistence, canonical-reference checks, and replay handling now live
+in the persistence adapter. Review workflow and dataset snapshot completeness
+remain caller/application responsibilities.
 There are no provider calls, migrations, or new API/event contracts in this slice.
 
 `edgeeagle_domain.repositories` owns the insert/read source and venue repository
@@ -74,6 +75,12 @@ Event insertion includes its immutable tuple of entries atomically and requires
 existing references plus the resolved-context validation above. The PostgreSQL
 implementation remains in the persistence package, not in the pure domain.
 This does not expose API endpoints or historical research data.
+
+`edgeeagle_domain.mapping_repository.MappingRepository` owns `append`, `history`,
+and `resolve` plus `MappingConflictError`. Append uses the immutable key/revision
+as the replay identity and expected next number; it never silently renumbers a
+conflicting decision. Its PostgreSQL implementation reuses the pure resolver to
+validate the entire visible history, including on old-revision replay.
 
 These internal records use frozen standard-library dataclasses. Constructors
 reject wrong types, blank text, surrounding whitespace, and mutable capability

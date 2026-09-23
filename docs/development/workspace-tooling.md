@@ -14,9 +14,9 @@ The [persistence library](../../libs/python/persistence/README.md) implements
 source/venue and sports/event repository ports with caller-owned transactions. Root checks and
 offline package builds include it; real transaction tests use disposable local
 PostgreSQL databases. Mapping-history schema now exists under
-[ADR-014](../adr/ADR-014-provider-mapping-storage.md); its transactional repository,
-API wiring, and historical datasets
-remain later increments.
+[ADR-014](../adr/ADR-014-provider-mapping-storage.md), with a transactional mapping
+repository and local concurrent-writer/replay/snapshot tests. API/ingestion wiring
+and pinned historical datasets remain later increments.
 
 ## Prerequisites and bootstrap
 

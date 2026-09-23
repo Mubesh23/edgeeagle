@@ -130,8 +130,10 @@ detected drift. Direct SQL writers changing child rows without taking that paren
 lock are outside this insertion-only protocol. This is not a historical event
 versioning policy. The caller retains raw bytes before acceptance and preserves
 the referenced immutable normalization context; receipts store accepted output and
-lineage, not a full context catalog. No cross-S3 transaction, outbox, publication,
-or API path exists yet. See [ADR-018](../../../docs/adr/ADR-018-event-acceptance-lineage.md).
+lineage, not a full context catalog. This legacy method creates no outbox intent;
+use the publication-aware method below for that guarantee. No cross-S3 transaction,
+actual publication, or API path exists yet. See
+[ADR-018](../../../docs/adr/ADR-018-event-acceptance-lineage.md).
 
 Run `scripts/test-integration -k 'event_acceptance or fixture_ingestion'` for
 concurrent exact/conflicting retries, identity collisions, rollback, immutability,
@@ -139,6 +141,32 @@ and the Floci raw-to-PostgreSQL acceptance path. Unit tests in
 `tests/unit/test_event_acceptance.py` validate candidates and the private codec.
 
 ## Shared transaction ownership
+
+### Publication-aware acceptance
+
+Use `PostgresEventAcceptanceRepository.accept_with_notification(candidate, notification)`
+for new publication-aware workflows. Construct the ingestion `EventAccepted`
+notification with `for_candidate`, supplying a stable ID, occurrence time, and
+correlation/causation IDs once, then reuse them on retry. The new method implements
+`EventPublicationRepository` and atomically inserts event, entries, normalization
+receipt, and immutable `event_outbox` intent. Missing/conflicting replay metadata
+raises `EventAcceptanceConflict`; an outbox identity collision rolls back all new
+canonical writes even when the caller catches it.
+
+`get_notification(EventId)` loads and validates the pending intent and receipt
+identity. `published_at` remains null: persistence does not publish anything.
+Legacy `accept` remains persistence-only; a legacy receipt with no outbox conflicts
+if passed to the new method. There is no automatic backfill or repair. Pending
+intents cannot be updated/deleted/truncated. Delivery claims, acknowledgements,
+retries, queues, monitoring, and transport are the next increment. See
+[ADR-019](../../../docs/adr/ADR-019-event-outbox.md) and
+[event contracts](../../../contracts/events/README.md).
+
+Run `scripts/test-integration -k 'outbox or fixture_ingestion'` for transactional
+publication intent and fixture-to-outbox coverage. Tests use disposable resources;
+the developer application database is not migrated automatically.
+
+### Caller ownership
 
 The caller supplies an active PostgreSQL/psycopg SQLAlchemy connection transaction,
 normally through `with engine.begin() as connection`. Autocommit is rejected.

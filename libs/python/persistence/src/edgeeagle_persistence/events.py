@@ -1,11 +1,14 @@
 """Transactional initial event acceptance; no refresh policy or publication yet."""
 
+import json
+
 from sqlalchemy import Connection, text
 
 from edgeeagle_domain._validation import instance
 from edgeeagle_domain.repositories import DuplicateRecordError
 from edgeeagle_domain.sports import EventId
 from edgeeagle_ingestion.events import EventAcceptanceConflict, EventCandidate
+from edgeeagle_ingestion.notifications import EventAccepted
 from edgeeagle_persistence._event_snapshot import acceptance_key, canonical, decode, encode
 from edgeeagle_persistence._transactions import insert, require_transaction
 from edgeeagle_persistence.sports import PostgresSportsRepository
@@ -14,6 +17,66 @@ from edgeeagle_persistence.sports import PostgresSportsRepository
 class PostgresEventAcceptanceRepository:
     def __init__(self, connection: Connection) -> None:
         self._connection = connection
+
+    def get_notification(self, event_id: EventId) -> EventAccepted | None:
+        instance(event_id, EventId, "event_id")
+        require_transaction(self._connection)
+        row = (
+            self._connection.execute(
+                text(
+                    "SELECT notification_id, envelope FROM event_outbox "
+                    "WHERE canonical_event_id = :id"
+                ),
+                {"id": event_id.value},
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if row is None:
+            return None
+        notification = EventAccepted.from_envelope(row["envelope"])
+        candidate = self.get(event_id)
+        if candidate is None or notification.event_id != row["notification_id"]:
+            raise ValueError("Outbox identity does not match its receipt")
+        self._validate_notification(candidate, notification)
+        return notification
+
+    @staticmethod
+    def _validate_notification(candidate: EventCandidate, notification: EventAccepted) -> None:
+        if (
+            notification.canonical_event_id != candidate.event.event_id
+            or notification.acceptance_key != acceptance_key(candidate)
+            or notification.occurred_at < candidate.raw.capture.ingested_at
+        ):
+            raise ValueError("Notification does not match candidate lineage or ingestion time")
+
+    def accept_with_notification(
+        self, candidate: EventCandidate, notification: EventAccepted
+    ) -> bool:
+        instance(candidate, EventCandidate, "candidate")
+        instance(notification, EventAccepted, "notification")
+        self._validate_notification(candidate, notification)
+        try:
+            with insert(self._connection):
+                created = self.accept(candidate)
+                if not created:
+                    if self.get_notification(candidate.event.event_id) != notification:
+                        raise EventAcceptanceConflict("Missing or conflicting publication intent")
+                    return False
+                self._connection.execute(
+                    text(
+                        "INSERT INTO event_outbox (notification_id, canonical_event_id, envelope) "
+                        "VALUES (:notification, :event, CAST(:envelope AS jsonb))"
+                    ),
+                    {
+                        "notification": notification.event_id,
+                        "event": candidate.event.event_id.value,
+                        "envelope": json.dumps(notification.to_envelope()),
+                    },
+                )
+                return True
+        except DuplicateRecordError as error:
+            raise EventAcceptanceConflict("Notification identity already used") from error
 
     def get(self, event_id: EventId) -> EventCandidate | None:
         instance(event_id, EventId, "event_id")

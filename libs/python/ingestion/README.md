@@ -71,6 +71,11 @@ and causation ID. It references the accepted canonical event and lineage digest.
 `identity.acceptance_key(candidate)` owns that deterministic digest (unchanged
 from receipt format 1). See [event contracts](../../../contracts/events/README.md).
 The notification type and `EventPublicationRepository` port are transport-neutral.
+Its `accept_with_notification(candidate, notification)` method requires atomic
+canonical acceptance and outbox insertion. Exact retries reuse the original
+notification metadata. The persistence adapter implements it; no publisher exists
+yet. Legacy `accept` remains persistence-only and does not gain a notification on
+replay. See [ADR-019](../../../docs/adr/ADR-019-event-outbox.md).
 
 `events.EventAcceptanceRepository.accept(candidate)` returns True for first
 acceptance, False for an exact replay, and raises `EventAcceptanceConflict` for

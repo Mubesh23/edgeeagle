@@ -42,8 +42,10 @@ Example key:
 The first implemented capability is bounded offline acquisition and raw retention;
 see [ADR-016](../adr/ADR-016-offline-ingestion-boundary.md). It is exercised using
 synthetic fixtures, not live feeds. [ADR-017](../adr/ADR-017-synthetic-event-normalization.md)
-adds retained-fixture parsing and explicit canonical event candidates. Canonical
-persistence and event publication remain deferred.
+adds retained-fixture parsing and explicit canonical event candidates.
+[ADR-018](../adr/ADR-018-event-acceptance-lineage.md) adds transactional canonical
+acceptance; [ADR-019](../adr/ADR-019-event-outbox.md) adds atomic publication intents.
+Actual event delivery and the read-only API remain deferred.
 
 Separate interfaces by capability:
 

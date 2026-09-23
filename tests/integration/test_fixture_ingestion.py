@@ -8,6 +8,7 @@ from sqlalchemy import Engine
 
 from edgeeagle_domain.provenance import DataSourceId
 from edgeeagle_domain.raw import RawCapture
+from edgeeagle_ingestion.notifications import EventAccepted
 from edgeeagle_ingestion.offline import LocalFileImporter
 from edgeeagle_ingestion.service import OfflineDatasetImporter, ingest_raw
 from edgeeagle_ingestion.synthetic_events import normalize_fixture_events
@@ -46,13 +47,21 @@ def test_fixture_ingestion_retains_exact_bytes_and_replays(
     assert store.get(receipt) == path.read_bytes()
     assert normalize_fixture_events(store, receipt, (binding(),)) == candidates
     assert len(client.list_objects_v2(Bucket=bucket)["Contents"]) == 1
+    notification = EventAccepted.for_candidate(
+        candidates[0],
+        event_id="fixture-notification-1",
+        occurred_at=datetime(2026, 9, 23, tzinfo=UTC),
+        correlation_id="fixture-workflow-1",
+        causation_id="fixture-command-1",
+    )
     with repository_engine.begin() as connection:
         seed(connection)
         repository = PostgresEventAcceptanceRepository(connection)
-        assert repository.accept(candidates[0]) is True
+        assert repository.accept_with_notification(candidates[0], notification) is True
     with repository_engine.begin() as connection:
         repository = PostgresEventAcceptanceRepository(connection)
-        assert repository.accept(candidates[0]) is False
+        assert repository.accept_with_notification(candidates[0], notification) is False
+        assert repository.get_notification(candidates[0].event.event_id) == notification
         accepted = repository.get(candidates[0].event.event_id)
         assert accepted is not None
         assert accepted.raw == receipt

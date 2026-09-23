@@ -20,7 +20,9 @@ and pinned historical datasets remain later increments. Initial fixture event
 acceptance now persists canonical events, entries, and immutable raw/normalization
 receipts together, with exact replay and conflict tests. See
 [ADR-018](../adr/ADR-018-event-acceptance-lineage.md). Ingestion owns the port;
-persistence depends inward on it. Durable publication and API wiring remain next.
+persistence depends inward on it. The additive publication-aware method now records
+immutable outbox intents alongside canonical writes under
+[ADR-019](../adr/ADR-019-event-outbox.md). Relay delivery and API wiring remain next.
 
 ## Prerequisites and bootstrap
 

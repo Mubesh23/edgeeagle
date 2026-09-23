@@ -1,5 +1,11 @@
 # Database migrations
 
+Revision `0006_event_outbox` adds immutable pending notification envelopes linked
+to accepted normalization receipts. It does not backfill old receipts or change
+their timestamps. Downgrade removes only the outbox table/function. See
+[ADR-019](../../../docs/adr/ADR-019-event-outbox.md). Delivery state and relay
+execution are not implemented by this migration.
+
 Revision `0005_event_acceptance` adds immutable `event_normalizations` receipts
 with event/source foreign keys and a versioned JSONB accepted-output snapshot.
 Its downgrade removes only that table and its immutability function. See

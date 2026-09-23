@@ -34,6 +34,11 @@ acquisition with raw retention. A versioned fixture-only event adapter now produ
 canonical candidates using explicit bindings; see
 [ADR-017](docs/adr/ADR-017-synthetic-event-normalization.md). It does not write
 canonical records, publish events, or replace production mapping history.
+The separate acceptance repository persists canonical candidates and immutable
+receipts. Its publication-aware `accept_with_notification` method now also saves
+an immutable outbox intent atomically; legacy `accept` remains persistence-only.
+No relay or AWS publication is implemented yet. See
+[ADR-019](docs/adr/ADR-019-event-outbox.md).
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports

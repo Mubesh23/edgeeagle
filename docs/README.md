@@ -27,6 +27,7 @@ Raw storage: [ADR-015 — immutable captures](adr/ADR-015-raw-payload-storage.md
 Offline acquisition: [ADR-016 — ingestion boundary](adr/ADR-016-offline-ingestion-boundary.md).
 Fixture normalization: [ADR-017 — event candidates](adr/ADR-017-synthetic-event-normalization.md).
 Transactional acceptance: [ADR-018 — event receipts and replay](adr/ADR-018-event-acceptance-lineage.md).
+Publication intents: [ADR-019 — initial event outbox](adr/ADR-019-event-outbox.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.

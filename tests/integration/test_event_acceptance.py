@@ -7,7 +7,7 @@ from threading import Barrier
 
 import pytest
 from sqlalchemy import Connection, Engine, text
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NotSupportedError
 
 from edgeeagle_domain.sports import EventId
 from edgeeagle_ingestion.events import (
@@ -187,10 +187,13 @@ def test_event_acceptance_immutable_receipt_and_current_drift(repository_engine:
         for statement in (
             "UPDATE event_normalizations SET acceptance_key = acceptance_key",
             "DELETE FROM event_normalizations",
-            "TRUNCATE event_normalizations",
+            "TRUNCATE event_normalizations, event_outbox",
         ):
             with pytest.raises(IntegrityError), connection.begin_nested():
                 connection.execute(text(statement))
+        # PostgreSQL rejects parent-only TRUNCATE before invoking immutable triggers.
+        with pytest.raises(NotSupportedError), connection.begin_nested():
+            connection.execute(text("TRUNCATE event_normalizations"))
         connection.execute(text("UPDATE events SET status = 'FINAL'"))
         assert repository.get(value.event.event_id) == canonical(value)
         with pytest.raises(EventAcceptanceConflict):

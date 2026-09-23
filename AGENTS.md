@@ -16,6 +16,9 @@ Floci. `validate` starts these local services and leaves them running; named dat
 volumes survive `local-down`. `scripts/migrate` manages the local Alembic history.
 The synthetic provider mock now runs with local-up and is covered by unit and
 HTTP integration tests; real provider adapters/contract tests are not implemented.
+Migration `0002_source_venue` adds source/venue tables and capability sets; see
+[migration scope](apps/api/migrations/README.md). Validation migrates disposable
+test databases only, not the developer's application database.
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports

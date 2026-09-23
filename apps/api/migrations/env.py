@@ -9,7 +9,7 @@ config = context.config
 
 
 def migrate(connection: Connection) -> None:
-    # Domain metadata arrives with Phase 2; there are no authoritative tables yet.
+    # Revisions own explicit DDL. Runtime ORM metadata/autogeneration is not enabled.
     context.configure(connection=connection, target_metadata=None)
     with context.begin_transaction():
         context.run_migrations()

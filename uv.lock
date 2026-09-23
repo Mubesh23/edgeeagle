@@ -283,6 +283,7 @@ source = { editable = "apps/api" }
 dependencies = [
     { name = "alembic" },
     { name = "edgeeagle-domain" },
+    { name = "edgeeagle-ingestion" },
     { name = "edgeeagle-persistence" },
     { name = "fastapi" },
     { name = "psycopg", extra = ["binary"] },
@@ -295,6 +296,7 @@ dependencies = [
 requires-dist = [
     { name = "alembic", specifier = ">=1.16,<2" },
     { name = "edgeeagle-domain", editable = "libs/python/domain" },
+    { name = "edgeeagle-ingestion", editable = "libs/python/ingestion" },
     { name = "edgeeagle-persistence", editable = "libs/python/persistence" },
     { name = "fastapi", specifier = ">=0.115,<1" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2,<4" },

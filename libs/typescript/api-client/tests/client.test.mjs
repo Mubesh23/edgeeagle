@@ -2,6 +2,29 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createApiClient } from "@edgeeagle/api-client";
 
+test("catalog inspection preserves the pinned identity and verification failures", async () => {
+  const requests = [];
+  const client = createApiClient({
+    baseUrl: "http://127.0.0.1:8000",
+    fetch: async (request) => {
+      requests.push(request);
+      return Response.json({ detail: "verification failed" }, { status: 503 });
+    },
+  });
+  const digest = "a".repeat(64);
+  const result = await client.GET("/v1/datasets/{rootHash}/inspection", {
+    params: { path: { rootHash: digest } },
+  });
+  assert.equal(
+    requests[0].url,
+    `http://127.0.0.1:8000/v1/datasets/${digest}/inspection`,
+  );
+  assert.equal(requests[0].method, "GET");
+  assert.equal(result.data, undefined);
+  assert.equal(result.response.status, 503);
+  assert.deepEqual(result.error, { detail: "verification failed" });
+});
+
 test("the generated health operation uses the supplied transport", async () => {
   const requests = [];
   const client = createApiClient({

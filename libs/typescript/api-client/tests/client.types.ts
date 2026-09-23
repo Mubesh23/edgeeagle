@@ -28,6 +28,25 @@ async function checkContract() {
   }
   // @ts-expect-error The event read slice does not support writes.
   await client.POST("/v1/events");
+  const datasets = await client.GET("/v1/datasets");
+  if (datasets.data) {
+    const status: "NOT_CHECKED" | undefined =
+      datasets.data.items[0]?.replay_status;
+    void status;
+  }
+  const inspection = await client.GET("/v1/datasets/{rootHash}/inspection", {
+    params: { path: { rootHash: "a".repeat(64) } },
+  });
+  if (inspection.data) {
+    const eligible: false = inspection.data.metadata.backtest_eligible;
+    const status: "VERIFIED" = inspection.data.replay_status;
+    void eligible;
+    void status;
+    // @ts-expect-error Replay inspection is not a model probability.
+    inspection.data.probability;
+  }
+  // @ts-expect-error The private catalog supports no HTTP writes.
+  await client.POST("/v1/datasets");
   // @ts-expect-error The health route does not support writes.
   await client.POST("/health");
 }

@@ -12,10 +12,20 @@ Implementation exposes `GET /health` and local-only configured current-state eve
 list/detail reads under [ADR-024](../adr/ADR-024-event-read-api.md). Its OpenAPI
 snapshot and TypeScript client types are generated locally; see
 [`contracts/README.md`](../../contracts/README.md). The domains below remain
-planned capabilities except the two event read routes. Generated drift is enforced by `scripts/validate`;
+planned capabilities except the event and private dataset reads. Generated drift is enforced by `scripts/validate`;
 compatibility against a frozen pre-release foundation snapshot is enforced by
 `scripts/check-contracts`. There is no released API baseline yet; see
 [baseline policy](../../contracts/baselines/README.md).
+
+### Private retained datasets
+
+The additive local-only [ADR-032](../adr/ADR-032-local-dataset-api.md) consumer
+exposes `GET /v1/datasets` and `GET /v1/datasets/{rootHash}/inspection`.
+The former lists up to 32 explicitly selected roots with `NOT_CHECKED` status;
+the latter freshly verifies retained replay and returns `VERIFIED` only after
+complete success. Both retain literal `REPLAY_ONLY` usage and false backtest
+eligibility. The default app returns 503 without storage configuration. These
+routes authorize no hosted access, provider fetches, writes or eligibility changes.
 
 ### Events/Markets
 

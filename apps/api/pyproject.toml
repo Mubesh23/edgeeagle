@@ -5,6 +5,7 @@ description = "EdgeEagle FastAPI application boundary"
 requires-python = ">=3.11,<3.12"
 dependencies = [
     "edgeeagle-domain",
+    "edgeeagle-ingestion",
     "edgeeagle-persistence",
     "alembic>=1.16,<2",
     "fastapi>=0.115,<1",
@@ -16,6 +17,7 @@ dependencies = [
 
 [tool.uv.sources]
 edgeeagle-domain = { workspace = true }
+edgeeagle-ingestion = { workspace = true }
 edgeeagle-persistence = { workspace = true }
 
 [build-system]

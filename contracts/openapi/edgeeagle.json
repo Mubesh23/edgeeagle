@@ -1,6 +1,183 @@
 {
   "components": {
     "schemas": {
+      "DataSourceId": {
+        "description": "Opaque internally assigned source identity, not a provider-native ID.",
+        "properties": { "value": { "title": "Value", "type": "string" } },
+        "required": ["value"],
+        "title": "DataSourceId",
+        "type": "object"
+      },
+      "DatasetErrorResponse": {
+        "properties": { "detail": { "title": "Detail", "type": "string" } },
+        "required": ["detail"],
+        "title": "DatasetErrorResponse",
+        "type": "object"
+      },
+      "DatasetInspection": {
+        "properties": {
+          "asserted_starts_at_max": {
+            "format": "date-time",
+            "title": "Asserted Starts At Max",
+            "type": "string"
+          },
+          "asserted_starts_at_min": {
+            "format": "date-time",
+            "title": "Asserted Starts At Min",
+            "type": "string"
+          },
+          "competition_ids": {
+            "items": { "type": "string" },
+            "title": "Competition Ids",
+            "type": "array"
+          },
+          "context_versions": {
+            "items": { "type": "string" },
+            "title": "Context Versions",
+            "type": "array"
+          },
+          "database_acceptance_verified": {
+            "const": false,
+            "default": false,
+            "title": "Database Acceptance Verified",
+            "type": "boolean"
+          },
+          "kickoff_accuracy_verified": {
+            "const": false,
+            "default": false,
+            "title": "Kickoff Accuracy Verified",
+            "type": "boolean"
+          },
+          "metadata": { "$ref": "#/components/schemas/DatasetMetadata" },
+          "participant_count": {
+            "title": "Participant Count",
+            "type": "integer"
+          },
+          "receipt_count": { "title": "Receipt Count", "type": "integer" },
+          "replay_completed_at": {
+            "format": "date-time",
+            "title": "Replay Completed At",
+            "type": "string"
+          },
+          "replay_status": {
+            "const": "VERIFIED",
+            "default": "VERIFIED",
+            "title": "Replay Status",
+            "type": "string"
+          },
+          "rights_verified": {
+            "const": false,
+            "default": false,
+            "title": "Rights Verified",
+            "type": "boolean"
+          },
+          "season_ids": {
+            "items": { "type": "string" },
+            "title": "Season Ids",
+            "type": "array"
+          },
+          "sport_ids": {
+            "items": { "type": "string" },
+            "title": "Sport Ids",
+            "type": "array"
+          },
+          "verification_scope": {
+            "const": "RETAINED_ARTIFACT_REPLAY",
+            "default": "RETAINED_ARTIFACT_REPLAY",
+            "title": "Verification Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "metadata",
+          "replay_completed_at",
+          "receipt_count",
+          "participant_count",
+          "asserted_starts_at_min",
+          "asserted_starts_at_max",
+          "sport_ids",
+          "competition_ids",
+          "season_ids",
+          "context_versions"
+        ],
+        "title": "DatasetInspection",
+        "type": "object"
+      },
+      "DatasetListResponse": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/DatasetListing" },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": ["items"],
+        "title": "DatasetListResponse",
+        "type": "object"
+      },
+      "DatasetListing": {
+        "properties": {
+          "metadata": { "$ref": "#/components/schemas/DatasetMetadata" },
+          "replay_status": {
+            "const": "NOT_CHECKED",
+            "default": "NOT_CHECKED",
+            "title": "Replay Status",
+            "type": "string"
+          }
+        },
+        "required": ["metadata"],
+        "title": "DatasetListing",
+        "type": "object"
+      },
+      "DatasetMetadata": {
+        "properties": {
+          "backtest_eligible": {
+            "const": false,
+            "default": false,
+            "title": "Backtest Eligible",
+            "type": "boolean"
+          },
+          "declared_row_count": {
+            "title": "Declared Row Count",
+            "type": "integer"
+          },
+          "ineligibility_reasons": {
+            "items": { "type": "string" },
+            "title": "Ineligibility Reasons",
+            "type": "array"
+          },
+          "normalizer_version": {
+            "default": "football-data-results-mappings-v1",
+            "title": "Normalizer Version",
+            "type": "string"
+          },
+          "operator_label": { "title": "Operator Label", "type": "string" },
+          "page_count": { "title": "Page Count", "type": "integer" },
+          "parser_version": {
+            "default": "football-data-results-season-csv-v1",
+            "title": "Parser Version",
+            "type": "string"
+          },
+          "raw": { "$ref": "#/components/schemas/RawPayloadReference" },
+          "root_hash": { "title": "Root Hash", "type": "string" },
+          "usage": {
+            "const": "REPLAY_ONLY",
+            "default": "REPLAY_ONLY",
+            "title": "Usage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "root_hash",
+          "operator_label",
+          "raw",
+          "declared_row_count",
+          "page_count",
+          "ineligibility_reasons"
+        ],
+        "title": "DatasetMetadata",
+        "type": "object"
+      },
       "EventDetailResponse": {
         "properties": {
           "competition_id": { "title": "Competition Id", "type": "string" },
@@ -120,6 +297,51 @@
         "title": "HealthResponse",
         "type": "object"
       },
+      "RawCapture": {
+        "properties": {
+          "available_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Available At"
+          },
+          "data_source_id": { "$ref": "#/components/schemas/DataSourceId" },
+          "effective_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Effective At"
+          },
+          "ingested_at": {
+            "format": "date-time",
+            "title": "Ingested At",
+            "type": "string"
+          },
+          "observed_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Observed At"
+          },
+          "resource": { "title": "Resource", "type": "string" }
+        },
+        "required": ["data_source_id", "resource", "ingested_at"],
+        "title": "RawCapture",
+        "type": "object"
+      },
+      "RawPayloadReference": {
+        "properties": {
+          "capture": { "$ref": "#/components/schemas/RawCapture" },
+          "sha256": { "title": "Sha256", "type": "string" },
+          "size_bytes": { "title": "Size Bytes", "type": "integer" }
+        },
+        "required": ["capture", "sha256", "size_bytes"],
+        "title": "RawPayloadReference",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": { "title": "Context", "type": "object" },
@@ -155,6 +377,92 @@
           }
         },
         "summary": "Health"
+      }
+    },
+    "/v1/datasets": {
+      "get": {
+        "description": "Read selected roots only; never imply that full replay was checked.",
+        "operationId": "list_datasets",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DatasetListResponse" }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "List Datasets"
+      }
+    },
+    "/v1/datasets/{rootHash}/inspection": {
+      "get": {
+        "description": "Freshly replay retained artifacts; never upgrade historical eligibility.",
+        "operationId": "inspect_dataset",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rootHash",
+            "required": true,
+            "schema": {
+              "maxLength": 64,
+              "minLength": 64,
+              "pattern": "^[0-9a-f]{64}$",
+              "title": "Roothash",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DatasetInspection" }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Inspect Dataset"
       }
     },
     "/v1/events": {

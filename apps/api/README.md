@@ -20,6 +20,18 @@ business records. There are no authentication flows, provider adapters, or execu
 capabilities. Bind locally for development;
 production configuration and authentication require their own review.
 
+## Private dataset contracts
+
+`GET /v1/datasets` lists explicitly selected retained roots. The bounded list
+reports `NOT_CHECKED`; `GET /v1/datasets/{rootHash}/inspection` freshly replays
+one selected root and reports `VERIFIED` only on complete success. Neither permits
+backtests. Both preserve private provenance and replay-only exclusions. The default
+app returns 503 without accessing storage; malformed hashes return 422 and an
+unselected root on a configured catalog returns 404. Storage loss/corruption returns
+sanitized 503, never a partial success. Responses use `Cache-Control: no-store`.
+See [ADR-032](../../docs/adr/ADR-032-local-dataset-api.md). There is no public hosting,
+authentication decision, UI or MCP tool in this slice.
+
 ## Local event reads
 
 `GET /v1/events` supports exact `sport_id`, `competition_id`, and `status` filters,

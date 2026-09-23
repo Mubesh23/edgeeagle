@@ -33,7 +33,7 @@ review. Do not run against private captures in hosted CI.
 Malformed hashes return 422 before storage access; unselected hashes return 404
 before storage access. Missing/corrupt retained artifacts and storage transport
 failures return sanitized 503, never partial results or automatic repair.
-Unexpected programming failures remain 500. Catalog responses, including errors,
+Unexpected programming failures remain 500. Catalog responses, including handled errors,
 carry `Cache-Control: no-store` so a fresh inspection is never represented as a
 cacheable durable verification. No raw bytes, bucket names or configuration paths
 are returned. Resource/provider identifiers already present in provenance remain

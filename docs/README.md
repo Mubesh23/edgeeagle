@@ -43,6 +43,7 @@ Whole-season extension: [ADR-029 — bounded paged replay](adr/ADR-029-football-
 Private recovery: [ADR-030 — local backup and isolated restoration](adr/ADR-030-private-local-recovery.md).
 Run it locally: [Private recovery operator guide](development/private-recovery.md).
 Local catalog: [ADR-031 — read-only retained dataset discovery](adr/ADR-031-local-dataset-catalog.md).
+Run it locally: [Dataset catalog operator guide](development/dataset-catalog.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.

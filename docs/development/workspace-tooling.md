@@ -135,6 +135,9 @@ Private retained research data has an explicit local
 recovery; `scripts/research-recovery verify` repeats verification from a trusted
 archive. Neither touches live source data or runs against private captures in CI.
 Synthetic recovery tests are included in routine unit/integration validation.
+`scripts/datasets` provides private read-only root listing and fresh whole-season
+replay inspection; see [catalog commands](dataset-catalog.md). Its synthetic tests
+are included in normal validation, but real catalog configuration/output stays ignored.
 
 ## Dependency and generated-file policy
 

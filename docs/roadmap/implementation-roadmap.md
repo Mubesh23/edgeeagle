@@ -88,6 +88,12 @@ No catalog or production storage resources are added. Retrieve-by-version replay
 composition now verifies retained receipts and raw artifacts after current-state
 edits, while distinguishing missing manifests from lost raw artifacts.
 
+The first narrow catalog is now a private local operator interface under
+[ADR-031](../adr/ADR-031-local-dataset-catalog.md): explicitly pinned ADR-029 roots
+can be listed and freshly inspected with provenance and replay-only restrictions.
+It adds no SQL catalog, HTTP/UI exposure, historical eligibility or provider calls;
+older manifest formats and production catalog publication remain separate work.
+
 ## Phase 3 — V1 Provider Adapters
 
 First bounded goal: [ADR-028](../adr/ADR-028-football-data-results-import.md) defines

@@ -19,6 +19,9 @@ research data using isolated local restore targets; see
 [the recovery guide](docs/development/private-recovery.md).
 Real recovery archives/reports stay ignored under `.data/recovery/`; routine
 validation exercises authored synthetic recovery data only.
+`scripts/datasets` lists explicitly pinned local season roots and freshly inspects
+their retained replay/provenance; see [catalog commands](docs/development/dataset-catalog.md).
+It is read-only, private/local, and never upgrades backtest eligibility.
 The synthetic provider mock now runs with local-up and is covered by unit and
 HTTP integration tests. The first offline Football-Data results CSV adapter now
 retains raw bytes, atomically accepts score-bearing receipts, and stores replay-only

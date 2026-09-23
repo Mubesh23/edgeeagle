@@ -1,6 +1,6 @@
 # ADR-031 — Read-only local retained-dataset catalog
 
-**Status:** Accepted; pure read model implemented, local composition pending
+**Status:** Accepted; local read-only catalog implemented
 **Date:** 2026-09-23
 
 ## Decision
@@ -69,3 +69,9 @@ listing and inspection results. It reuses strict root decoding and complete repl
 no storage or database adapter is imported into ingestion. Offline tests cover
 unknown and known raw availability, fresh status, missing artifacts, trusted-root
 mismatch, bounds, deterministic ordering and write-free behavior.
+
+`scripts/datasets` now composes strict ignored local configuration with the
+existing Floci stores and emits all-or-error JSON. See the
+[operator guide](../development/dataset-catalog.md). Synthetic integration proves
+fresh replay without PostgreSQL and rejects lost pages while leaving root
+metadata readable. This does not add an HTTP contract or stored verification flag.

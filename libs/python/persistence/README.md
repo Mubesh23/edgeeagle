@@ -254,6 +254,11 @@ See [ADR-023](../../../docs/adr/ADR-023-event-acceptance-consumer.md).
 
 ## Transaction ownership details
 
+`event_query.PostgresEventReader` implements the domain's bounded `EventQuery`
+port over current canonical records. Filters are exact, SQL values are bound,
+and pagination uses the existing C-collated event primary key. No historical
+snapshot or new schema is introduced. See [ADR-024](../../../docs/adr/ADR-024-event-read-api.md).
+
 `consumer.PostgresEventAcceptedHandler(connection)` verifies a delivered notification
 against its immutable outbox/normalization evidence and inserts one immutable
 `event_acceptance_consumptions` receipt. Exact concurrent duplicates return False;

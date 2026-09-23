@@ -2,6 +2,7 @@ import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
+import { parse } from "yaml";
 
 process.chdir(fileURLToPath(new URL("..", import.meta.url)));
 
@@ -14,6 +15,10 @@ function filesUnder(directory) {
 
 const manifest = JSON.parse(readFileSync("package.json", "utf8"));
 assert.equal(manifest.private, true, "Root workspace must not be published");
+assert.equal(
+  parse(readFileSync("pnpm-workspace.yaml", "utf8")).engineStrict,
+  true,
+);
 assert.match(manifest.packageManager, /^pnpm@\d+\.\d+\.\d+$/);
 assert.equal(readFileSync("CLAUDE.md", "utf8").trim(), "@AGENTS.md");
 

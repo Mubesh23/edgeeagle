@@ -9,6 +9,9 @@ planned directory tree. Python members are registered as they land.
 
 Use a Node version matching the root engine range (prefer a supported LTS),
 Corepack, Python 3.11, and uv >=0.7.3.
+pnpm enforces the declared Node engine range during installation. If a shell or
+version manager selects an older Node outside the original checkout, select a
+supported runtime before bootstrap; an engine warning must not be ignored.
 The initial workspace was exercised with Node 20.20.1 and Python 3.11.5; this is
 local compatibility evidence, not a production runtime policy. pnpm is pinned
 in package.json and invoked through Corepack without a global pnpm installation.

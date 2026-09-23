@@ -501,3 +501,15 @@ Public advisory queries require network but no sports-provider/AWS credentials.
 This is not SAST, secret scanning, container scanning, or security certification.
 Python markers cover the executing platform; a hosted Linux run and native
 device testing are not implied. Fresh-checkout validation follows this commit.
+
+## Runtime prerequisite enforcement
+
+The first temporary-clone attempt inherited the machine's Node 18 default outside
+the original checkout, below the documented engine range. pnpm only warned and
+later the decoder regression correctly failed with ERR_REQUIRE_ESM. This was
+not a successful fresh-checkout run. Enabled pnpm engineStrict and asserted the
+setting in workspace lint so unsupported runtimes fail at installation instead.
+Validation: supported Node 20.20.1 frozen bootstrap passed; explicitly selected
+Node 20.14.0 was rejected with ERR_PNPM_UNSUPPORTED_ENGINE before installation.
+Formatting and workspace checks passed. A new clone will use the supported
+runtime explicitly; no machine-wide runtime configuration was changed.

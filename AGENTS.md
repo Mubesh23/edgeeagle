@@ -29,6 +29,8 @@ GitHub-hosted Linux with no provider or AWS credentials; no deployment is define
 `scripts/check-contracts` compares OpenAPI with the frozen pre-release foundation
 checkpoint using a pinned, network-disabled Docker comparator. See
 [baseline policy](contracts/baselines/README.md).
+`scripts/security-scan` audits locked npm/Python dependencies using public
+advisory services and runs in `validate`; see [scan scope](docs/development/security-scanning.md).
 The table below describes the target
 command set; unimplemented commands are not yet available. See
 [`docs/development/workspace-tooling.md`](docs/development/workspace-tooling.md)

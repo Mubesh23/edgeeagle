@@ -41,6 +41,12 @@ development. Unit tests remain separately network-blocked. Queue/DLQ consumers
 arrive in subsequent increments; the diagram
 below describes the target stack, not additional implemented services.
 
+Full validation also runs OpenAPI compatibility in a pinned, network-disabled
+Docker container and npm/Python dependency advisory scans. Initial image/package
+downloads and current public advisory queries require internet access, but no
+provider or AWS credentials. See [scan scope](security-scanning.md). Advisory
+service failures fail validation rather than being reported as clean scans.
+
 The provider mock runs on host loopback port 9080 (override with exported
 `EDGEEAGLE_MOCK_PROVIDER_PORT`). It serves synthetic soccer odds plus deterministic
 empty, rate-limit, server-error, and malformed responses, with no upstream calls.

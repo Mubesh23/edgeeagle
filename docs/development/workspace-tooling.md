@@ -35,6 +35,8 @@ use `scripts/local-down` to stop them while retaining their named data volumes.
 | `scripts/build`              | Offline API sdist/wheel and TypeScript client build                                    |
 | `scripts/generate-contracts` | Local OpenAPI export and generated TypeScript types                                    |
 | `scripts/check-generated`    | Non-mutating comparison of generated artifacts with source                             |
+| `scripts/check-contracts`    | OpenAPI compatibility against the frozen pre-release snapshot                          |
+| `scripts/security-scan`      | npm and Python dependency advisory checks, including development tools                 |
 | `scripts/synth`              | Credential-free, lookup-disabled synthesis of the resource-free CDK shell              |
 | `scripts/validate`           | All current checks, offline uv lock freshness, Turbo graph parsing                     |
 
@@ -76,9 +78,11 @@ credentials. See [CDK commands](../../infra/cdk/README.md) for expected warnings
 `scripts/check-contracts` uses a digest-pinned, network-disabled Docker comparator
 against a frozen pre-release snapshot. Actual comparator regression cases run in
 local integration tests. No released API or event baseline exists yet.
-There are no security scans yet. That is a missing check, not a pass. Add root
-wrappers together with their real implementations. Phase 1 exit requires the
-full roadmap gate, not merely this initial scripts/validate result.
+`scripts/security-scan` audits npm/Python dependencies, including development
+tools, and fails on findings or unavailable advisory services. It runs without
+Turbo caching as part of validation and requires public registry/advisory network
+access. See [scan scope](security-scanning.md); this is not a comprehensive
+application security audit. Phase 1 exit still requires fresh-checkout evidence.
 
 The [foundation CI workflow](ci.md) invokes bootstrap and validation on a fresh
 GitHub-hosted Linux runner without provider/AWS credentials. Its YAML policy test

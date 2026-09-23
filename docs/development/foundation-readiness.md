@@ -479,3 +479,25 @@ full run found a CommonJS ESLint configuration gap, corrected only for mobile
 .cjs configuration files. Existing unrelated package checks used Turbo cache.
 No native-device/security certification is claimed. This is dependency
 remediation, not a change to authentication, execution, risk, or architecture.
+
+## Dependency security gate increment
+
+Added scripts/security-scan for the complete pnpm graph and hashed, pinned uv
+workspace/group export, including development tools. pip-audit 2.10.1 is locked
+in the development group. Both audits are attempted; findings, empty/failed
+exports, service errors, and timeouts fail closed. Temporary inventories are
+deleted. There are no automatic fixes, exclusions, or Turbo-cached scan results.
+
+Validation passed: locked bootstrap, four network-free scanner orchestration
+tests, standalone npm/Python advisory scans with no known vulnerabilities, and
+full scripts/validate. Python unit tests remain 16, script tests total 9, local
+Python integration tests remain 9, and the three actual comparator regressions
+also pass. Builds, typechecks, drift, lint, formatting, and CDK synth passed;
+valid Turbo cache results were reused where unchanged. The final validation
+order now ends with integration, synth, security, and build as in the TDD (test
+prerequisite builds may execute earlier through Turbo).
+
+Public advisory queries require network but no sports-provider/AWS credentials.
+This is not SAST, secret scanning, container scanning, or security certification.
+Python markers cover the executing platform; a hosted Linux run and native
+device testing are not implied. Fresh-checkout validation follows this commit.

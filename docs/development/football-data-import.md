@@ -91,6 +91,50 @@ No current database reader is needed for that replay.
 
 ## Failure and retry semantics
 
+### Whole-season profile
+
+For complete captures of up to 512 rows (still at most 1 MiB of raw CSV), use
+`edgeeagle_ingestion.football_data_season_import.import_season_dataset` with
+`S3SeasonObjectStore(client, bucket, codec)` instead of the legacy operation/store.
+Arguments and reference/transaction prerequisites are otherwise the same. No
+automatic promotion of legacy receipts occurs. See
+[ADR-029](../adr/ADR-029-football-data-season-replay.md).
+
+The whole batch is accepted/read back in one PostgreSQL transaction, including
+all page/root encoding and size checks. After commit, the operation writes all
+pages (up to 64 receipts each) first, then the root, validating every returned object hash.
+It returns the root hash only after the final acknowledgement:
+
+```python
+root_hash = import_season_dataset(
+    importer, raw_store, requests, reads, transactions, object_store, codec, as_of=cutoff
+)
+body = object_store.get(root_hash)
+if body is None:
+    raise FileNotFoundError("Retained season root is missing")
+results = verify_bundle(body, codec, object_store, raw_store)
+```
+
+Import `verify_bundle` from `edgeeagle_ingestion.season_bundle` and the store from
+`edgeeagle_persistence.season_storage`. Verification reads no current database
+state. A missing final page fails the complete replay, even if the root survives.
+Storage validates individual objects, not complete season membership.
+
+Failure after PostgreSQL commit can leave receipts and a prefix of pages without
+a root; they are not rolled back. Retry the exact capture/requests/context with
+unchanged references. If references changed, caller-controlled reconstruction
+must use immutable accepted receipts with `build_bundle`, not new normalization.
+Ambiguous storage acknowledgements can leave a complete bundle even when the call
+raises; exact conditional retry remains safe. No root hash is returned on failure.
+
+Run `scripts/test-unit tests/unit/test_season_import.py tests/unit/test_season_storage.py`
+and `scripts/test-integration -k 'season_import or season_storage'`.
+Routine tests use authored rows and disposable resources, not the downloaded EPL
+file. The real import still requires reviewed canonical mappings and confirmed
+kickoff offsets. Historical availability stays unknown and usage stays REPLAY_ONLY.
+
+### Shared failure rules
+
 - Invalid parsing/context: raw bytes remain; no acceptance transaction begins.
 - Any acceptance/readback/manifest-size failure: the entire acceptance transaction
   rolls back. Earlier raw retention is independent and remains reusable.

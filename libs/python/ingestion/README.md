@@ -202,7 +202,11 @@ Run `scripts/test-unit tests/unit/test_football_data_season.py` for the new boun
 the inward-owned `SeasonObjectStore` port. A root pins up to eight 64-receipt pages
 and one unchanged raw capture; verification validates all metadata before the raw
 read and requires complete-capture replay. Roots are limited to 64 KiB, pages to
-1 MiB. Persistence now supplies `S3SeasonObjectStore`; composition remains pending. See
+1 MiB. Persistence supplies `S3SeasonObjectStore`. The separate
+`football_data_season_import.import_season_dataset` retains raw bytes, accepts
+all rows in one transaction, builds the bundle before commit, then stores pages
+and finally the root. It returns the acknowledged root hash, not backtest eligibility.
+See
 [ADR-029](../../../docs/adr/ADR-029-football-data-season-replay.md) for the exact wire
 contract and `scripts/test-unit tests/unit/test_season_bundle.py` for offline tests.
 

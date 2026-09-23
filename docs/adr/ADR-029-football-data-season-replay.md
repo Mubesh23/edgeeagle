@@ -1,6 +1,6 @@
 # ADR-029 — Bounded whole-season CSV replay
 
-**Status:** Accepted; normalization, codecs and S3 storage implemented, composition pending  
+**Status:** Accepted; storage and atomic import implemented, real-data run pending  
 **Date:** 2026-09-23
 
 ## Context
@@ -177,4 +177,21 @@ Run `scripts/test-unit tests/unit/test_season_storage.py` and
 conditional writes, concurrent retries and corruption rejection. Tests use only
 authored receipts and disposable Floci buckets. This is application immutability,
 not Object Lock, backups or production IAM enforcement. No resources are deployed.
-Transactional composition and the real-data import remain pending.
+
+### Whole-season application operation
+
+`football_data_season_import.import_season_dataset` implements the composition
+above using the existing caller-owned `AcceptanceTransactions` boundary.
+It reads back and compares every accepted receipt, builds the entire bounded
+bundle before commit, and checks each page/root storage acknowledgement against
+its full-body hash. Only then does it return the root hash. No writes notify the
+outbox. There is no schema migration, API change, downloader or automatic repair.
+
+Run `scripts/test-unit tests/unit/test_season_import.py` for ordered boundaries,
+readback/size/commit failures and bad acknowledgements, and
+`scripts/test-integration -k season_import` for concurrent first imports of
+380 authored rows, exact retries, final-row rollback, retained replay after
+reference revocation, missing final pages and post-commit storage recovery.
+See [application composition](../development/football-data-import.md).
+The real-data import remains pending reviewed canonical mappings and kickoff
+offsets. No availability timestamp is inferred by this operation.

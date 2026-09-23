@@ -64,11 +64,29 @@ using the session timezone: future adapters must still reject naive datetimes
 through the domain constructors. Current-state tables are not historical datasets
 and do not establish `available_at`, snapshot versions, or backtest eligibility.
 
+Revision `0004_mapping_history` adds `provider_mapping_keys` and
+`provider_mapping_revisions` as defined by
+[ADR-014](../../../docs/adr/ADR-014-provider-mapping-storage.md). Keys retain opaque,
+case-sensitive source/type/provider-ID namespaces and a fixed target kind.
+Six nullable typed target FKs, an exactly-one-target check, and a composite key FK
+enforce canonical existence and stable target type. A generated predecessor
+revision/self-FK enforces contiguous revision numbers starting at 1; the first
+revision must be MAPPED. Numeric confidence has no declared rounding scale and
+must be NULL or within [0, 1]. Decision timestamps are finite, ordered timestamptz
+instants. PostgreSQL representation limits still apply.
+
+Statement triggers reject UPDATE, DELETE, and TRUNCATE on the two mapping tables.
+This prevents accidental mutation, not a privileged owner disabling triggers.
+There are no role/grant or authentication changes. The future mapping repository
+must lock keys, reuse complete-history validation, allocate revisions, and handle
+exact replay. Inter-revision timestamp ordering and revocation target retention
+are not enforced by this schema alone. No runtime mapping write path exists yet.
+
 These are schema-only increments, not a runtime repository or an HTTP ownership
 boundary: API startup still owns no business data or database connection.
 Source/venue and sports/event repository adapters now live in the separate
 [persistence package](../../../libs/python/persistence/README.md), using caller-owned
-transactions. Mapping history and seed workflows remain
+transactions. Mapping repository operations and seed workflows remain
 later increments. Revisions own explicit DDL; ORM metadata and migration
 autogeneration are not enabled.
 
@@ -77,6 +95,10 @@ their data, leaving the source/venue tables intact.
 An explicit downgrade below `0002_source_venue` drops these four tables and their
 data. Do not downgrade populated application databases without human review and
 a recovery plan. Automated tests perform this only in disposable databases.
+
+Downgrading `0004_mapping_history` to `0003_sports_events` removes the two mapping
+tables (and their data/triggers) plus the mapping trigger function, preserving
+prior canonical tables. Tests verify this with seeded records and reapply head.
 
 Use `scripts/migrate revision -m 'describe the schema change'` to create the next
 revision, implement its upgrade/downgrade, and review the SQL. Apply Ruff to new

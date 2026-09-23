@@ -13,7 +13,9 @@ are maintained by Alembic, not implicit dependencies of the domain package.
 The [persistence library](../../libs/python/persistence/README.md) implements
 source/venue and sports/event repository ports with caller-owned transactions. Root checks and
 offline package builds include it; real transaction tests use disposable local
-PostgreSQL databases. API wiring, mapping-history persistence, and historical storage
+PostgreSQL databases. Mapping-history schema now exists under
+[ADR-014](../adr/ADR-014-provider-mapping-storage.md); its transactional repository,
+API wiring, and historical datasets
 remain later increments.
 
 ## Prerequisites and bootstrap

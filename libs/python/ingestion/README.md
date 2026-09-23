@@ -130,13 +130,24 @@ implements it using the existing format-1/2 codec without database access.
 
 The fixed `REPLAY_ONLY` usage is not historical eligibility. Structural validation
 does not verify raw storage, complete capture coverage, or actual acceptance;
-even an empty receipt group still needs later raw verification. Complete-snapshot
-verification and manifest persistence remain separate increments. See
+even an empty receipt group still needs raw verification. See
 [ADR-026](../../../docs/adr/ADR-026-replay-dataset-manifest.md) and run
 `scripts/test-unit tests/unit/test_dataset_manifest.py tests/unit/test_mapped_receipts.py`.
 Golden vectors were independently assembled from the contract and existing receipt
 codec before manifest implementation; they are test expectations, not generated
 artifacts to refresh automatically when serialization changes.
+
+`snapshot_replay.verify_manifest(body, codec, store)` now performs the separate
+read-only artifact check. It validates all metadata before reading raw data, then
+reuses `replay_mapped_fixture_events` for each complete capture. It returns an eager
+tuple of candidate groups, in canonical capture order and raw event order inside
+each group, retaining empty groups. A failure anywhere raises instead of returning
+a verified prefix; exceptions propagate without retries. It performs no writes,
+database/current-reference lookups, or publication. Callers own storage configuration
+and transport timeouts. Run `scripts/test-unit tests/unit/test_snapshot_replay.py`
+and `scripts/test-integration -k snapshot_replay` for offline and PostgreSQL/Floci
+coverage. Verification does not change `REPLAY_ONLY`, authenticate acceptance, or
+guarantee future artifact availability. Manifest persistence remains pending.
 
 ## Initial event acceptance
 

@@ -76,8 +76,11 @@ The next snapshot increment is contract-first:
 bounded, content-versioned collection of complete captures and mapped receipts.
 Frozen values, strict serialization, content hashes, and offline golden vectors
 are implemented. This replay-only metadata contract does not complete historical
-datasets or permit backtesting; read-only complete-snapshot verification is the
-next separately verifiable increment. Manifest storage/cataloging remains pending.
+datasets or permit backtesting. Read-only complete-snapshot verification now composes
+the strict codec with retained capture replay, with no partial success or writes.
+Local tests cover accepted receipts after reference edits and final-artifact loss
+or corruption. Manifest storage/cataloging and historical availability evidence
+remain separate design/implementation work.
 
 ## Phase 3 — V1 Provider Adapters
 

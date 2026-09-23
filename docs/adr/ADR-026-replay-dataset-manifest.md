@@ -1,6 +1,6 @@
 # ADR-026 — Versioned replay dataset manifests
 
-**Status:** Accepted; values/codec implemented, snapshot verification/storage pending  
+**Status:** Accepted; codec and read-only verification implemented, manifest storage pending  
 **Date:** 2026-09-23
 
 ## Context
@@ -103,6 +103,23 @@ Offline tests pin independently assembled golden bytes/hashes, ordering/offset
 equivalence, output drift, immutable values, duplicate identities, malformed and
 noncanonical inputs, and the inclusive 1 MiB limit. The size check precedes JSON
 parsing on reads. Existing format-1/2 compatibility tests remain unchanged.
-This is structural metadata validation only: empty receipt groups are not verified
-empty captures, and no raw reads, acceptance checks, snapshot verifier, persistence,
-historical eligibility service, or new root command are implemented.
+The codec alone performs structural metadata validation: empty receipt groups are
+not verified empty captures.
+
+`snapshot_replay.verify_manifest(body, codec, store)` now validates the entire wire
+manifest before raw I/O and composes the existing mapped replay adapter for every
+capture. It returns a fully materialized tuple of candidate groups in canonical
+capture order, preserving raw event order within groups and empty groups. Any
+failure raises before returning a result; there is no successful-prefix iterator,
+retry, write, current-state lookup, or publication. Store/replay exceptions propagate.
+The caller supplies the store and its transport/timeouts; no database transaction
+spans verification. Success verifies these reads, not future artifact retention.
+
+Network-disabled tests cover multi-capture ordering, empty groups, final-capture
+failure, unsupported metadata before I/O, missing/corrupt bytes, transport errors,
+incomplete coverage, and projection/label drift. Disposable PostgreSQL/Floci tests
+use two accepted receipts plus an empty capture after mapping revocation/reference
+edits, and reject later deletion or body/metadata corruption of the final object.
+Accepted records remain unchanged and no outbox entries appear. Manifest storage,
+receipt discovery/export, acceptance authentication, historical eligibility, and
+new root commands remain outside this increment.

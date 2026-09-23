@@ -1,6 +1,6 @@
 # Replay Dataset Snapshot Manifest — v1
 
-**Status:** Values and strict codec implemented; artifact verification/storage pending  
+**Status:** Values, strict codec, and artifact verification implemented; manifest storage pending  
 **Decision:** [ADR-026](../adr/ADR-026-replay-dataset-manifest.md)
 
 ## Purpose and scope
@@ -8,8 +8,9 @@
 Identify a fixed, bounded collection of retained synthetic mapped-event inputs
 that can be reproduced without current-state reads. This is the first narrow
 dataset snapshot contract, not a historical research dataset or backtest API.
-The existing mapped replay helper verifies one capture; a manifest verifier is
-not yet implemented. No new root command or generated artifact exists.
+The mapped replay helper verifies one capture; `snapshot_replay.verify_manifest`
+now composes it across the entire manifest. No new root command or generated
+artifact exists. Manifest persistence/cataloging remains unimplemented.
 
 ## Wire shape
 
@@ -109,6 +110,12 @@ An implementation must not silently relabel an old receipt with new versions.
 
 ## Verification and replay
 
+`snapshot_replay.verify_manifest(body, codec, store)` accepts canonical manifest
+bytes and caller-supplied receipt codec/raw storage ports. It decodes and validates
+the entire manifest before the first raw read. Its return value is an eager tuple
+of candidate tuples (one per capture, including empty groups), not a lazy iterator
+or a historical-eligibility result. Errors propagate without internal retries.
+
 After structural validation, a verifier reads each exact raw reference using a
 caller-supplied `RawPayloadStore`. Existing integrity checks verify size, body hash,
 and capture metadata. It passes the complete group of decoded candidates to
@@ -184,5 +191,10 @@ required. Manifest values, strict codec, and offline golden vectors now exist in
 `edgeeagle_ingestion.manifests` and `tests/unit/test_dataset_manifest.py`.
 Run `scripts/test-unit tests/unit/test_dataset_manifest.py tests/unit/test_mapped_receipts.py`
 for metadata/compatibility checks. The persistence receipt adapter supplies the
-inward-owned codec port, with no database access. Storage and complete-snapshot
-verification remain pending; successful decoding never claims those checks passed.
+inward-owned codec port, with no database access. Run
+`scripts/test-unit tests/unit/test_snapshot_replay.py` for whole-snapshot orchestration
+and `scripts/test-integration -k snapshot_replay` for retained PostgreSQL receipts,
+Floci reads, later reference edits, and artifact-loss/corruption coverage.
+Successful decoding alone never claims artifact verification. Successful verification
+does not guarantee continuing storage availability, authenticated acceptance, or
+historical eligibility. Manifest persistence/cataloging remains pending.

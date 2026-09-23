@@ -27,7 +27,7 @@ export function rejectExternalRefs(value) {
   }
 }
 
-export function compareContracts(base, revision) {
+export function compareContracts(base, revision, run = execFileSync) {
   rejectExternalRefs(base);
   rejectExternalRefs(revision);
   const directory = realpathSync(
@@ -36,11 +36,15 @@ export function compareContracts(base, revision) {
   try {
     writeFileSync(join(directory, "base.json"), JSON.stringify(base));
     writeFileSync(join(directory, "revision.json"), JSON.stringify(revision));
-    return execFileSync(
+    return run(
       "docker",
       [
         "run",
         "--rm",
+        // mkdtemp inputs are private (0700). Match their owner on Linux too;
+        // container root with all capabilities dropped cannot bypass that mode.
+        "--user",
+        `${process.getuid()}:${process.getgid()}`,
         "--network",
         "none",
         "--read-only",

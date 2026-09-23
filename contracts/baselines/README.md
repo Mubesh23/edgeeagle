@@ -13,6 +13,14 @@ Only the two JSON inputs are mounted read-only, the container has no network,
 and no API schema is uploaded. Initial image download requires public registry
 access; Docker must be running. It does not use Floci or AWS/provider credentials.
 
+The comparator runs with the calling user's numeric UID/GID (Linux/macOS),
+matching ownership of its private temporary input directory. Container root with
+all capabilities dropped cannot traverse a Linux runner's owner-only directory.
+Keep the read-only mount, disabled network, dropped capabilities, and
+`no-new-privileges` restrictions; do not relax input permissions to fix CI.
+Unit tests check identity, permissions, cleanup, and failure propagation without
+Docker. The integration cases below still exercise the real comparator.
+
 To compare another reviewed snapshot explicitly:
 
 ```sh

@@ -108,6 +108,10 @@ implemented; manifest persistence/cataloging remain pending. Its `REPLAY_ONLY`
 restriction preserves unknown availability and
 prohibits historical decision-input use; it does not implement historical Parquet,
 feature/model datasets, or a snapshot catalog.
+The next storage boundary is specified by
+[ADR-027](../adr/ADR-027-replay-manifest-storage.md): conditional canonical-manifest
+writes and exact dataset-version lookup. The adapter is not implemented yet;
+storage, replay verification, and historical eligibility remain separate outcomes.
 
 ## Data quality checks
 

@@ -11,6 +11,9 @@ dataset snapshot contract, not a historical research dataset or backtest API.
 The mapped replay helper verifies one capture; `snapshot_replay.verify_manifest`
 now composes it across the entire manifest. No new root command or generated
 artifact exists. Manifest persistence/cataloging remains unimplemented.
+The separate [storage contract](../adr/ADR-027-replay-manifest-storage.md) now defines
+immutable canonical-envelope writes and integrity-checked lookup by dataset version.
+Its implementation is pending; storage success will not imply artifact verification.
 
 ## Wire shape
 

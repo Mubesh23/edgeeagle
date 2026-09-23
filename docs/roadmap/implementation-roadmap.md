@@ -81,6 +81,10 @@ the strict codec with retained capture replay, with no partial success or writes
 Local tests cover accepted receipts after reference edits and final-artifact loss
 or corruption. Manifest storage/cataloging and historical availability evidence
 remain separate design/implementation work.
+[ADR-027](../adr/ADR-027-replay-manifest-storage.md) now defines the narrow immutable
+manifest-storage port and S3 layout. Implementation is pending; no catalog or
+production storage resources are added. Next: the port/adapter with offline and
+Floci integrity/idempotency tests, then retrieve-by-version replay composition.
 
 ## Phase 3 — V1 Provider Adapters
 

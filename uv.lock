@@ -307,6 +307,7 @@ source = { editable = "libs/python/persistence" }
 dependencies = [
     { name = "boto3" },
     { name = "edgeeagle-domain" },
+    { name = "edgeeagle-ingestion" },
     { name = "psycopg", extra = ["binary"] },
     { name = "sqlalchemy" },
 ]
@@ -315,6 +316,7 @@ dependencies = [
 requires-dist = [
     { name = "boto3", specifier = ">=1.40,<2" },
     { name = "edgeeagle-domain", editable = "libs/python/domain" },
+    { name = "edgeeagle-ingestion", editable = "libs/python/ingestion" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2,<4" },
     { name = "sqlalchemy", specifier = ">=2.0,<3" },
 ]

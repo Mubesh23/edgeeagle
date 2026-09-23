@@ -31,7 +31,7 @@ should replay retained references or pinned inputs, not mutable local files.
 Ingestion time is supplied by the caller; synthetic fixture quote times must
 not be promoted to observed/available-at evidence.
 
-There is no canonical write, event publication, durable quarantine, HTTP
+There is no event publication, durable quarantine, HTTP
 acquisition, provider quota logic, real provider adapter, or source/venue catalog
 registration. Other capability-specific interfaces will be added with their
 first consumers.
@@ -59,8 +59,26 @@ version `synthetic-odds-events-v1`, normalizer version
 `synthetic-event-bindings-v1`, and caller's context version. Unknown fields stay
 in raw storage and are ignored by this event projection; prices are not validated.
 Errors return no partial batch and leave raw storage unchanged. Candidates are
-neither persisted events nor historically eligible datasets. Database writes,
-durable resolution lineage, event publication, and API exposure remain next steps.
+neither persisted events nor historically eligible datasets. The separate
+`EventAcceptanceRepository` port now supports initial canonical persistence;
+normalization itself still performs no writes.
+
+## Initial event acceptance
+
+`events.EventAcceptanceRepository.accept(candidate)` returns True for first
+acceptance, False for an exact replay, and raises `EventAcceptanceConflict` for
+conflicting accepted output/lineage. `get(event_id)` returns the immutable accepted
+candidate, not current event state. The PostgreSQL adapter lives in persistence,
+which depends inward on ingestion; this package has no database dependency.
+See [ADR-018](../../../docs/adr/ADR-018-event-acceptance-lineage.md).
+
+Acceptance requires preexisting canonical references and source registration.
+The raw capture, provider key, and transformation/context versions identify the
+acquisition independently of output event ID. This is initial insertion only,
+not updates, multi-source reconciliation, or historical eligibility. Retain raw
+bytes before accepting; the database cannot verify S3 durability. Receipt lineage
+does not replace the caller's retained immutable fixture context. Event publication
+and API exposure remain next steps.
 
 Root commands include this package in lint/typecheck, tests, and Python builds:
 
@@ -71,5 +89,6 @@ scripts/validate
 ```
 
 Unit tests disable network. Integration uses the existing synthetic fixture and
-Floci with disposable buckets, loopback endpoints, and dummy credentials only.
+Floci with disposable buckets and PostgreSQL databases, loopback endpoints, and
+dummy credentials only.
 `scripts/build` regenerates ignored ingestion wheels/sdists under root `dist/`.

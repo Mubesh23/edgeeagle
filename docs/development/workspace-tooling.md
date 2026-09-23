@@ -16,7 +16,11 @@ offline package builds include it; real transaction tests use disposable local
 PostgreSQL databases. Mapping-history schema now exists under
 [ADR-014](../adr/ADR-014-provider-mapping-storage.md), with a transactional mapping
 repository and local concurrent-writer/replay/snapshot tests. API/ingestion wiring
-and pinned historical datasets remain later increments.
+and pinned historical datasets remain later increments. Initial fixture event
+acceptance now persists canonical events, entries, and immutable raw/normalization
+receipts together, with exact replay and conflict tests. See
+[ADR-018](../adr/ADR-018-event-acceptance-lineage.md). Ingestion owns the port;
+persistence depends inward on it. Durable publication and API wiring remain next.
 
 ## Prerequisites and bootstrap
 

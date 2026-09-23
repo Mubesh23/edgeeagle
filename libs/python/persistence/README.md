@@ -1,7 +1,8 @@
 # Persistence adapters
 
-`edgeeagle-persistence` depends inward on `edgeeagle-domain` and implements its
-repository protocols using SQLAlchemy connections and the psycopg driver.
+`edgeeagle-persistence` depends inward on `edgeeagle-domain` and
+`edgeeagle-ingestion` and implements their repository protocols using SQLAlchemy
+connections and the psycopg driver.
 Importing the package opens no database connection. The API has no dependency on
 this package yet; no endpoint, deployment, database configuration, or schema
 migration is introduced by these adapters.
@@ -104,6 +105,38 @@ unconditional auto-number operation. For repeatable multi-read research, the
 caller can use a pinned REPEATABLE READ transaction, but cannot append within it.
 An as-of cutoff does not substitute for dataset snapshots or no-lookahead checks
 on other data. Reading full histories is intentionally linear in history length.
+
+## Initial event acceptance
+
+`PostgresEventAcceptanceRepository` implements the ingestion-owned
+`EventAcceptanceRepository` port over `EventCandidate`. Migration
+`0005_event_acceptance` retains immutable accepted-output snapshots with raw capture,
+provider key, parser/normalizer/context versions, and a unique lineage digest.
+`accept(candidate)` returns True for initial insertion and False for exact replay.
+Different output or lineage for an accepted event, a legacy event without a
+receipt, or the same lineage targeting a second event raises
+`EventAcceptanceConflict`. No updates or automatic source reconciliation occur.
+
+The event, entries, and receipt share a savepoint in the caller's READ COMMITTED
+transaction. Missing references or receipt insertion failures leave no partial
+event even if caught by the caller. Competing initial writers converge or conflict;
+there are no hidden commits or retries. Entries are compared in participant-ID
+order, and timestamp offsets normalize to UTC. `get(event_id)` reconstructs and
+validates the accepted snapshot, including its indexed identities, from one SELECT.
+Malformed receipts fail closed. Receipt UPDATE/DELETE/TRUNCATE is prohibited.
+
+Replay also compares current event and entries under an event row lock, rejecting
+detected drift. Direct SQL writers changing child rows without taking that parent
+lock are outside this insertion-only protocol. This is not a historical event
+versioning policy. The caller retains raw bytes before acceptance and preserves
+the referenced immutable normalization context; receipts store accepted output and
+lineage, not a full context catalog. No cross-S3 transaction, outbox, publication,
+or API path exists yet. See [ADR-018](../../../docs/adr/ADR-018-event-acceptance-lineage.md).
+
+Run `scripts/test-integration -k 'event_acceptance or fixture_ingestion'` for
+concurrent exact/conflicting retries, identity collisions, rollback, immutability,
+and the Floci raw-to-PostgreSQL acceptance path. Unit tests in
+`tests/unit/test_event_acceptance.py` validate candidates and the private codec.
 
 ## Shared transaction ownership
 

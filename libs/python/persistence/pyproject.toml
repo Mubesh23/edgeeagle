@@ -3,10 +3,11 @@ name = "edgeeagle-persistence"
 version = "0.0.0"
 description = "EdgeEagle PostgreSQL and S3 adapters for inward-owned persistence ports"
 requires-python = ">=3.11,<3.12"
-dependencies = ["edgeeagle-domain", "sqlalchemy>=2.0,<3", "psycopg[binary]>=3.2,<4", "boto3>=1.40,<2"]
+dependencies = ["edgeeagle-domain", "edgeeagle-ingestion", "sqlalchemy>=2.0,<3", "psycopg[binary]>=3.2,<4", "boto3>=1.40,<2"]
 
 [tool.uv.sources]
 edgeeagle-domain = { workspace = true }
+edgeeagle-ingestion = { workspace = true }
 
 [build-system]
 requires = ["hatchling>=1.27,<2"]

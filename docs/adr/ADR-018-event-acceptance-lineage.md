@@ -26,6 +26,8 @@ Use READ COMMITTED for writes. The existing event primary-key constraint seriali
 competing initial inserts. On duplicate insertion, roll back that insert savepoint,
 lock the existing event row, then compare the stored receipt and current event and
 entries. Identical concurrent writers converge; different writers conflict.
+Direct SQL writers changing child rows without the parent lock are outside this
+initial-insertion protocol; a future update path must define its locking policy.
 The operation has its own encompassing savepoint so a receipt failure cannot leave
 an event or entries behind when a caller catches the error. It does not commit.
 Callers own timeouts, retries, and consistent multi-event ordering. Reference

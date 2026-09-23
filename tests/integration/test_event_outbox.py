@@ -149,7 +149,7 @@ def test_outbox_immutable_and_corruption_detection(repository_engine: Engine) ->
         for statement in (
             "UPDATE event_outbox SET envelope = envelope",
             "DELETE FROM event_outbox",
-            "TRUNCATE event_outbox",
+            "TRUNCATE event_outbox, event_outbox_delivery",
         ):
             with pytest.raises(IntegrityError), connection.begin_nested():
                 connection.execute(text(statement))

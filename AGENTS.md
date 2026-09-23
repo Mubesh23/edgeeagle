@@ -37,8 +37,10 @@ canonical records, publish events, or replace production mapping history.
 The separate acceptance repository persists canonical candidates and immutable
 receipts. Its publication-aware `accept_with_notification` method now also saves
 an immutable outbox intent atomically; legacy `accept` remains persistence-only.
-No relay or AWS publication is implemented yet. See
-[ADR-019](docs/adr/ADR-019-event-outbox.md).
+Delivery coordination now supports database-timed leases, fenced acknowledgements,
+and scheduled retries in a separate operational table. No dispatcher or AWS
+publication is implemented yet. See [ADR-019](docs/adr/ADR-019-event-outbox.md) and
+[ADR-020](docs/adr/ADR-020-outbox-delivery-leases.md).
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports

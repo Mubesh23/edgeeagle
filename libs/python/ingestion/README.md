@@ -92,6 +92,14 @@ bytes before accepting; the database cannot verify S3 durability. Receipt lineag
 does not replace the caller's retained immutable fixture context. Event publication
 and API exposure remain next steps.
 
+`delivery.OutboxDeliveryRepository` now describes leased delivery coordination:
+claim one intent, acknowledge a live claim, schedule its retry, and inspect state.
+`DeliveryClaim` and `DeliveryState` are validated immutable application values;
+their timestamps are operational, not research availability. Persistence implements
+the port with PostgreSQL timing. No dispatcher or publisher exists yet; callers
+must commit a claim before any external send, then complete it in a new transaction.
+See [ADR-020](../../../docs/adr/ADR-020-outbox-delivery-leases.md).
+
 Root commands include this package in lint/typecheck, tests, and Python builds:
 
 ```sh

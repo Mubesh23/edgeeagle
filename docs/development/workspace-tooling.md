@@ -22,7 +22,10 @@ receipts together, with exact replay and conflict tests. See
 [ADR-018](../adr/ADR-018-event-acceptance-lineage.md). Ingestion owns the port;
 persistence depends inward on it. The additive publication-aware method now records
 immutable outbox intents alongside canonical writes under
-[ADR-019](../adr/ADR-019-event-outbox.md). Relay delivery and API wiring remain next.
+[ADR-019](../adr/ADR-019-event-outbox.md). Database-timed delivery leases and fenced
+completion/retry operations now exist under
+[ADR-020](../adr/ADR-020-outbox-delivery-leases.md). Dispatcher, AWS transport,
+monitoring/DLQ validation, and API wiring remain next.
 
 ## Prerequisites and bootstrap
 

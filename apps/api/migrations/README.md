@@ -1,5 +1,12 @@
 # Database migrations
 
+Revision `0007_outbox_delivery` adds mutable delivery state, eligibility indexes,
+and an AFTER INSERT trigger that initializes state atomically with each outbox
+intent. Existing intents receive pending operational state without envelope edits.
+Downgrade preserves intents but discards delivery state: once external publication
+exists, downgrade/reupgrade risks redelivery and requires human review. See
+[ADR-020](../../../docs/adr/ADR-020-outbox-delivery-leases.md).
+
 Revision `0006_event_outbox` adds immutable pending notification envelopes linked
 to accepted normalization receipts. It does not backfill old receipts or change
 their timestamps. Downgrade removes only the outbox table/function. See

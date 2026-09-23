@@ -157,8 +157,8 @@ canonical writes even when the caller catches it.
 identity. `published_at` remains null: persistence does not publish anything.
 Legacy `accept` remains persistence-only; a legacy receipt with no outbox conflicts
 if passed to the new method. There is no automatic backfill or repair. Pending
-intents cannot be updated/deleted/truncated. Delivery claims, acknowledgements,
-retries, queues, monitoring, and transport are the next increment. See
+intents cannot be updated/deleted/truncated. Delivery coordination is described
+below; queues, monitoring, and transport remain future increments. See
 [ADR-019](../../../docs/adr/ADR-019-event-outbox.md) and
 [event contracts](../../../contracts/events/README.md).
 
@@ -166,7 +166,40 @@ Run `scripts/test-integration -k 'outbox or fixture_ingestion'` for transactiona
 publication intent and fixture-to-outbox coverage. Tests use disposable resources;
 the developer application database is not migrated automatically.
 
-### Caller ownership
+## Delivery coordination
+
+`PostgresOutboxDeliveryRepository(connection)` implements the ingestion
+`OutboxDeliveryRepository` port over migration `0007_outbox_delivery`:
+
+- `claim(lease_for=timedelta(...))` locks one eligible pending or expired intent
+  with SKIP LOCKED, increments attempts, and returns a validated `DeliveryClaim`.
+  None means no eligible unlocked work at that instant, not an empty backlog.
+- `acknowledge(claim)` marks broker acceptance only for the matching unexpired
+  claim. It does not prove downstream consumption or perform any network call.
+- `retry(claim, retry_after=timedelta(...))` releases that live claim into PENDING
+  with a future eligibility time; attempt count is retained.
+- `get(notification_id)` returns validated operational state or None.
+
+Writes require READ COMMITTED and a caller-owned transaction. Eligibility uses
+database statement time; claim/completion timing uses database wall-clock time
+after taking the row lock. Stale, expired, completed, and rolled-back claim handles
+raise `DeliveryLeaseLost`. A retry/acknowledgement is not silently accepted twice.
+Lease bounds are (0, one hour]; retry bounds are (0, one day].
+
+Commit the claim before publishing outside the transaction, then acknowledge or
+retry in a new short transaction. The caller owns timeouts and retry policy.
+Crash recovery can duplicate an external send; notification ID stays stable for
+consumer deduplication. This adapter provides no heartbeat, scheduler, publisher,
+terminal retry cap, monitoring, or DLQ. Poison receipts remain retained and fail
+closed; quarantine/alerting is needed before unattended operation. Operational
+state is not an immutable attempt history. See
+[ADR-020](../../../docs/adr/ADR-020-outbox-delivery-leases.md).
+
+`scripts/test-integration -k delivery` exercises real PostgreSQL locking, fencing,
+expiry recovery, rollback, and migration initialization. Tests only manipulate
+uniquely named disposable databases; no application database is migrated.
+
+## Transaction ownership details
 
 The caller supplies an active PostgreSQL/psycopg SQLAlchemy connection transaction,
 normally through `with engine.begin() as connection`. Autocommit is rejected.

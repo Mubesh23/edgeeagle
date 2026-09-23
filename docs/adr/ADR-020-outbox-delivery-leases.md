@@ -13,7 +13,9 @@ not historical research data or an append-only attempt audit.
 Migration `0007_outbox_delivery` initializes existing intents as PENDING and adds
 an AFTER INSERT outbox trigger so old and new writers create delivery state in the
 same transaction. Initial eligibility is the later of database time and envelope
-occurrence. This does not manufacture past delivery/acceptance timestamps or
+occurrence. Migration holds an outbox write-blocking lock across initialization
+and trigger installation so concurrent old writers cannot fall into a gap.
+This does not manufacture past delivery/acceptance timestamps or
 backfill missing intents for legacy persistence-only receipts. Downgrade removes
 only delivery state and its initializer; intent/receipt data is preserved. Once a
 publisher exists, downgrade/reupgrade could redeliver acknowledged intents and
@@ -28,7 +30,9 @@ the row lock for completion. Application clocks cannot extend stale leases.
 
 Claim one due PENDING or expired LEASED row using `FOR UPDATE SKIP LOCKED` and
 increment its attempt number atomically. The pair (notification ID, attempt)
-fences completion; expired or superseded claims raise `DeliveryLeaseLost`, as do
+fences completion; claim/expiry timestamps must also match so a rolled-back claim
+cannot complete a later claim with a reused attempt count. Expired or superseded
+claims raise `DeliveryLeaseLost`, as do
 repeated acknowledgements/retries after completion. Acknowledgement means the
 caller observed broker acceptance, not consumer completion. The adapter cannot
 verify this without a publisher. Retry makes the row PENDING at database-now plus

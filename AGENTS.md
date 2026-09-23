@@ -24,10 +24,11 @@ foreign keys. Source/venue and sports/event transactional adapters now live in
 [Python persistence](libs/python/persistence/README.md). Migration
 `0004_mapping_history` adds append-only mapping storage. The mapping repository
 supports compare-and-append, exact replay, and availability-based resolution;
-ingestion/API wiring and pinned historical datasets remain deferred.
+fixture ingestion now reads it; mapping-write APIs and pinned historical datasets remain deferred.
 A read-only ingestion reference resolver now returns selected canonical records
-and mapping revisions from caller-supplied snapshot repositories. It is not yet
-wired to normalization. Format-2 receipts can now persist mapping evidence while
+and mapping revisions from a shared PostgreSQL REPEATABLE READ, read-only snapshot.
+The mapped fixture normalizer retains that evidence through acceptance and API-flow
+tests. Format-2 receipts persist mapping evidence while
 preserving legacy receipts; migration `0009_mapped_receipts` guards downgrades.
 See [ADR-025](docs/adr/ADR-025-mapping-backed-fixture-context.md).
 The persistence package also implements immutable raw S3 capture storage with

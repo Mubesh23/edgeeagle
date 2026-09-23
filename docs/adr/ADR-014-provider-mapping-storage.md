@@ -43,7 +43,9 @@ It enforces nondecreasing inter-revision timestamps and revocation target retent
 these cross-row rules are not duplicated in the migration. Tests exercise exact
 replay and conflicting concurrent writers, including first-key creation races.
 
-No ingestion path or API is wired to this repository yet. Direct SQL can still
+Fixture ingestion now reads this repository through the pinned composition in
+[ADR-025](ADR-025-mapping-backed-fixture-context.md). No mapping-write API or
+automatic decision workflow is added. Direct SQL can still
 create histories violating the repository's cross-row rules; repository reads,
 appends, and replays reject those histories through the pure resolver.
 Reads used for research need a pinned snapshot, not only an availability cutoff.

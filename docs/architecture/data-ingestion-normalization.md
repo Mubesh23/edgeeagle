@@ -47,12 +47,17 @@ adds retained-fixture parsing and explicit canonical event candidates.
 acceptance; [ADR-019](../adr/ADR-019-event-outbox.md) adds atomic publication intents.
 EventBridge/SQS verification delivery and current-state event API reads now exist.
 The [fixture acceptance test](../../tests/integration/test_fixture_ingestion.py)
-connects retained raw bytes, explicit fixture bindings, canonical acceptance/outbox,
+connects retained raw bytes, legacy bindings or mapping-backed fixture manifests,
+canonical acceptance/outbox,
 broker delivery, consumer deduplication, and API list/detail reads. Run
 `scripts/test-integration -k fixture_raw_to_api`. This is synthetic local evidence,
 not real-provider acquisition, historical Parquet, or production worker readiness.
 The EventBridge delivery-DLQ gap remains documented in
 [ADR-023](../adr/ADR-023-event-acceptance-consumer.md).
+The mapped variant uses one read-only PostgreSQL snapshot for reference resolution
+and retains selected revisions/context in format-2 receipts; see
+[ADR-025](../adr/ADR-025-mapping-backed-fixture-context.md). Availability cutoffs do
+not make a newly opened snapshot equivalent to a retained historical dataset.
 
 Separate interfaces by capability:
 

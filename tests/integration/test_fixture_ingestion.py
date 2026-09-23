@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 from mypy_boto3_s3 import S3Client
 from sqlalchemy import Engine, text
@@ -13,32 +14,42 @@ from sqlalchemy import Engine, text
 from edgeeagle_api.local import event_transactions
 from edgeeagle_api.main import create_app
 from edgeeagle_domain.provenance import DataSourceId
-from edgeeagle_domain.raw import RawCapture
+from edgeeagle_domain.raw import RawCapture, RawPayloadReference
 from edgeeagle_ingestion.consumer import ConsumptionResult, EventAcceptedHandler, consume_one
 from edgeeagle_ingestion.delivery import DeliveryClaim, DeliveryStatus, OutboxDeliveryRepository
 from edgeeagle_ingestion.dispatch import DispatchResult, dispatch_one
+from edgeeagle_ingestion.events import EventCandidate
 from edgeeagle_ingestion.notifications import EventAccepted
 from edgeeagle_ingestion.offline import LocalFileImporter
 from edgeeagle_ingestion.service import OfflineDatasetImporter, ingest_raw
-from edgeeagle_ingestion.synthetic_events import normalize_fixture_events
+from edgeeagle_ingestion.synthetic_events import (
+    normalize_fixture_events,
+    normalize_mapped_fixture_events,
+)
 from edgeeagle_persistence.consumer import PostgresEventAcceptedHandler
 from edgeeagle_persistence.delivery import PostgresOutboxDeliveryRepository
 from edgeeagle_persistence.eventbridge import EventBridgePublisher
 from edgeeagle_persistence.events import PostgresEventAcceptanceRepository
+from edgeeagle_persistence.fixture_references import fixture_reference_reads
 from edgeeagle_persistence.raw import S3RawPayloadStore
 from tests.integration.sqs_routing import Routing
 from tests.integration.sqs_routing import event_bus as event_bus
 from tests.integration.sqs_routing import routing as routing
 from tests.integration.test_event_acceptance import seed
+from tests.integration.test_mapped_normalization import seed_mapped_context
 from tests.integration.test_raw_storage import raw_bucket as raw_bucket
 from tests.integration.test_repositories import repository_engine as repository_engine
 from tests.unit.test_event_normalization import binding
+from tests.unit.test_fixture_references import NOW
+from tests.unit.test_mapped_normalization import request
 
 
+@pytest.mark.parametrize("mapped", [False, True], ids=["legacy", "mapped"])
 def test_fixture_raw_to_api_retains_lineage_and_replays(
     raw_bucket: tuple[S3Client, str],
     repository_engine: Engine,
     routing: Routing,
+    mapped: bool,
 ) -> None:
     client, bucket = raw_bucket
     path = Path(__file__).parents[1] / "fixtures/providers/the_odds_api/odds-success.json"
@@ -56,12 +67,38 @@ def test_fixture_raw_to_api_retains_lineage_and_replays(
     assert receipt.capture.available_at is None
     assert ingest_raw(importer, store) == receipt
     assert len(client.list_objects_v2(Bucket=bucket)["Contents"]) == 1
-    candidates = normalize_fixture_events(store, receipt, (binding(),))
+    with repository_engine.begin() as connection:
+        if mapped:
+            seed_mapped_context(connection)
+        else:
+            seed(connection)
+
+    def normalize(reference: RawPayloadReference) -> tuple[EventCandidate, ...]:
+        if mapped:
+            return normalize_mapped_fixture_events(
+                store,
+                reference,
+                (request(),),
+                fixture_reference_reads(repository_engine),
+                as_of=NOW,
+            )
+        return normalize_fixture_events(store, reference, (binding(),))
+
+    candidates = normalize(receipt)
     assert candidates[0].raw == receipt
     assert candidates[0].event.event_id == binding().event_id
     assert candidates[0].raw.capture.available_at is None
     assert store.get(receipt) == path.read_bytes()
-    assert normalize_fixture_events(store, receipt, (binding(),)) == candidates
+    assert normalize(receipt) == candidates
+    if mapped:
+        evidence = candidates[0].mapping_evidence
+        assert evidence is not None
+        assert (
+            tuple(row.key for row in evidence.references.revisions)
+            == request().references.ordered()
+        )
+        assert all(row.revision == 1 for row in evidence.references.revisions)
+        assert candidates[0].normalizer_version == "synthetic-event-mappings-v1"
     assert len(client.list_objects_v2(Bucket=bucket)["Contents"]) == 1
     notification = EventAccepted.for_candidate(
         candidates[0],
@@ -74,7 +111,6 @@ def test_fixture_raw_to_api_retains_lineage_and_replays(
         assert api.get("/v1/events/e1").status_code == 404
         assert api.get("/v1/events").json() == {"items": [], "next_after_event_id": None}
     with repository_engine.begin() as connection:
-        seed(connection)
         repository = PostgresEventAcceptanceRepository(connection)
         assert repository.accept_with_notification(candidates[0], notification) is True
     with repository_engine.begin() as connection:
@@ -151,7 +187,7 @@ def test_fixture_raw_to_api_retains_lineage_and_replays(
 
         # Reacquire/reprocess the same retained fixture: no second publication intent.
         replay = ingest_raw(importer, store)
-        replay_candidates = normalize_fixture_events(store, replay, (binding(),))
+        replay_candidates = normalize(replay)
         assert replay_candidates == candidates
         with repository_engine.begin() as connection:
             assert not PostgresEventAcceptanceRepository(connection).accept_with_notification(
@@ -172,6 +208,10 @@ def test_fixture_raw_to_api_retains_lineage_and_replays(
         assert accepted.parser_version == candidates[0].parser_version
         assert accepted.normalizer_version == candidates[0].normalizer_version
         assert accepted.context_version == candidates[0].context_version
+        assert accepted.mapping_evidence == candidates[0].mapping_evidence
+        assert connection.scalar(text("SELECT snapshot->'format' FROM event_normalizations")) == (
+            2 if mapped else 1
+        )
         assert accepted.raw == receipt
         assert accepted.raw.capture.available_at is None  # Never invent historical eligibility.
         assert repository.get_notification(accepted.event.event_id) == notification

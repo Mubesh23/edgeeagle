@@ -1,6 +1,6 @@
 # ADR-025 — Mapping-backed fixture reference context
 
-**Status:** Accepted; receipt persistence implemented, normalization composition pending  
+**Status:** Accepted and implemented for the local synthetic fixture path  
 **Date:** 2026-09-23
 
 ## Context
@@ -72,8 +72,22 @@ both formats without rewriting receipts. The ingestion-owned mapped fixture
 normalizer now verifies raw bytes/manifest coverage before resolving the complete
 batch through one `FixtureReferenceReads` context. It closes the snapshot before
 returning candidates with evidence and version `synthetic-event-mappings-v1`.
-The legacy parser and normalizer versions remain unchanged. Concrete pinned
-PostgreSQL composition and mapped fixture-to-API evidence remain pending.
+The legacy parser and normalizer versions remain unchanged. The persistence-owned
+`fixture_reference_reads(engine)` factory now opens a fresh REPEATABLE READ,
+read-only transaction per batch, with 5-second SQL and idle-in-transaction timeouts.
+The caller owns engine lifecycle and connection/pool timeouts. The concrete resolver
+checks active transaction, isolation, and read-only mode on each call; both
+repositories use the same connection. Exceptions propagate and connections close.
+Raw storage I/O precedes this transaction; acceptance remains a later, separate
+READ COMMITTED operation. No transaction spans S3, broker delivery, or API requests.
+
+`scripts/test-integration -k fixture_raw_to_api` exercises both legacy bindings
+and mapping-backed manifests through retained S3 bytes, acceptance/outbox, actual
+EventBridge/SQS duplicate delivery, consumer verification, and API reads. Additional
+tests prove that concurrent mapping/reference edits do not change an open snapshot,
+fresh snapshots see corrections, revoked mappings fail closed, and accepted
+evidence survives later revisions. Retain the accepted candidate for exact retry;
+a newly opened snapshot is not a frozen historical dataset, even at the same cutoff.
 
 Format 2 adds `candidate.mapping_evidence`: exact competition/home/away guards and
 the resolved references (canonical records, cutoff, and complete selected revision
@@ -96,6 +110,6 @@ disposable PostgreSQL tests.
 Network-disabled tests cover cutoff boundaries, corrections/revocations, malformed
 future histories, typed references, duplicate/source-mismatched keys, missing or
 inconsistent records, deterministic results, and propagated repository failures.
-Later increments must prove byte/digest compatibility and migration behavior with
-disposable PostgreSQL databases before enabling mapped receipt writes. Full root
+Byte/digest compatibility and migration behavior are tested with
+disposable PostgreSQL databases. Full root
 validation remains the handoff gate; no paid providers or AWS credentials.

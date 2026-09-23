@@ -92,7 +92,8 @@ version `synthetic-event-mappings-v1`. Parser and legacy normalizer versions do
 not change. Empty batches need no snapshot; any failure returns no partial batch.
 No canonical writes, mapping decisions, publication, or retries occur here.
 The factory must own a fresh pinned read-only snapshot for the entire batch;
-concrete PostgreSQL composition follows separately. Retain returned candidates
+the persistence factory `fixture_reference_reads(engine)` supplies this composition.
+Retain returned candidates
 for exact retries: a fresh database snapshot is not a historical replay dataset.
 
 ## Initial event acceptance
@@ -103,7 +104,7 @@ label guards. Candidate validation ties that evidence to source, event reference
 and HOME/AWAY entries. Format-2 serialization includes all evidence in the lineage
 digest; legacy candidates omit the new field and retain format-1 bytes/digests.
 The dual-format reader and schema migration `0009_mapped_receipts` are implemented;
-mapped normalization still requires pinned composition. Neither this value object
+mapped normalization now uses the pinned composition described above. Neither this value object
 nor decoding proves authenticated review or historical eligibility.
 
 `notifications.EventAccepted.for_candidate(...)` creates a validated publication

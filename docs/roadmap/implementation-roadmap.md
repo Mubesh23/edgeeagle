@@ -53,19 +53,19 @@ Exit: `scripts/validate` succeeds on a fresh checkout with no AWS credentials or
 Exit: a fixture can flow raw -> canonical -> event -> API.
 
 Local acceptance evidence: `scripts/test-integration -k fixture_raw_to_api`
-now exercises this path using retained synthetic bytes, explicit fixture bindings,
+now exercises both legacy bindings and mapping-backed manifests using retained synthetic bytes,
 PostgreSQL, Floci S3/EventBridge/SQS, and the in-process FastAPI boundary. Exact
 reingestion and real duplicate broker delivery leave one canonical event and
 one consumer verification receipt. This demonstrates the narrow fixture-flow
 exit criterion, not completion of every Phase 2 capability or production readiness.
-Dynamic provider-mapping integration, historical datasets, worker supervision,
+Real-provider identity/review workflows, historical datasets, worker supervision,
 and the known EventBridge delivery-DLQ emulator gap remain explicit follow-ups.
 The read-only fixture reference resolver now selects canonical references and
-retains mapping-revision evidence in memory. Additive format-2 receipt persistence
-now retains that context without rewriting legacy receipts. Pinned PostgreSQL
-resolution and normalization composition remain pending under
-[ADR-025](../adr/ADR-025-mapping-backed-fixture-context.md); this does not yet
-replace explicit bindings in the fixture-to-API acceptance test.
+retains mapping-revision evidence through normalization and format-2 receipts,
+without rewriting legacy receipts. Pinned PostgreSQL resolution and both paths
+through the fixture-to-API acceptance test are implemented under
+[ADR-025](../adr/ADR-025-mapping-backed-fixture-context.md). Explicit authored
+event identity, labels, status, and reference keys remain necessary fixture context.
 
 ## Phase 3 — V1 Provider Adapters
 

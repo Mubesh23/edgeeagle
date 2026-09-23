@@ -133,7 +133,17 @@ already accepted event. Downgrade refuses while format-2 rows exist, under an
 exclusive table lock. No rows are converted or deleted. See
 [ADR-025](../../../docs/adr/ADR-025-mapping-backed-fixture-context.md). Evidence is
 captured provenance, not a database-verified mapping FK or reviewer authorization;
-pinned mapping-to-normalization composition remains pending.
+pinned mapping-to-normalization composition is described below.
+
+`fixture_references.fixture_reference_reads(engine)` supplies the ingestion-owned
+reference-read factory. It opens one fresh REPEATABLE READ, read-only transaction
+per normalization batch with 5-second statement and idle-in-transaction timeouts.
+`PostgresFixtureReferenceResolver` rejects inactive, autocommit, wrong-isolation,
+or read-write connections and reads both repositories through one connection.
+The caller owns engine lifecycle and connect/pool timeouts. Raw S3 reads happen
+before this context; acceptance happens afterward in a separate transaction.
+No engine creation, credentials, migrations, retries, or writes are hidden here.
+Do not mistake a fresh snapshot plus cutoff for a pinned historical dataset.
 
 Replay also compares current event and entries under an event row lock, rejecting
 detected drift. Direct SQL writers changing child rows without taking that parent
@@ -323,8 +333,9 @@ Sports tests also cover hierarchy round trips, optional fields, timezone instant
 failures, duplicate identities, and atomic event/entry rollback.
 Mapping tests cover all six target types, correction/revocation, exact replays,
 conflicts, first-key/existing-key concurrent writers, transaction rollback,
-history corruption, and repeatable-read snapshots. No API/ingestion mapping path
-or reviewer-authentication workflow is implemented by this adapter.
+history corruption, and repeatable-read snapshots. Mapped fixture ingestion now
+has snapshot/correction/revocation and full fixture-to-API coverage. Mapping-write
+APIs and reviewer authentication remain unimplemented.
 No paid provider or AWS credentials are used.
 
 Root checks include this package; `scripts/build` regenerates its ignored sdist

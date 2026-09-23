@@ -15,8 +15,11 @@ source/venue and sports/event repository ports with caller-owned transactions. R
 offline package builds include it; real transaction tests use disposable local
 PostgreSQL databases. Mapping-history schema now exists under
 [ADR-014](../adr/ADR-014-provider-mapping-storage.md), with a transactional mapping
-repository and local concurrent-writer/replay/snapshot tests. API/ingestion wiring
-and pinned historical datasets remain later increments. Initial fixture event
+repository and local concurrent-writer/replay/snapshot tests. Pinned fixture
+normalization now reads mappings and canonical references in one read-only
+transaction and retains evidence in format-2 receipts under
+[ADR-025](../adr/ADR-025-mapping-backed-fixture-context.md). Mapping-write APIs
+and historical datasets remain later increments. Initial fixture event
 acceptance now persists canonical events, entries, and immutable raw/normalization
 receipts together, with exact replay and conflict tests. See
 [ADR-018](../adr/ADR-018-event-acceptance-lineage.md). Ingestion owns the port;
@@ -34,7 +37,8 @@ The EventBridge delivery-DLQ probe is an explicit strict expected failure due to
 the pinned emulator's limitation. Current-state event list/detail API wiring now
 exists under [ADR-024](../adr/ADR-024-event-read-api.md). Run
 `scripts/test-integration -k fixture_raw_to_api` for the composed synthetic
-raw → canonical → event → API path, including replay and provenance assertions.
+raw → canonical → event → API path for both legacy and mapped fixtures, including
+replay, selected mapping revisions, and provenance assertions.
 Worker supervision and historical research datasets remain later work.
 
 ## Prerequisites and bootstrap

@@ -21,6 +21,8 @@ This directory contains the product, architecture, data, testing, cost, and impl
 
 ## Document authority
 
+Phase 2 mapping design: [ADR-013 — immutable provider mapping revisions](adr/ADR-013-provider-mapping-revisions.md).
+
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.
 - **Feature specs** own detailed behavior and acceptance criteria for substantial product capabilities that would otherwise overload the master PRD.

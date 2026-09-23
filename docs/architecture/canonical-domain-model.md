@@ -92,6 +92,11 @@ Represents where a market/price exists.
 - `confidence`
 - `validated_at`
 
+Internal revision identity, audit fields, revocation, confidence semantics, and
+historical resolution are specified in
+[ADR-013](../adr/ADR-013-provider-mapping-revisions.md). The conceptual fields
+above are not a complete persistence or external contract schema.
+
 ### Market
 
 Canonical definition of the proposition being priced.

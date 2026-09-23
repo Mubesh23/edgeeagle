@@ -47,10 +47,20 @@ records. Future ingestion callers must handle failures before writing canonical
 state. Persisted reference existence, concurrency, rescheduling history, and
 historical availability still need application/persistence validation.
 
-Provider mappings remain unimplemented. The conceptual fields require an
-auditable/versioned design, but revision identity, supersession, confidence scale,
-and mapping approval rules have not yet been specified. Those decisions must be
-documented before mapping records are used for canonical resolution.
+`edgeeagle_domain.mappings` implements the pure revision model and resolver from
+[ADR-013](../../../docs/adr/ADR-013-provider-mapping-revisions.md). Supply a complete
+history for one source-scoped provider key and an aware `as_of` timestamp. Lookup
+returns the latest eligible MAPPED revision or None for absent/not-yet-available/
+revoked mappings. Gaps, duplicate revisions, namespace mismatches, target-type
+changes, and decreasing availability/ingestion timestamps fail closed.
+
+Corrections and revocations append records; they do not rewrite earlier decisions.
+Confidence is optional match-quality metadata and never an approval threshold.
+These records preserve validation provenance, but do not authenticate reviewers
+or accept ambiguous candidate proposals. Database uniqueness/transactions,
+append-only persistence, canonical-reference checks, replay idempotency, review
+workflow, and dataset snapshot completeness remain caller/storage responsibilities.
+There are no provider calls, migrations, or new API/event contracts in this slice.
 
 These internal records use frozen standard-library dataclasses. Constructors
 reject wrong types, blank text, surrounding whitespace, and mutable capability

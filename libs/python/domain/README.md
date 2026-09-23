@@ -1,5 +1,10 @@
 # Python domain library
 
+`edgeeagle_domain.raw` defines immutable raw captures, byte payloads, checksum/size
+references, and the `RawPayloadStore` port. Optional timestamps remain unknown
+unless supplied; known times normalize to UTC. See
+[ADR-015](../../../docs/adr/ADR-015-raw-payload-storage.md) for storage semantics.
+
 `edgeeagle-domain` implements the inward dependency boundary described by the
 [TDD](../../../docs/architecture/TDD.md). It has no runtime dependencies and does
 not import FastAPI, database clients, AWS SDKs, or provider schemas.

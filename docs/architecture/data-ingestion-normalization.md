@@ -26,6 +26,11 @@ External source
 
 ## Raw storage
 
+The internal raw record and storage port are defined by
+[ADR-015](../adr/ADR-015-raw-payload-storage.md). Capture timestamps are caller
+supplied; unknown effective/observed/available times remain unknown. This does not
+make raw captures eligible backtest records without subsequent normalization.
+
 Raw responses should be stored in S3 by source, acquisition date, endpoint/resource type, and checksum. Where licensing prohibits retention, record the restriction and retain only allowed derived metadata.
 
 Example key:

@@ -1,5 +1,11 @@
 # Database migrations
 
+Revision `0008_event_consumption` adds immutable verification receipts for the
+first EventAccepted consumer, keyed by notification ID. Downgrade removes these
+receipts and permits reprocessing; it is not an operational reset. Existing
+canonical data/outbox intents are preserved. Only disposable databases are migrated
+by validation. See [ADR-023](../../../docs/adr/ADR-023-event-acceptance-consumer.md).
+
 Revision `0007_outbox_delivery` adds mutable delivery state, eligibility indexes,
 and an AFTER INSERT trigger that initializes state atomically with each outbox
 intent. Existing intents receive pending operational state without envelope edits.

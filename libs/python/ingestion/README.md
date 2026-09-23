@@ -102,6 +102,14 @@ See [ADR-020](../../../docs/adr/ADR-020-outbox-delivery-leases.md).
 
 ## Bounded dispatch
 
+The complementary `consumer.consume_one(queue, transactions)` receives a validated
+notification outside a transaction, verifies/records it with `EventAcceptedHandler`
+inside a fresh transaction, and acknowledges the queue only after commit. Exceptions
+propagate without deleting the message. PROCESSED and DUPLICATE both permit deletion;
+IDLE means only an empty receive. PostgreSQL implements the first receipt-verification
+handler; concrete SQS transport follows separately. See
+[ADR-023](../../../docs/adr/ADR-023-event-acceptance-consumer.md).
+
 `dispatch.dispatch_one(transactions, publisher, lease_for=..., retry_after=...)`
 claims at most one intent, commits before sending, and acknowledges in a fresh
 transaction. It returns IDLE, PUBLISHED (broker acceptance, not consumption), or
@@ -119,7 +127,7 @@ Neither protocol creates clients or discovers credentials.
 
 Crash recovery may resend the same notification after lease expiry. Consumers
 must deduplicate; this is not exactly-once delivery. EventBridge transport now lives
-in persistence; worker composition, consumer processing, DLQ, and monitoring remain
+in persistence; worker composition, SQS transport, DLQ, and monitoring remain
 unimplemented.
 See [ADR-021](../../../docs/adr/ADR-021-outbox-dispatch-boundary.md).
 `scripts/test-integration -k dispatch` verifies actual PostgreSQL commit/rollback

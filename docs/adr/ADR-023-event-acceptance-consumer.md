@@ -15,6 +15,7 @@ Migration `0008_event_consumption` creates `event_acceptance_consumptions`, keye
 notification ID with a restrictive FK to the immutable outbox and a database-time
 verification timestamp. It is specific to this verification consumer, not a global
 deduplication table for future consumers. UPDATE/DELETE/TRUNCATE are prohibited.
+Handler writes require READ COMMITTED isolation, matching the existing adapters.
 The handler validates the original notification and receipt on every invocation,
 including duplicates, and inserts with ON CONFLICT DO NOTHING. Concurrent exact
 deliveries converge; changed notification metadata fails closed. Caller-owned

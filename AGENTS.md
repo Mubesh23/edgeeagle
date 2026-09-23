@@ -41,8 +41,10 @@ Delivery coordination now supports database-timed leases, fenced acknowledgement
 and scheduled retries in a separate operational table. A bounded transport-neutral
 dispatcher now commits claims before sending and completes them in a new transaction;
 the EventBridge adapter now verifies its explicit destination and per-entry broker
-acceptance, with local Floci tests. Consumer routing, deduplication, and DLQ
-validation remain next. See
+acceptance, with local Floci tests. A transactional verification consumer now
+deduplicates accepted notifications in PostgreSQL and commits before queue deletion.
+Concrete SQS routing and DLQ validation remain next. See
+[ADR-023](docs/adr/ADR-023-event-acceptance-consumer.md),
 [ADR-022](docs/adr/ADR-022-eventbridge-outbox-publisher.md),
 [ADR-021](docs/adr/ADR-021-outbox-dispatch-boundary.md),
 [ADR-019](docs/adr/ADR-019-event-outbox.md) and

@@ -238,6 +238,14 @@ There are no targets or queues in this test scope; no IAM enforcement is claimed
 
 ## Transaction ownership details
 
+`consumer.PostgresEventAcceptedHandler(connection)` verifies a delivered notification
+against its immutable outbox/normalization evidence and inserts one immutable
+`event_acceptance_consumptions` receipt. Exact concurrent duplicates return False;
+changed or unknown identity raises `EventConsumptionConflict`. Writes require
+READ COMMITTED isolation. The caller commits
+before queue acknowledgement. This is a verification consumer, not a model job or
+an API projection. Run `scripts/test-integration -k event_consumption`.
+
 For PostgreSQL repositories, the caller supplies an active PostgreSQL/psycopg SQLAlchemy connection transaction,
 normally through `with engine.begin() as connection`. Autocommit is rejected.
 Pass the same connection to repositories to commit or roll back their work

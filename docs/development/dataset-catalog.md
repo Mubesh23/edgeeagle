@@ -126,3 +126,24 @@ statement coverage for the two new Python modules; the synthetic CLI integration
 also passed independently. Unchanged TypeScript tasks used local Turbo cache.
 Existing Starlette deprecations and the resource-free CDK skeleton warning remain.
 Hosted CI and fresh-checkout validation were not run in this local session.
+
+## Local API inspection evidence — 2026-09-23
+
+The opt-in factory was exercised through the in-process HTTP test client using
+the approved ignored catalog configuration. Listing returned one `NOT_CHECKED`
+entry; fresh inspection returned `VERIFIED`, 380 receipts and 20 participants,
+with `backtest_eligible=false` and `Cache-Control: no-store`. Before/after local
+Floci listings confirmed all eight source objects were unchanged. No listening
+server, provider download, PostgreSQL connection or hosted exposure was started.
+
+The new HTTP route and local factory modules each achieved 100% statement coverage
+in targeted network-blocked tests. A separate disposable Floci integration verified
+65 authored receipts and missing-page rejection through the configured HTTP app.
+
+Full `scripts/validate` passed with 875 Python unit tests, 141 integration tests
+and the existing single Floci expected failure. Generated drift, formatting,
+linting, strict typing, client tests, additive OpenAPI compatibility, builds,
+credential-free CDK synthesis and dependency advisory scans passed. Turbo reused
+unchanged tasks; changed client and web checks executed. Existing Starlette/CDK
+warnings remain. Hosted CI, a fresh checkout and a listening-server smoke test
+were not run; this evidence covers local in-process HTTP plus real Floci storage.

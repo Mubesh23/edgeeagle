@@ -65,6 +65,10 @@ readiness, and the Floci delivery-DLQ gap remain separate work.
 
 ## Validation
 
+Implementation status: the port-level reference resolver and offline tests are
+implemented in `edgeeagle_ingestion.fixture_references`. Receipt format 2, its
+migration, pinned PostgreSQL composition, and mapped normalization remain pending.
+
 Network-disabled tests cover cutoff boundaries, corrections/revocations, malformed
 future histories, typed references, duplicate/source-mismatched keys, missing or
 inconsistent records, deterministic results, and propagated repository failures.

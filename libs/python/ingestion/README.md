@@ -63,6 +63,24 @@ neither persisted events nor historically eligible datasets. The separate
 `EventAcceptanceRepository` port now supports initial canonical persistence;
 normalization itself still performs no writes.
 
+## Mapping-backed reference resolution
+
+`fixture_references.resolve_fixture_references(keys, mappings, sports, as_of=...)`
+now resolves explicitly authored sport/competition/season/home/away keys through
+complete mapping histories and reads the selected canonical records. It returns
+frozen references, the UTC cutoff, and five selected revisions in that role order.
+Missing, revoked, future-only, malformed, wrong-type, or inconsistent references
+fail closed; no writes, retries, label matching, or event creation occur.
+
+Supply both repository ports from the same pinned read-only snapshot; this
+port-level helper cannot enforce PostgreSQL isolation. It is tested offline and
+is **not yet wired into normalization or receipt persistence**. Do not discard its
+revision evidence to use legacy receipts. Explicit fixture event IDs, label guards,
+status, and context versions remain necessary. See
+[ADR-025](../../../docs/adr/ADR-025-mapping-backed-fixture-context.md) for the
+approved format-1 compatibility and incremental format-2 rollout. Run
+`scripts/test-unit tests/unit/test_fixture_references.py` for focused coverage.
+
 ## Initial event acceptance
 
 `notifications.EventAccepted.for_candidate(...)` creates a validated publication

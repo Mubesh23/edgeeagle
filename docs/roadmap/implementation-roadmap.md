@@ -60,6 +60,11 @@ one consumer verification receipt. This demonstrates the narrow fixture-flow
 exit criterion, not completion of every Phase 2 capability or production readiness.
 Dynamic provider-mapping integration, historical datasets, worker supervision,
 and the known EventBridge delivery-DLQ emulator gap remain explicit follow-ups.
+The read-only fixture reference resolver now selects canonical references and
+retains mapping-revision evidence in memory. Mapped receipt persistence and pinned
+PostgreSQL composition remain pending under
+[ADR-025](../adr/ADR-025-mapping-backed-fixture-context.md); this does not yet
+replace explicit bindings in the fixture-to-API acceptance test.
 
 ## Phase 3 — V1 Provider Adapters
 

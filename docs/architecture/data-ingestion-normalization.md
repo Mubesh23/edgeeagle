@@ -39,6 +39,10 @@ Example key:
 
 ## Provider adapters
 
+The first implemented capability is bounded offline acquisition and raw retention;
+see [ADR-016](../adr/ADR-016-offline-ingestion-boundary.md). It is exercised using
+synthetic fixtures, not live feeds. Parsing and canonical effects remain deferred.
+
 Separate interfaces by capability:
 
 - `SportsDataAdapter`

@@ -15,6 +15,8 @@ This increment makes no claims about provider data licensing or live compatibili
 
 These are test inputs, not historical research datasets: the displayed quote
 timestamps must not be treated as real observed/available-at evidence. No canonical
-normalizer, provider adapter, or live provider contract test is implemented yet.
+normalizer or live provider contract test is implemented yet. The
+[offline importer](../../../libs/python/ingestion/README.md) can retain these
+exact bytes through the raw-storage port; it is not a live provider adapter.
 
 See [mock server usage](../../mock_providers/README.md).

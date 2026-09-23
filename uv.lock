@@ -6,6 +6,7 @@ requires-python = "==3.11.*"
 members = [
     "edgeeagle-api",
     "edgeeagle-domain",
+    "edgeeagle-ingestion",
     "edgeeagle-persistence",
     "edgeeagle-workspace",
 ]
@@ -287,6 +288,17 @@ requires-dist = [
 name = "edgeeagle-domain"
 version = "0.0.0"
 source = { editable = "libs/python/domain" }
+
+[[package]]
+name = "edgeeagle-ingestion"
+version = "0.0.0"
+source = { editable = "libs/python/ingestion" }
+dependencies = [
+    { name = "edgeeagle-domain" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "edgeeagle-domain", editable = "libs/python/domain" }]
 
 [[package]]
 name = "edgeeagle-persistence"

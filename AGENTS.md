@@ -28,7 +28,10 @@ ingestion/API wiring and pinned historical datasets remain deferred.
 The persistence package also implements immutable raw S3 capture storage with
 conditional writes and integrity-checked reads; see
 [ADR-015](docs/adr/ADR-015-raw-payload-storage.md). Floci tests use disposable
-buckets only; no production bucket or ingestion orchestration is introduced.
+buckets only; the storage adapter introduces no production bucket or orchestration.
+The [ingestion library](libs/python/ingestion/README.md) composes bounded local-file
+acquisition with raw retention. This fixture -> raw path does not yet normalize,
+write canonical records, or publish events.
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports
@@ -111,6 +114,9 @@ The final handoff for an implementation session must report the commits created,
 
 ## Package boundaries
 
+- `libs/python/ingestion` owns offline acquisition orchestration and its importer
+  port, depending inward on domain. Its local-file adapter does not parse payloads.
+
 - `libs/python/domain` is the pure Python domain library. Applications may depend
   inward on it; it must not import API, database, AWS, or provider SDK code.
 - `libs/python/persistence` implements inward-owned domain repository ports using
@@ -119,7 +125,7 @@ The final handoff for an implementation session must report the commits created,
 
 ## Generated files
 
-- Root `dist/` contains ignored Python API/domain/persistence sdist and wheel outputs from
+- Root `dist/` contains ignored Python API/domain/persistence/ingestion sdist and wheel outputs from
   their member manifests and source packages; regenerate with `scripts/build`.
 
 - `pnpm-lock.yaml`: source is root/member package manifests and

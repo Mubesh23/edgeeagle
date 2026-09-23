@@ -201,4 +201,5 @@ Floci reads, later reference edits, and artifact-loss/corruption coverage.
 Successful decoding alone never claims artifact verification. Successful verification
 does not guarantee continuing storage availability, authenticated acceptance, or
 historical eligibility. Manifest storage is implemented under ADR-027; cataloging
-and retained-receipt retrieve-by-version replay composition remain pending.
+remains pending. Retained-receipt retrieve-by-version replay composition is covered
+by `scripts/test-integration -k snapshot_replay`.

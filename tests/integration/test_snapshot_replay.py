@@ -14,6 +14,7 @@ from edgeeagle_ingestion.snapshot_replay import verify_manifest
 from edgeeagle_ingestion.synthetic_events import normalize_mapped_fixture_events
 from edgeeagle_persistence.events import PostgresEventAcceptanceRepository
 from edgeeagle_persistence.fixture_references import fixture_reference_reads
+from edgeeagle_persistence.manifest_storage import S3ReplayManifestStore
 from edgeeagle_persistence.mappings import PostgresMappingRepository
 from edgeeagle_persistence.raw import S3RawPayloadStore
 from edgeeagle_persistence.receipts import EventReceiptCodec
@@ -77,8 +78,13 @@ def test_snapshot_replay_retains_context_and_rejects_lost_artifacts(
         )
     )
     body = encode_manifest(manifest, codec)
+    manifests = S3ReplayManifestStore(client, bucket, codec)
+    version = manifests.put(body)
+    retrieved = manifests.get(version)
+    assert retrieved is not None
+    assert retrieved == body
     # No DB transaction/reader is provided; output comes from verified retained bytes/context.
-    assert verify_manifest(body, codec, store) == ((retained[0],), (retained[1],), ())
+    assert verify_manifest(retrieved, codec, store) == ((retained[0],), (retained[1],), ())
     assert encode_manifest(manifest, codec) == body
     for candidate in retained:
         assert candidate.mapping_evidence is not None
@@ -86,7 +92,7 @@ def test_snapshot_replay_retains_context_and_rejects_lost_artifacts(
         assert candidate.raw.capture.available_at is None
         assert store.get(candidate.raw) == base.body
     objects = client.list_objects_v2(Bucket=bucket)["Contents"]
-    assert len(objects) == 3
+    assert len(objects) == 4
     # Simulate loss/corruption only in this test's disposable final-capture object.
     key = next(entry["Key"] for entry in objects if "/resource=z/" in entry["Key"])
     if failure == "missing":
@@ -100,7 +106,9 @@ def test_snapshot_replay_retains_context_and_rejects_lost_artifacts(
             Metadata={} if failure == "metadata" else metadata,
         )
     with pytest.raises((FileNotFoundError, RawPayloadIntegrityError)):
-        verify_manifest(body, codec, store)
+        retrieved = manifests.get(version)
+        assert retrieved == body
+        verify_manifest(retrieved, codec, store)
     with repository_engine.begin() as connection:
         repository = PostgresEventAcceptanceRepository(connection)
         assert [repository.get(c.event.event_id) for c in retained] == retained
@@ -108,5 +116,7 @@ def test_snapshot_replay_retains_context_and_rejects_lost_artifacts(
         assert connection.scalar(text("SELECT count(*) FROM event_normalizations")) == 2
         assert connection.scalar(text("SELECT count(*) FROM event_outbox")) == 0
     assert len(client.list_objects_v2(Bucket=bucket)["Contents"]) == (
-        2 if failure == "missing" else 3
+        3 if failure == "missing" else 4
     )
+    client.delete_object(Bucket=bucket, Key=f"snapshots/replay-manifests/v1/{version}.json")
+    assert manifests.get(version) is None

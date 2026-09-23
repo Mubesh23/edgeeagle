@@ -84,8 +84,9 @@ remain separate design/implementation work.
 [ADR-027](../adr/ADR-027-replay-manifest-storage.md) now defines the narrow immutable
 manifest-storage port and S3 layout. The port/adapter now implements conditional
 writes and strict bounded reads, with offline and Floci integrity/idempotency tests.
-No catalog or production storage resources are added. Next: retrieve-by-version
-replay composition using retained receipts and raw artifacts.
+No catalog or production storage resources are added. Retrieve-by-version replay
+composition now verifies retained receipts and raw artifacts after current-state
+edits, while distinguishing missing manifests from lost raw artifacts.
 
 ## Phase 3 — V1 Provider Adapters
 

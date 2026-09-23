@@ -156,7 +156,9 @@ Stored corruption raises `ManifestIntegrityError`; service/transport errors prop
 Persistence supplies the S3 adapter under
 [ADR-027](../../../docs/adr/ADR-027-replay-manifest-storage.md). Storage performs no
 raw reads or replay verification. Retrieve-by-version replay composition with
-retained PostgreSQL receipts remains a separate increment; no catalog is present.
+retained PostgreSQL receipts is tested by `scripts/test-integration -k snapshot_replay`;
+no catalog is present. Call `get(version)`, explicitly handle None, then pass the
+returned bytes to `verify_manifest`. Never reconstruct missing metadata from current state.
 
 ## Initial event acceptance
 

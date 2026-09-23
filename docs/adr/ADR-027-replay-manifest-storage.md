@@ -1,6 +1,6 @@
 # ADR-027 — Immutable replay manifest storage
 
-**Status:** Accepted; port and S3 adapter implemented, retrieve-and-replay composition pending  
+**Status:** Accepted; storage and retained-receipt retrieve-and-replay composition implemented  
 **Date:** 2026-09-23
 
 ## Context
@@ -166,4 +166,8 @@ inclusive 1 MiB boundary. Run `scripts/test-integration -k manifest_storage` for
 disposable Floci concurrent/exact retries, conditional enforcement, missing objects,
 incidental metadata, and corrupt/wrong-version objects that remain unmodified.
 The retained-PostgreSQL-receipt retrieve-by-version replay composition in step 4
-remains a separate increment. Cataloging and historical eligibility remain deferred.
+is covered by `scripts/test-integration -k snapshot_replay`: retrieve, explicitly
+handle absence, then verify raw captures after reference edits. Lost/corrupt raw
+objects fail verification while the manifest remains retrievable; deleting the
+manifest returns absence without reconstruction. Cataloging and historical
+eligibility remain deferred.

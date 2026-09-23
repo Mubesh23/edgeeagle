@@ -44,6 +44,7 @@ Private recovery: [ADR-030 — local backup and isolated restoration](adr/ADR-03
 Run it locally: [Private recovery operator guide](development/private-recovery.md).
 Local catalog: [ADR-031 — read-only retained dataset discovery](adr/ADR-031-local-dataset-catalog.md).
 Run it locally: [Dataset catalog operator guide](development/dataset-catalog.md).
+Local catalog API: [ADR-032 — private read-only HTTP consumer](adr/ADR-032-local-dataset-api.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.

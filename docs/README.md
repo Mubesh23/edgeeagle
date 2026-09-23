@@ -39,6 +39,7 @@ and [manifest v1 specification](architecture/dataset-snapshot-manifest.md).
 Manifest storage: [ADR-027 — immutable version lookup implemented](adr/ADR-027-replay-manifest-storage.md).
 First CSV importer: [ADR-028 — bounded retained soccer results](adr/ADR-028-football-data-results-import.md).
 Run it locally: [Football-Data import workflow](development/football-data-import.md).
+Whole-season extension: [ADR-029 — bounded paged replay](adr/ADR-029-football-data-season-replay.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.

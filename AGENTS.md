@@ -96,7 +96,15 @@ Preserve dependency order between commits where practical. Do not mix unrelated 
 
 The final handoff for an implementation session must report the commits created, validation performed, current working-tree status, and any uncommitted changes.
 
+## Package boundaries
+
+- `libs/python/domain` is the pure Python domain library. Applications may depend
+  inward on it; it must not import API, database, AWS, or provider SDK code.
+
 ## Generated files
+
+- Root `dist/` contains ignored Python API/domain sdist and wheel outputs from
+  their member manifests and source packages; regenerate with `scripts/build`.
 
 - `pnpm-lock.yaml`: source is root/member package manifests and
   `pnpm-workspace.yaml`; regenerate with `corepack pnpm install --lockfile-only`.

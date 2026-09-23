@@ -23,6 +23,7 @@ This directory contains the product, architecture, data, testing, cost, and impl
 
 Phase 2 mapping design: [ADR-013 — immutable provider mapping revisions](adr/ADR-013-provider-mapping-revisions.md).
 Physical storage: [ADR-014 — PostgreSQL mapping history](adr/ADR-014-provider-mapping-storage.md).
+Raw storage: [ADR-015 — immutable captures](adr/ADR-015-raw-payload-storage.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.

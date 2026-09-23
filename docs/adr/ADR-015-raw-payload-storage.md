@@ -61,3 +61,5 @@ This initial in-memory interface is for bounded responses, not bulk archives.
 
 - [Ingestion design](../architecture/data-ingestion-normalization.md)
 - [Testing strategy](../development/local-development-testing.md)
+- [AWS conditional-write semantics](https://docs.aws.amazon.com/AmazonS3/latest/userguide/conditional-writes.html)
+  (checked 2026-09-22; local enforcement is independently tested against Floci).

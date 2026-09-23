@@ -25,6 +25,10 @@ foreign keys. Source/venue and sports/event transactional adapters now live in
 `0004_mapping_history` adds append-only mapping storage. The mapping repository
 supports compare-and-append, exact replay, and availability-based resolution;
 ingestion/API wiring and pinned historical datasets remain deferred.
+The persistence package also implements immutable raw S3 capture storage with
+conditional writes and integrity-checked reads; see
+[ADR-015](docs/adr/ADR-015-raw-payload-storage.md). Floci tests use disposable
+buckets only; no production bucket or ingestion orchestration is introduced.
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports
@@ -110,7 +114,8 @@ The final handoff for an implementation session must report the commits created,
 - `libs/python/domain` is the pure Python domain library. Applications may depend
   inward on it; it must not import API, database, AWS, or provider SDK code.
 - `libs/python/persistence` implements inward-owned domain repository ports using
-  caller-owned PostgreSQL transactions. Domain code must not import persistence.
+  caller-owned PostgreSQL transactions and the raw storage port using a
+  caller-supplied S3 client. Domain code must not import persistence.
 
 ## Generated files
 

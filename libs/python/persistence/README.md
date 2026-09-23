@@ -1,10 +1,38 @@
-# PostgreSQL persistence adapters
+# Persistence adapters
 
 `edgeeagle-persistence` depends inward on `edgeeagle-domain` and implements its
 repository protocols using SQLAlchemy connections and the psycopg driver.
 Importing the package opens no database connection. The API has no dependency on
 this package yet; no endpoint, deployment, database configuration, or schema
 migration is introduced by these adapters.
+
+## Immutable raw S3 captures
+
+`S3RawPayloadStore(client, bucket)` implements the domain `RawPayloadStore` port.
+The caller supplies an already-configured synchronous boto3 S3 client and existing
+bucket; importing the adapter does not discover credentials or create resources.
+Use explicit dummy credentials and the Floci loopback endpoint locally. Timeouts,
+SDK retries, client closing, and retention rights belong to the caller.
+
+`put(RawPayload)` returns a `RawPayloadReference`; `get(reference)` returns verified
+bytes or None only for `NoSuchKey`. Preserve the reference for replay and reads.
+Exact bytes are retained, including empty/non-JSON bodies. Capture metadata and
+payload SHA-256 determine the versioned key. Replays preserve original timestamps;
+different capture metadata creates a distinct object even for identical bytes.
+Conditional writes never overwrite. Existing objects must match exact bytes and
+metadata; corruption raises `RawPayloadIntegrityError`, while other service errors
+propagate. The adapter closes each response body, but not the caller's client.
+
+See [ADR-015](../../../docs/adr/ADR-015-raw-payload-storage.md) for format limits
+and identity. This initial in-memory interface is for bounded responses, not
+streaming archives. It is not Object Lock, a cross-S3/PostgreSQL transaction, an
+ingestion pipeline, a catalog, or a licensing policy. There is no delete method,
+production bucket/IAM change, provider call, or API wiring.
+
+Unit tests verify preconditions, integrity, errors, limits, and timezone identity.
+`scripts/test-integration -k raw_storage` checks Floci conditional-write enforcement,
+concurrent replay, exact byte retention, capture separation, and corruption in
+unique disposable buckets. Cleanup removes only those test buckets and objects.
 
 ## Current scope
 

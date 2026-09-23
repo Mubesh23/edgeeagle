@@ -66,8 +66,20 @@ readiness, and the Floci delivery-DLQ gap remain separate work.
 ## Validation
 
 Implementation status: the port-level reference resolver and offline tests are
-implemented in `edgeeagle_ingestion.fixture_references`. Receipt format 2, its
-migration, pinned PostgreSQL composition, and mapped normalization remain pending.
+implemented in `edgeeagle_ingestion.fixture_references`. Format-2 candidate evidence
+and the dual-format codec are implemented; the migration, pinned PostgreSQL
+composition, and mapped normalization remain pending.
+
+Format 2 adds `candidate.mapping_evidence`: exact competition/home/away guards and
+the resolved references (canonical records, cutoff, and complete selected revision
+values in sport/competition/season/home/away order). Event ID, status, source event
+key, and context version remain on the candidate. Confidence uses canonical decimal
+strings without rounding; timestamps serialize in UTC and status as its enum value.
+Candidates without evidence omit the field entirely and retain format 1, including
+its original lineage digest. Readers reject mismatched evidence or noncanonical
+JSON. These constructors verify internal consistency, not that supplied evidence
+was actually read from the mapping repository; pinned composition remains required.
+Codec support must be deployed before format-2 writes are enabled.
 
 Network-disabled tests cover cutoff boundaries, corrections/revocations, malformed
 future histories, typed references, duplicate/source-mismatched keys, missing or

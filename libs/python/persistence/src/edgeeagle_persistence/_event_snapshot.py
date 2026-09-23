@@ -1,8 +1,9 @@
-"""Private receipt format 1 codec; not an API or provider wire contract."""
+"""Private receipt formats 1 and 2; not an API or provider wire contract."""
 
 import json
 from dataclasses import asdict, replace
 from datetime import UTC, datetime
+from decimal import InvalidOperation
 from typing import Any
 
 from edgeeagle_domain.mappings import ProviderEntityKey
@@ -19,6 +20,8 @@ from edgeeagle_domain.sports import (
 )
 from edgeeagle_ingestion.events import EventCandidate
 from edgeeagle_ingestion.identity import acceptance_key as acceptance_key
+from edgeeagle_ingestion.identity import lineage_json_value
+from edgeeagle_persistence._mapping_snapshot import decode_evidence
 
 
 def canonical(candidate: EventCandidate) -> EventCandidate:
@@ -29,24 +32,23 @@ def canonical(candidate: EventCandidate) -> EventCandidate:
     )
 
 
-def _timestamp(value: object) -> str:
-    if not isinstance(value, datetime):
-        raise TypeError("unsupported receipt value")
-    return value.astimezone(UTC).isoformat()
-
-
 def _json(value: object) -> str:
-    return json.dumps(value, default=_timestamp, sort_keys=True, separators=(",", ":"))
+    return json.dumps(value, default=lineage_json_value, sort_keys=True, separators=(",", ":"))
 
 
 def encode(candidate: EventCandidate) -> str:
-    return _json({"format": 1, "candidate": asdict(canonical(candidate))})
+    fields = asdict(canonical(candidate))
+    version = 2
+    if candidate.mapping_evidence is None:
+        del fields["mapping_evidence"]
+        version = 1
+    return _json({"format": version, "candidate": fields})
 
 
 def decode(snapshot: Any) -> EventCandidate:
     """Revalidate the JSON boundary; reject extra fields and noncanonical encodings."""
     try:
-        if type(snapshot["format"]) is not int or snapshot["format"] != 1:
+        if type(snapshot["format"]) is not int or snapshot["format"] not in (1, 2):
             raise ValueError("unsupported receipt format")
         value = snapshot["candidate"]
         event = value["event"]
@@ -91,12 +93,15 @@ def decode(snapshot: Any) -> EventCandidate:
                 parser_version=value["parser_version"],
                 normalizer_version=value["normalizer_version"],
                 context_version=value["context_version"],
+                mapping_evidence=(
+                    decode_evidence(value["mapping_evidence"]) if snapshot["format"] == 2 else None
+                ),
             )
         )
         if encode(candidate) != _json(snapshot):
             raise ValueError("noncanonical receipt")
         return candidate
-    except (KeyError, TypeError, ValueError) as error:
+    except (KeyError, TypeError, ValueError, InvalidOperation) as error:
         raise ValueError("Invalid event normalization receipt") from error
 
 

@@ -83,6 +83,15 @@ approved format-1 compatibility and incremental format-2 rollout. Run
 
 ## Initial event acceptance
 
+Candidates now optionally carry `FixtureMappingEvidence`: resolved canonical
+references with selected mapping revisions and cutoff, plus explicit fixture
+label guards. Candidate validation ties that evidence to source, event references,
+and HOME/AWAY entries. Format-2 serialization includes all evidence in the lineage
+digest; legacy candidates omit the new field and retain format-1 bytes/digests.
+The dual-format reader is implemented, but mapped writes require the forthcoming
+schema migration and pinned normalization composition. Neither this value object
+nor decoding proves authenticated review or historical eligibility.
+
 `notifications.EventAccepted.for_candidate(...)` creates a validated publication
 intent with explicit stable notification ID, occurrence timestamp, correlation ID,
 and causation ID. It references the accepted canonical event and lineage digest.

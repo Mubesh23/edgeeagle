@@ -17,6 +17,15 @@ Its S3 adapter is implemented; storage success does not imply artifact verificat
 
 ## Wire shape
 
+ADR-028 adds the distinct `FOOTBALL_DATA_RESULTS_REPLAY` kind, using the same
+format-1 envelope and canonical hashing recipe with format-3 score receipts.
+It requires nonempty CSV captures, the supported CSV parser/normalizer pair, and
+no mixing with synthetic receipts. The original `MAPPED_EVENT_REPLAY` contract
+below and all its golden bytes remain unchanged. Both kinds are `REPLAY_ONLY`.
+The builder derives kind from validated receipts; decoding rechecks it rather
+than trusting a supplied kind. Replay dispatches to the corresponding adapter.
+See [CSV scope and compatibility](../adr/ADR-028-football-data-results-import.md).
+
 All object fields below are required; unlisted fields are rejected. Literal
 values are exact and case-sensitive. Capture and receipt-pin arrays are sets for
 identity purposes with the canonical order defined below; arrays inside receipts

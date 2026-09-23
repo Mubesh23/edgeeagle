@@ -5,7 +5,7 @@
 
 Receipt rollout status: `SoccerResultEvidence`, format-3 codec and migration
 `0010_soccer_receipts` are implemented. CSV normalization and retained-receipt
-replay are implemented; snapshot dispatch and end-to-end composition remain pending.
+replay and snapshot-kind dispatch are implemented; end-to-end composition remains pending.
 Legacy byte/digest golden tests and local PostgreSQL rollout/
 downgrade guards cover the additive reader/schema increment.
 
@@ -132,3 +132,6 @@ construction additionally rejects kickoff outside the supplied season. Replay us
 the same parser/projection with retained evidence. Network-disabled tests cover
 malformed CSV, source/label/identity conflicts, bounds, offsets, mapping/snapshot
 failures, and full-output drift. Run `scripts/test-unit tests/unit/test_football_data.py`.
+`tests/unit/test_football_data_manifest.py` covers CSV snapshot round trips, kind
+dispatch, mixed/empty-group rejection and score drift. Existing synthetic manifest
+goldens and storage tests remain unchanged and pass with the additive reader.

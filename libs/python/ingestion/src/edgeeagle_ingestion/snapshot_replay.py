@@ -2,6 +2,7 @@
 
 from edgeeagle_domain.raw import RawPayloadStore
 from edgeeagle_ingestion.events import EventCandidate
+from edgeeagle_ingestion.football_data import replay_results
 from edgeeagle_ingestion.manifests import EventReceiptCodec, decode_manifest
 from edgeeagle_ingestion.synthetic_events import replay_mapped_fixture_events
 
@@ -18,7 +19,9 @@ def verify_manifest(
     continuing artifact availability, or historical decision eligibility.
     """
     manifest = decode_manifest(body, codec)
-    return tuple(
-        replay_mapped_fixture_events(store, capture.raw, capture.candidates)
-        for capture in manifest.captures
+    replay = (
+        replay_results
+        if manifest.kind == "FOOTBALL_DATA_RESULTS_REPLAY"
+        else replay_mapped_fixture_events
     )
+    return tuple(replay(store, capture.raw, capture.candidates) for capture in manifest.captures)

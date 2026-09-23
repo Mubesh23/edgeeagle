@@ -176,8 +176,11 @@ unknown. Inputs are UTF-8 CSV completed results with dd/mm/yyyy and HH:MM, limit
 to 100 rows/1 MiB; extra named columns stay raw-only. No odds, missing-time/date-only
 records, automatic downloads, identity matching, or backtest eligibility are added.
 See the [authored fixture](../../../tests/fixtures/providers/football_data/README.md).
-Run `scripts/test-unit tests/unit/test_football_data.py`. Storage/transactional
-composition and snapshot-kind support follow separately.
+Run `scripts/test-unit tests/unit/test_football_data.py`.
+Manifest construction selects `FOOTBALL_DATA_RESULTS_REPLAY` for nonempty CSV
+capture groups; mixed CSV/synthetic manifests are rejected. The existing strict
+codec, immutable storage port and `verify_manifest` support that kind without
+changing original synthetic manifest bytes. Transactional composition follows separately.
 
 ## Initial event acceptance
 

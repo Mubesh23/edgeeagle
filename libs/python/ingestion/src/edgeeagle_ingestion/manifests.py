@@ -10,6 +10,7 @@ from edgeeagle_domain._validation import instance
 from edgeeagle_domain.provenance import DataSourceId
 from edgeeagle_domain.raw import RawCapture, RawPayloadReference
 from edgeeagle_ingestion.events import EventCandidate
+from edgeeagle_ingestion.football_data import NORMALIZER_VERSION, PARSER_VERSION
 from edgeeagle_ingestion.identity import acceptance_key, lineage_json_value
 
 MAX_MANIFEST_BYTES = 1_048_576
@@ -39,12 +40,13 @@ class ManifestCapture:
         instance(self.candidates, tuple, "candidates")
         for candidate in self.candidates:
             instance(candidate, EventCandidate, "candidate")
-            if (
-                candidate.soccer_result is not None
-                or candidate.mapping_evidence is None
-                or candidate.parser_version != "synthetic-odds-events-v1"
-                or candidate.normalizer_version != "synthetic-event-mappings-v1"
-            ):
+            versions = (candidate.parser_version, candidate.normalizer_version)
+            supported = (
+                ("synthetic-odds-events-v1", "synthetic-event-mappings-v1")
+                if candidate.soccer_result is None
+                else (PARSER_VERSION, NORMALIZER_VERSION)
+            )
+            if candidate.mapping_evidence is None or versions != supported:
                 raise ValueError("manifest requires supported mapped receipts")
             if candidate.raw != self.raw:
                 raise ValueError("candidate must share its capture's raw reference")
@@ -65,6 +67,9 @@ class ReplayDatasetManifest:
 
     captures: tuple[ManifestCapture, ...]
     usage: Literal["REPLAY_ONLY"] = field(default="REPLAY_ONLY", init=False)
+    kind: Literal["MAPPED_EVENT_REPLAY", "FOOTBALL_DATA_RESULTS_REPLAY"] = field(
+        default="MAPPED_EVENT_REPLAY", init=False
+    )
 
     def __post_init__(self) -> None:
         instance(self.captures, tuple, "captures")
@@ -72,6 +77,13 @@ class ReplayDatasetManifest:
             raise ValueError("manifest requires at least one capture")
         for capture in self.captures:
             instance(capture, ManifestCapture, "capture")
+        if any(c.soccer_result is not None for group in self.captures for c in group.candidates):
+            if any(
+                not group.candidates or any(c.soccer_result is None for c in group.candidates)
+                for group in self.captures
+            ):
+                raise ValueError("CSV manifests require nonempty, unmixed result captures")
+            object.__setattr__(self, "kind", "FOOTBALL_DATA_RESULTS_REPLAY")
         raw_keys = [_json(asdict(c.raw)) for c in self.captures]
         if len(set(raw_keys)) != len(raw_keys):
             raise ValueError("duplicate raw capture")
@@ -104,7 +116,7 @@ def encode_manifest(manifest: ReplayDatasetManifest, codec: EventReceiptCodec) -
         captures.append({"raw": asdict(capture.raw), "receipts": pins})
     content = {
         "format": 1,
-        "kind": "MAPPED_EVENT_REPLAY",
+        "kind": manifest.kind,
         "usage": manifest.usage,
         "captures": captures,
     }
@@ -192,7 +204,7 @@ def decode_manifest(body: bytes, codec: EventReceiptCodec) -> ReplayDatasetManif
         if (
             type(content["format"]) is not int
             or content["format"] != 1
-            or content["kind"] != "MAPPED_EVENT_REPLAY"
+            or content["kind"] not in ("MAPPED_EVENT_REPLAY", "FOOTBALL_DATA_RESULTS_REPLAY")
             or content["usage"] != "REPLAY_ONLY"
         ):
             raise ValueError("unsupported manifest format, kind, or usage")

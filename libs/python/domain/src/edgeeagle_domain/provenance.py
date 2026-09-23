@@ -3,12 +3,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-
-def _text(value: object, field: str) -> None:
-    if not isinstance(value, str):
-        raise TypeError(f"{field} must be a string")
-    if not value or value != value.strip():
-        raise ValueError(f"{field} must be nonempty and have no surrounding whitespace")
+from edgeeagle_domain._validation import text as _text
 
 
 def _capabilities(value: frozenset[str]) -> None:

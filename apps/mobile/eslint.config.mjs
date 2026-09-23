@@ -5,7 +5,11 @@ export default tseslint.config(
   { ignores: ["dist/**", ".expo/**"] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  { files: ["*.cjs"], languageOptions: { globals: { module: "readonly" } } },
+  {
+    files: ["*.cjs"],
+    languageOptions: { globals: { module: "readonly", require: "readonly" } },
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
   {
     files: ["tests/**/*.cjs"],
     languageOptions: {

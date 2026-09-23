@@ -117,6 +117,8 @@ The final handoff for an implementation session must report the commits created,
   regenerate with `scripts/build`.
 - `infra/cdk/cdk.out/`: ignored cloud assembly from infra/cdk/src and cdk.json;
   regenerate with `scripts/synth`.
+- `patches/query-string@7.1.3.patch`: generated package compatibility patch; its
+  source, pnpm regeneration commands, and removal gates are in [patch policy](patches/README.md).
 
 Generated paths must be documented with their source and regeneration command. Do not hand-edit generated OpenAPI clients or generated event/schema artifacts.
 

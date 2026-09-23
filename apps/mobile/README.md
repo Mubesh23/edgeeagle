@@ -6,6 +6,10 @@ or provider calls and contains no domain calculations, auth, persistence, tradin
 or placeholder product tabs. The generated API client and TanStack Query will be
 added when there is a mobile data workflow to consume.
 
+Scoped dependency security overrides and the query-string compatibility patch
+are documented in [patch policy](../../patches/README.md). The linking regression
+test exercises Expo Router's real query parser; it does not perform network calls.
+
 ## Local development
 
 From repository root:

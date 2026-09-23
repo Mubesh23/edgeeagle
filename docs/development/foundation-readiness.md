@@ -461,3 +461,21 @@ package checks used valid Turbo cache entries. The frozen snapshot is excluded
 from routine formatting/generation. No paid API, AWS credential, deployment,
 hosted CI run, or release was involved. Security scanning and fresh-checkout
 evidence remain outstanding.
+
+## Dependency advisory remediation increment
+
+The initial npm audit found four moderate package findings across three
+advisories. Updated Vitest to 4.1.11, scoped Xcode's UUID override to 11.1.1,
+and scoped query-string's decoder override to 0.5.0. A one-line pnpm patch adapts
+query-string's CommonJS import to the fixed decoder's ESM default export;
+the upstream MIT license is retained. Patch provenance/removal gates are in
+patches/README.md. There is no vulnerability ignore list or threshold increase.
+
+Validation passed: frozen bootstrap, three dependency regressions (query values,
+malformed-input timeout, Xcode ID API), real Expo Router query decoding in Jest,
+all six web tests, npm audit with no known vulnerabilities, and full
+scripts/validate including native bundle exports and local integration. The first
+full run found a CommonJS ESLint configuration gap, corrected only for mobile
+.cjs configuration files. Existing unrelated package checks used Turbo cache.
+No native-device/security certification is claimed. This is dependency
+remediation, not a change to authentication, execution, risk, or architecture.

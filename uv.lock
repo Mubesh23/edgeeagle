@@ -6,6 +6,7 @@ requires-python = "==3.11.*"
 members = [
     "edgeeagle-api",
     "edgeeagle-domain",
+    "edgeeagle-persistence",
     "edgeeagle-workspace",
 ]
 
@@ -286,6 +287,23 @@ requires-dist = [
 name = "edgeeagle-domain"
 version = "0.0.0"
 source = { editable = "libs/python/domain" }
+
+[[package]]
+name = "edgeeagle-persistence"
+version = "0.0.0"
+source = { editable = "libs/python/persistence" }
+dependencies = [
+    { name = "edgeeagle-domain" },
+    { name = "psycopg", extra = ["binary"] },
+    { name = "sqlalchemy" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "edgeeagle-domain", editable = "libs/python/domain" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.2,<4" },
+    { name = "sqlalchemy", specifier = ">=2.0,<3" },
+]
 
 [[package]]
 name = "edgeeagle-workspace"

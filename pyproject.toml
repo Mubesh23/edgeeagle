@@ -24,12 +24,12 @@ dev = [
 package = false
 
 [tool.uv.workspace]
-members = ["apps/api", "libs/python/domain"]
+members = ["apps/api", "libs/python/domain", "libs/python/persistence"]
 
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["apps/api/src", "libs/python/domain/src"]
+src = ["apps/api/src", "libs/python/domain/src", "libs/python/persistence/src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
@@ -40,9 +40,9 @@ known-first-party = ["tests"]
 [tool.mypy]
 python_version = "3.11"
 strict = true
-files = ["apps/api/src", "apps/api/tests", "apps/api/migrations", "libs/python/domain/src", "libs/python/domain/tests", "tests"]
+files = ["apps/api/src", "apps/api/tests", "apps/api/migrations", "libs/python/domain/src", "libs/python/domain/tests", "libs/python/persistence/src", "libs/python/persistence/tests", "tests"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
-testpaths = ["apps/api/tests", "libs/python/domain/tests", "tests/unit"]
+testpaths = ["apps/api/tests", "libs/python/domain/tests", "libs/python/persistence/tests", "tests/unit"]
 addopts = "-q --strict-markers --disable-socket --allow-unix-socket"

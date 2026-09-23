@@ -20,7 +20,9 @@ Migration `0002_source_venue` adds source/venue tables and capability sets; see
 [migration scope](apps/api/migrations/README.md). Validation migrates disposable
 test databases only, not the developer's application database.
 Migration `0003_sports_events` adds the sports/event hierarchy and cross-record
-foreign keys; runtime repository adapters and historical storage remain deferred.
+foreign keys. Source/venue transactional adapters now live in
+[Python persistence](libs/python/persistence/README.md); event repositories and
+historical storage remain deferred. No business API endpoints are wired yet.
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports
@@ -105,10 +107,12 @@ The final handoff for an implementation session must report the commits created,
 
 - `libs/python/domain` is the pure Python domain library. Applications may depend
   inward on it; it must not import API, database, AWS, or provider SDK code.
+- `libs/python/persistence` implements inward-owned domain repository ports using
+  caller-owned PostgreSQL transactions. Domain code must not import persistence.
 
 ## Generated files
 
-- Root `dist/` contains ignored Python API/domain sdist and wheel outputs from
+- Root `dist/` contains ignored Python API/domain/persistence sdist and wheel outputs from
   their member manifests and source packages; regenerate with `scripts/build`.
 
 - `pnpm-lock.yaml`: source is root/member package manifests and

@@ -62,6 +62,12 @@ append-only persistence, canonical-reference checks, replay idempotency, review
 workflow, and dataset snapshot completeness remain caller/storage responsibilities.
 There are no provider calls, migrations, or new API/event contracts in this slice.
 
+`edgeeagle_domain.repositories` owns the insert/read source and venue repository
+protocols and `DuplicateRecordError`. These ports introduce no database dependency.
+The [persistence package](../persistence/README.md) implements them for current
+PostgreSQL state; writes do not overwrite existing identities. Transaction
+orchestration belongs to callers, not individual repository methods.
+
 These internal records use frozen standard-library dataclasses. Constructors
 reject wrong types, blank text, surrounding whitespace, and mutable capability
 collections; they do not silently normalize provider input. Adapters will own

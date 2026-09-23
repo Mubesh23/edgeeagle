@@ -8,8 +8,13 @@ planned directory tree. Python members are registered as they land.
 Phase 2 adds [the pure Python domain library](../../libs/python/domain/README.md)
 with independent source/venue primitives. Root Python formatting, lint, strict
 typing, network-blocked unit tests, and offline sdist/wheel builds include it.
-It has no runtime dependencies; API integration and database entities are later
-increments, not implicit dependencies of this package.
+It has no runtime dependencies. Source/venue and sports/event database entities
+are maintained by Alembic, not implicit dependencies of the domain package.
+The [persistence library](../../libs/python/persistence/README.md) implements
+source/venue repository ports with caller-owned transactions. Root checks and
+offline package builds include it; real transaction tests use disposable local
+PostgreSQL databases. API wiring, event repositories, and historical storage
+remain later increments.
 
 ## Prerequisites and bootstrap
 

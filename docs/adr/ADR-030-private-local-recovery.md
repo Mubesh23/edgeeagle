@@ -1,6 +1,6 @@
 # ADR-030 — Private local research recovery
 
-**Status:** Accepted; portable replay implemented, local archive/restore pending
+**Status:** Accepted; portable archive implemented, local restore pending
 **Date:** 2026-09-23
 
 ## Context
@@ -92,5 +92,13 @@ and storage/security policy. This decision does not silently introduce one.
 in-memory set (`root.json`, numbered pages and `raw.bin`). It reuses ADR-029
 complete-capture replay, rejects missing/extra/corrupt members before writes,
 preserves raw metadata, checks storage acknowledgements and publishes the root
-last. This layer has no filesystem, database or provider access. Local archive
-inventory and PostgreSQL recovery composition are the next increment.
+last. This layer has no filesystem, database or provider access.
+
+`edgeeagle_persistence.recovery_archive` adds exclusive owner-only directory/file
+creation, a canonical inventory and final completion marker. Loading requires a
+separately retained inventory hash; it rejects symlink/nonregular/hardlinked or
+nonprivate members, unknown names, changed content and incomplete archives before
+replay. The initial PostgreSQL dump limit is 64 MiB; root, raw and page limits
+remain bounded by ADR-029. It loads validated bytes into bounded memory before
+restore to avoid reopening mutable archive files during destination writes.
+PostgreSQL recovery composition is the next increment.

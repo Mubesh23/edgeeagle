@@ -1,5 +1,13 @@
 # Database migrations
 
+Revision `0009_mapped_receipts` extends the normalization snapshot identity check
+to admit format 2 with an evidence object. It preserves format 1, existing rows,
+foreign keys, and immutability triggers. Full mapped-context validation remains
+in the application codec. Deploy dual-format readers before enabling mapped writes.
+Downgrade locks the receipt table and refuses if any format-2 rows exist; it does
+not delete or rewrite them. Tests use disposable databases only. See
+[ADR-025](../../../docs/adr/ADR-025-mapping-backed-fixture-context.md).
+
 Revision `0008_event_consumption` adds immutable verification receipts for the
 first EventAccepted consumer, keyed by notification ID. Downgrade removes these
 receipts and permits reprocessing; it is not an operational reset. Existing

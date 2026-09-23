@@ -16,7 +16,7 @@ def test_baseline_has_one_head_and_can_emit_offline_sql(monkeypatch: MonkeyPatch
     )
     output = StringIO()
     config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"), output_buffer=output)
-    assert ScriptDirectory.from_config(config).get_heads() == ["0008_event_consumption"]
+    assert ScriptDirectory.from_config(config).get_heads() == ["0009_mapped_receipts"]
     command.upgrade(config, "head", sql=True)
     assert "CREATE TABLE alembic_version" in output.getvalue()
     assert "0001_foundation" in output.getvalue()
@@ -78,6 +78,12 @@ def test_baseline_has_one_head_and_can_emit_offline_sql(monkeypatch: MonkeyPatch
     command.downgrade(config, "0007_outbox_delivery:0006_event_outbox", sql=True)
     assert "DROP TABLE event_outbox_delivery;" in output.getvalue()
     assert "DROP TABLE event_outbox;" not in output.getvalue()
+    output.truncate(0)
+    output.seek(0)
+    command.downgrade(config, "0009_mapped_receipts:0008_event_consumption", sql=True)
+    assert "LOCK TABLE event_normalizations IN ACCESS EXCLUSIVE MODE" in output.getvalue()
+    assert "Cannot downgrade while format-2 receipts exist" in output.getvalue()
+    assert "DROP TABLE" not in output.getvalue()
     output.truncate(0)
     output.seek(0)
     command.downgrade(config, "0008_event_consumption:0007_outbox_delivery", sql=True)

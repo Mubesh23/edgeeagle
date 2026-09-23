@@ -88,8 +88,8 @@ references with selected mapping revisions and cutoff, plus explicit fixture
 label guards. Candidate validation ties that evidence to source, event references,
 and HOME/AWAY entries. Format-2 serialization includes all evidence in the lineage
 digest; legacy candidates omit the new field and retain format-1 bytes/digests.
-The dual-format reader is implemented, but mapped writes require the forthcoming
-schema migration and pinned normalization composition. Neither this value object
+The dual-format reader and schema migration `0009_mapped_receipts` are implemented;
+mapped normalization still requires pinned composition. Neither this value object
 nor decoding proves authenticated review or historical eligibility.
 
 `notifications.EventAccepted.for_candidate(...)` creates a validated publication

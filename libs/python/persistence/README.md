@@ -125,6 +125,16 @@ order, and timestamp offsets normalize to UTC. `get(event_id)` reconstructs and
 validates the accepted snapshot, including its indexed identities, from one SELECT.
 Malformed receipts fail closed. Receipt UPDATE/DELETE/TRUNCATE is prohibited.
 
+Migration `0009_mapped_receipts` permits additive format-2 snapshots with selected
+mapping revisions, canonical context, cutoff, and explicit fixture label guards.
+The codec reads both formats; legacy candidates keep exactly their format-1 bytes
+and lineage hashes. Changed mapping evidence changes lineage and conflicts on an
+already accepted event. Downgrade refuses while format-2 rows exist, under an
+exclusive table lock. No rows are converted or deleted. See
+[ADR-025](../../../docs/adr/ADR-025-mapping-backed-fixture-context.md). Evidence is
+captured provenance, not a database-verified mapping FK or reviewer authorization;
+pinned mapping-to-normalization composition remains pending.
+
 Replay also compares current event and entries under an event row lock, rejecting
 detected drift. Direct SQL writers changing child rows without taking that parent
 lock are outside this insertion-only protocol. This is not a historical event

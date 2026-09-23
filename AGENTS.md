@@ -27,7 +27,9 @@ supports compare-and-append, exact replay, and availability-based resolution;
 ingestion/API wiring and pinned historical datasets remain deferred.
 A read-only ingestion reference resolver now returns selected canonical records
 and mapping revisions from caller-supplied snapshot repositories. It is not yet
-wired to normalized receipts; see [ADR-025](docs/adr/ADR-025-mapping-backed-fixture-context.md).
+wired to normalization. Format-2 receipts can now persist mapping evidence while
+preserving legacy receipts; migration `0009_mapped_receipts` guards downgrades.
+See [ADR-025](docs/adr/ADR-025-mapping-backed-fixture-context.md).
 The persistence package also implements immutable raw S3 capture storage with
 conditional writes and integrity-checked reads; see
 [ADR-015](docs/adr/ADR-015-raw-payload-storage.md). Floci tests use disposable

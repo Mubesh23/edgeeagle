@@ -1,6 +1,6 @@
 # ADR-025 — Mapping-backed fixture reference context
 
-**Status:** Accepted for incremental Phase 2 implementation; persistence pending  
+**Status:** Accepted; receipt persistence implemented, normalization composition pending  
 **Date:** 2026-09-23
 
 ## Context
@@ -67,8 +67,9 @@ readiness, and the Floci delivery-DLQ gap remain separate work.
 
 Implementation status: the port-level reference resolver and offline tests are
 implemented in `edgeeagle_ingestion.fixture_references`. Format-2 candidate evidence
-and the dual-format codec are implemented; the migration, pinned PostgreSQL
-composition, and mapped normalization remain pending.
+and the dual-format codec are implemented. Migration `0009_mapped_receipts` permits
+both formats without rewriting receipts. Pinned PostgreSQL resolution composition
+and mapped normalization remain pending.
 
 Format 2 adds `candidate.mapping_evidence`: exact competition/home/away guards and
 the resolved references (canonical records, cutoff, and complete selected revision
@@ -80,6 +81,13 @@ its original lineage digest. Readers reject mismatched evidence or noncanonical
 JSON. These constructors verify internal consistency, not that supplied evidence
 was actually read from the mapping repository; pinned composition remains required.
 Codec support must be deployed before format-2 writes are enabled.
+The database check retains the original indexed identity checks and requires an
+evidence object for format 2; full evidence validation belongs to the codec.
+Evidence is a captured value, not a new foreign key or authenticated review record.
+Downgrade takes an exclusive table lock before checking for format-2 rows, refusing
+if any exist; it never deletes or converts them. No developer database is migrated
+automatically. Legacy-row preservation and mapped replay/rollback are covered by
+disposable PostgreSQL tests.
 
 Network-disabled tests cover cutoff boundaries, corrections/revocations, malformed
 future histories, typed references, duplicate/source-mismatched keys, missing or

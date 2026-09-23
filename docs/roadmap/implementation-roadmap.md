@@ -90,6 +90,12 @@ edits, while distinguishing missing manifests from lost raw artifacts.
 
 ## Phase 3 — V1 Provider Adapters
 
+First bounded goal: [ADR-028](../adr/ADR-028-football-data-results-import.md) defines
+a local Football-Data results CSV import with retained raw bytes, additive score
+receipts, stored replay snapshots, and authored offline fixtures. Implementation
+is pending. It excludes odds, full archives, cataloging, historical eligibility,
+provider downloads/licensing approval, and production resources.
+
 - Football-Data.co.uk importer
 - Sportmonks free-tier adapter
 - The Odds API free-tier adapter

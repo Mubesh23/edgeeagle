@@ -95,6 +95,25 @@ Every provider evaluation should score:
 
 ## Sources
 
+### Football-Data results importer subset
+
+**Schema notes verified:** 2026-09-23, using the official notes/download index below.
+The notes define division, match date/time, team labels, full-time goals and H/D/A
+result columns. They do not establish a timezone or per-record publication time
+for this import. The first adapter supports an explicit bounded, four-digit-year,
+completed-results subset under [ADR-028](../adr/ADR-028-football-data-results-import.md);
+it requires caller-supplied row offsets and identity context. Odds and optional
+statistics remain raw-only. No provider-native event ID is claimed.
+
+Tests use authored synthetic CSVs, not downloaded provider data. This schema review
+does not grant retention, display, commercial-use, or redistribution rights.
+Acquiring or using real files remains subject to separate rights review.
+
+- Field notes: https://football-data.co.uk/notes.txt
+- Download index: https://football-data.co.uk/downloadm.php
+
+### General provider references
+
 - Kalshi API: https://help.kalshi.com/en/articles/13823854-kalshi-api
 - Kalshi Demo: https://help.kalshi.com/en/articles/13823775-creating-and-using-a-demo-account
 - Polymarket API: https://help.polymarket.com/en/articles/13364254-does-polymarket-have-an-api

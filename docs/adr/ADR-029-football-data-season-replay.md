@@ -1,6 +1,6 @@
 # ADR-029 — Bounded whole-season CSV replay
 
-**Status:** Accepted for incremental implementation; implementation pending  
+**Status:** Accepted; normalization/replay profile implemented, paged storage pending  
 **Date:** 2026-09-23
 
 ## Context
@@ -116,3 +116,12 @@ needed for this bounded operation. Existing acceptance conflicts remain errors.
 
 Unknown availability remains null. Successful replay does not authorize historical
 features, model training, backtesting, odds processing, settlement or execution.
+
+## Implementation evidence
+
+`football_data.normalize_season_results` and `replay_season_results` implement the
+new profile using the same strict parser/projection as ADR-028. Legacy limits and
+pins are unchanged. `tests/unit/test_football_data_season.py` covers 380/512-row
+normalization and replay, over-limit/final-row failures before reference reads,
+legacy isolation, raw loss and changed output. Root/page codecs, storage and the
+real-data import remain pending; these candidates cannot use legacy manifests.

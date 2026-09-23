@@ -20,9 +20,11 @@ from edgeeagle_ingestion.fixture_references import (
 )
 
 PARSER_VERSION = "football-data-results-csv-v1"
+SEASON_PARSER_VERSION = "football-data-results-season-csv-v1"
 NORMALIZER_VERSION = "football-data-results-mappings-v1"
 MAX_CSV_BYTES = 1_048_576
 MAX_ROWS = 100
+MAX_SEASON_ROWS = 512
 _REQUIRED = {"Div", "Date", "Time", "HomeTeam", "AwayTeam", "FTHG", "FTAG", "FTR"}
 
 
@@ -76,7 +78,7 @@ class _Row:
     away_goals: int
 
 
-def _parse(body: bytes, resource: str) -> tuple[_Row, ...]:
+def _parse(body: bytes, resource: str, max_rows: int) -> tuple[_Row, ...]:
     decoded = body.decode("utf-8-sig")
     if "\x00" in decoded:
         raise ValueError("NUL in CSV")
@@ -90,7 +92,7 @@ def _parse(body: bytes, resource: str) -> tuple[_Row, ...]:
         rows: list[_Row] = []
         seen = set()
         for cells in reader:
-            if len(rows) >= MAX_ROWS or len(cells) != len(header):
+            if len(rows) >= max_rows or len(cells) != len(header):
                 raise ValueError("CSV row count or width exceeds contract")
             fields = dict(zip(header, cells, strict=True))
             for field in _REQUIRED:
@@ -134,7 +136,9 @@ def _parse(body: bytes, resource: str) -> tuple[_Row, ...]:
     return tuple(rows)
 
 
-def _read(store: RawPayloadStore, reference: RawPayloadReference) -> tuple[_Row, ...]:
+def _read(
+    store: RawPayloadStore, reference: RawPayloadReference, max_rows: int
+) -> tuple[_Row, ...]:
     instance(reference, RawPayloadReference, "reference")
     if reference.size_bytes > MAX_CSV_BYTES:
         raise ValueError("CSV exceeds byte limit")
@@ -143,7 +147,7 @@ def _read(store: RawPayloadStore, reference: RawPayloadReference) -> tuple[_Row,
         raise FileNotFoundError("retained CSV is missing")
     if len(body) != reference.size_bytes or hashlib.sha256(body).hexdigest() != reference.sha256:
         raise RawPayloadIntegrityError("retained CSV differs from reference")
-    return _parse(body, reference.capture.resource)
+    return _parse(body, reference.capture.resource, max_rows)
 
 
 def _coverage(
@@ -173,6 +177,7 @@ def _candidate(
     reference: RawPayloadReference,
     request: FootballDataRequest,
     refs: ResolvedFixtureReferences,
+    parser_version: str,
 ) -> EventCandidate:
     starts_at = row.local_start.replace(
         tzinfo=timezone(timedelta(minutes=request.utc_offset_minutes))
@@ -199,7 +204,7 @@ def _candidate(
         ),
         raw=reference,
         provider_key=request.key,
-        parser_version=PARSER_VERSION,
+        parser_version=parser_version,
         normalizer_version=NORMALIZER_VERSION,
         context_version=request.context_version,
         mapping_evidence=FixtureMappingEvidence(
@@ -222,11 +227,37 @@ def normalize_results(
     as_of: datetime,
 ) -> tuple[EventCandidate, ...]:
     """Read retained CSV, then resolve all context in one pinned snapshot; never write."""
+    return _normalize_results(store, reference, requests, reads, as_of, PARSER_VERSION, MAX_ROWS)
+
+
+def normalize_season_results(
+    store: RawPayloadStore,
+    reference: RawPayloadReference,
+    requests: tuple[FootballDataRequest, ...],
+    reads: FixtureReferenceReads,
+    *,
+    as_of: datetime,
+) -> tuple[EventCandidate, ...]:
+    """ADR-029 complete capture, at most 512 rows; not accepted by legacy manifests."""
+    return _normalize_results(
+        store, reference, requests, reads, as_of, SEASON_PARSER_VERSION, MAX_SEASON_ROWS
+    )
+
+
+def _normalize_results(
+    store: RawPayloadStore,
+    reference: RawPayloadReference,
+    requests: tuple[FootballDataRequest, ...],
+    reads: FixtureReferenceReads,
+    as_of: datetime,
+    parser_version: str,
+    max_rows: int,
+) -> tuple[EventCandidate, ...]:
     aware_datetime(as_of, "as_of")
     instance(requests, tuple, "requests")
     for request in requests:
         instance(request, FootballDataRequest, "request")
-    rows = _read(store, reference)
+    rows = _read(store, reference, max_rows)
     _coverage(rows, reference, requests)
     by_key = {r.key.provider_entity_id: r for r in requests}
     results = []
@@ -240,7 +271,7 @@ def normalize_results(
                 or refs.as_of != as_of
             ):
                 raise ValueError("resolver returned different keys or cutoff")
-            results.append(_candidate(row, reference, request, refs))
+            results.append(_candidate(row, reference, request, refs, parser_version))
     return tuple(results)
 
 
@@ -248,6 +279,23 @@ def replay_results(
     store: RawPayloadStore, reference: RawPayloadReference, candidates: tuple[EventCandidate, ...]
 ) -> tuple[EventCandidate, ...]:
     """Reproduce full CSV capture using retained context only; no current lookup."""
+    return _replay_results(store, reference, candidates, PARSER_VERSION, MAX_ROWS)
+
+
+def replay_season_results(
+    store: RawPayloadStore, reference: RawPayloadReference, candidates: tuple[EventCandidate, ...]
+) -> tuple[EventCandidate, ...]:
+    """Reproduce a complete ADR-029 season capture, never an individual receipt page."""
+    return _replay_results(store, reference, candidates, SEASON_PARSER_VERSION, MAX_SEASON_ROWS)
+
+
+def _replay_results(
+    store: RawPayloadStore,
+    reference: RawPayloadReference,
+    candidates: tuple[EventCandidate, ...],
+    parser_version: str,
+    max_rows: int,
+) -> tuple[EventCandidate, ...]:
     instance(reference, RawPayloadReference, "reference")
     instance(candidates, tuple, "candidates")
     requests, contexts = [], {}
@@ -255,7 +303,7 @@ def replay_results(
         instance(candidate, EventCandidate, "candidate")
         evidence, score = candidate.mapping_evidence, candidate.soccer_result
         if (
-            candidate.parser_version != PARSER_VERSION
+            candidate.parser_version != parser_version
             or candidate.normalizer_version != NORMALIZER_VERSION
             or evidence is None
             or score is None
@@ -284,7 +332,7 @@ def replay_results(
             )
         )
         contexts[candidate.provider_key.provider_entity_id] = candidate
-    rows = _read(store, reference)
+    rows = _read(store, reference, max_rows)
     _coverage(rows, reference, tuple(requests))
     by_key = {r.key.provider_entity_id: r for r in requests}
     results = []
@@ -292,7 +340,11 @@ def replay_results(
         original = contexts[row.locator]
         assert original.mapping_evidence is not None
         value = _candidate(
-            row, reference, by_key[row.locator], original.mapping_evidence.references
+            row,
+            reference,
+            by_key[row.locator],
+            original.mapping_evidence.references,
+            parser_version,
         )
         if _ordered(value) != _ordered(original):
             raise ValueError("retained result does not reproduce from CSV")

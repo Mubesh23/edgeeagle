@@ -191,6 +191,13 @@ composition, failure/retry semantics, and the local acceptance command.
 
 ## Initial event acceptance
 
+ADR-029 adds `football_data.normalize_season_results` and `replay_season_results`
+for complete captures up to 512 rows with a distinct parser pin. They share the
+strict field rules and projection with the original 100-row profile, which stays
+unchanged. Season candidates require the separate paged replay bundle (pending),
+not ADR-026 manifests. No real-data import or historical eligibility is implied.
+Run `scripts/test-unit tests/unit/test_football_data_season.py` for the new bounds.
+
 Optional `SoccerResultEvidence` adds validated full-time goals and an asserted
 per-row UTC offset to finished soccer candidates. Format-3 receipts preserve it;
 legacy candidates omit it from serialization and identity. This is retained result

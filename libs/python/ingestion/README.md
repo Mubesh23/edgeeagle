@@ -31,7 +31,7 @@ should replay retained references or pinned inputs, not mutable local files.
 Ingestion time is supplied by the caller; synthetic fixture quote times must
 not be promoted to observed/available-at evidence.
 
-There is no event publication, durable quarantine, HTTP
+The raw acquisition operation does not publish events. There is no durable quarantine, HTTP
 acquisition, provider quota logic, real provider adapter, or source/venue catalog
 registration. Other capability-specific interfaces will be added with their
 first consumers.
@@ -73,8 +73,8 @@ from receipt format 1). See [event contracts](../../../contracts/events/README.m
 The notification type and `EventPublicationRepository` port are transport-neutral.
 Its `accept_with_notification(candidate, notification)` method requires atomic
 canonical acceptance and outbox insertion. Exact retries reuse the original
-notification metadata. The persistence adapter implements it; no publisher exists
-yet. Legacy `accept` remains persistence-only and does not gain a notification on
+notification metadata. Persistence implements both this repository and the separate
+EventBridge publisher. Legacy `accept` remains persistence-only and does not gain a notification on
 replay. See [ADR-019](../../../docs/adr/ADR-019-event-outbox.md).
 
 `events.EventAcceptanceRepository.accept(candidate)` returns True for first
@@ -89,15 +89,15 @@ The raw capture, provider key, and transformation/context versions identify the
 acquisition independently of output event ID. This is initial insertion only,
 not updates, multi-source reconciliation, or historical eligibility. Retain raw
 bytes before accepting; the database cannot verify S3 durability. Receipt lineage
-does not replace the caller's retained immutable fixture context. Event publication
-and API exposure remain next steps.
+does not replace the caller's retained immutable fixture context. Publication uses
+the dispatcher and outer EventBridge adapter; API exposure remains a next step.
 
 `delivery.OutboxDeliveryRepository` now describes leased delivery coordination:
 claim one intent, acknowledge a live claim, schedule its retry, and inspect state.
 `DeliveryClaim` and `DeliveryState` are validated immutable application values;
 their timestamps are operational, not research availability. Persistence implements
 the port with PostgreSQL timing. The dispatcher below sequences transactions;
-no concrete broker publisher exists yet.
+the EventBridge adapter is implemented in persistence.
 See [ADR-020](../../../docs/adr/ADR-020-outbox-delivery-leases.md).
 
 ## Bounded dispatch
@@ -118,8 +118,9 @@ checks broker acceptance, and bounds its transport calls within the lease.
 Neither protocol creates clients or discovers credentials.
 
 Crash recovery may resend the same notification after lease expiry. Consumers
-must deduplicate; this is not exactly-once delivery. EventBridge transport, worker
-composition, consumer processing, DLQ, and monitoring remain unimplemented.
+must deduplicate; this is not exactly-once delivery. EventBridge transport now lives
+in persistence; worker composition, consumer processing, DLQ, and monitoring remain
+unimplemented.
 See [ADR-021](../../../docs/adr/ADR-021-outbox-dispatch-boundary.md).
 `scripts/test-integration -k dispatch` verifies actual PostgreSQL commit/rollback
 boundaries with a recording publisher, not Floci event delivery.

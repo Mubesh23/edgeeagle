@@ -1,4 +1,4 @@
-# Persistence adapters
+# Persistence and outbox transport adapters
 
 `edgeeagle-persistence` depends inward on `edgeeagle-domain` and
 `edgeeagle-ingestion` and implements their repository protocols using SQLAlchemy
@@ -131,8 +131,9 @@ lock are outside this insertion-only protocol. This is not a historical event
 versioning policy. The caller retains raw bytes before acceptance and preserves
 the referenced immutable normalization context; receipts store accepted output and
 lineage, not a full context catalog. This legacy method creates no outbox intent;
-use the publication-aware method below for that guarantee. No cross-S3 transaction,
-actual publication, or API path exists yet. See
+use the publication-aware method below for that guarantee. The separate dispatcher
+and EventBridge publisher now support publication; no cross-S3 transaction or API
+path exists yet. See
 [ADR-018](../../../docs/adr/ADR-018-event-acceptance-lineage.md).
 
 Run `scripts/test-integration -k 'event_acceptance or fixture_ingestion'` for
@@ -154,11 +155,11 @@ raises `EventAcceptanceConflict`; an outbox identity collision rolls back all ne
 canonical writes even when the caller catches it.
 
 `get_notification(EventId)` loads and validates the pending intent and receipt
-identity. `published_at` remains null: persistence does not publish anything.
+identity. `published_at` remains null: this repository does not publish anything.
 Legacy `accept` remains persistence-only; a legacy receipt with no outbox conflicts
 if passed to the new method. There is no automatic backfill or repair. Pending
 intents cannot be updated/deleted/truncated. Delivery coordination is described
-below; queues, monitoring, and transport remain future increments. See
+below; queues and monitoring remain future increments. See
 [ADR-019](../../../docs/adr/ADR-019-event-outbox.md) and
 [event contracts](../../../contracts/events/README.md).
 
@@ -199,9 +200,45 @@ state is not an immutable attempt history. See
 expiry recovery, rollback, and migration initialization. Tests only manipulate
 uniquely named disposable databases; no application database is migrated.
 
+## EventBridge publication
+
+`eventbridge.EventBridgePublisher(client, bus_arn, clock=...)` implements ingestion's
+`EventPublisher` and can be passed to `dispatch_one`. It uses an explicit existing
+standard/custom bus ARN, describes that destination before every send, and publishes
+one `EventAccepted` envelope with source `edgeeagle.ingestion`. Only its delivered
+copy receives a UTC publication-attempt timestamp; IDs/lineage and the stored intent
+remain unchanged. The EventBridge transport ID never replaces the notification ID.
+
+Configure the caller-owned boto3 client with `retries={"mode": "standard",
+"total_max_attempts": 1}` and positive connect/read timeouts of at most five seconds.
+Use explicit dummy credentials, disabled proxies, and a Floci loopback endpoint in
+local tests. The adapter creates/closes no client or infrastructure. It imports no
+database code and must run outside the claim transaction. The publisher adds no
+runtime dependency beyond the package's existing boto3 dependency; EventBridge
+typing stubs are development-only.
+
+The adapter checks a socket-time allowance against the remaining lease before
+describe and before put. This is not a hard process deadline; clock synchronization,
+database fencing, and crash recovery still matter. Detail has an application-specific
+64 KiB UTF-8 limit. Acceptance requires a consistent successful HTTP/entry response.
+Transient/ambiguous failures become `RetryablePublicationError`; configuration and
+non-retryable failures propagate. SDK service errors preserve their cause; raw
+provider error messages are not copied into the adapter's exception messages.
+
+Bus preflight cannot prevent deletion between describe and put. Stable resource
+lifecycle and downstream routing/consumer monitoring are prerequisites for unattended
+operation. Broker acceptance does not mean consumer delivery; consumer deduplication,
+queues/DLQs, monitoring, and worker composition remain next increments.
+See [ADR-022](../../../docs/adr/ADR-022-eventbridge-outbox-publisher.md).
+
+`scripts/test-integration -k eventbridge` verifies Floci broker acceptance, PostgreSQL
+acknowledgement, stable-ID replay after a simulated crash, and missing-bus rejection.
+Tests create/delete only their own uniquely named buses and disposable databases.
+There are no targets or queues in this test scope; no IAM enforcement is claimed.
+
 ## Transaction ownership details
 
-The caller supplies an active PostgreSQL/psycopg SQLAlchemy connection transaction,
+For PostgreSQL repositories, the caller supplies an active PostgreSQL/psycopg SQLAlchemy connection transaction,
 normally through `with engine.begin() as connection`. Autocommit is rejected.
 Pass the same connection to repositories to commit or roll back their work
 together. The adapters never commit, roll back the outer transaction, close the

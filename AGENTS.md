@@ -40,7 +40,10 @@ an immutable outbox intent atomically; legacy `accept` remains persistence-only.
 Delivery coordination now supports database-timed leases, fenced acknowledgements,
 and scheduled retries in a separate operational table. A bounded transport-neutral
 dispatcher now commits claims before sending and completes them in a new transaction;
-the AWS publisher is not implemented yet. See
+the EventBridge adapter now verifies its explicit destination and per-entry broker
+acceptance, with local Floci tests. Consumer routing, deduplication, and DLQ
+validation remain next. See
+[ADR-022](docs/adr/ADR-022-eventbridge-outbox-publisher.md),
 [ADR-021](docs/adr/ADR-021-outbox-dispatch-boundary.md),
 [ADR-019](docs/adr/ADR-019-event-outbox.md) and
 [ADR-020](docs/adr/ADR-020-outbox-delivery-leases.md).
@@ -133,7 +136,8 @@ The final handoff for an implementation session must report the commits created,
   inward on it; it must not import API, database, AWS, or provider SDK code.
 - `libs/python/persistence` implements inward-owned domain repository ports using
   caller-owned PostgreSQL transactions and the raw storage port using a
-  caller-supplied S3 client. Domain code must not import persistence.
+  caller-supplied S3 client. Its EventBridge adapter implements ingestion's outbox
+  publisher port using a caller-supplied client. Domain code must not import persistence.
 
 ## Generated files
 

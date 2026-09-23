@@ -36,6 +36,13 @@ clients use explicit dummy credentials, an explicit loopback endpoint, path-styl
 S3, and disabled proxies. Profile/config discovery is disabled in the wrapper.
 Python socket connections are restricted to 127.0.0.1 during integration tests.
 
+EventBridge publisher tests now create uniquely named disposable Floci buses and
+exercise actual broker acceptance, missing-bus rejection, and PostgreSQL dispatcher
+crash/replay. Run `scripts/test-integration -k eventbridge`. Tests delete only their
+own buses/databases. No targets, queues, or IAM policies are created; these checks
+do not prove consumer delivery or AWS permission enforcement. See
+[publisher boundary](../adr/ADR-022-eventbridge-outbox-publisher.md).
+
 `scripts/validate` includes these tests and leaves healthy containers running for
 development. Unit tests remain separately network-blocked. Queue/DLQ consumers
 arrive in subsequent increments; the diagram

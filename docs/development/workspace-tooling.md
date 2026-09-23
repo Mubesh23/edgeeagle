@@ -24,8 +24,11 @@ persistence depends inward on it. The additive publication-aware method now reco
 immutable outbox intents alongside canonical writes under
 [ADR-019](../adr/ADR-019-event-outbox.md). Database-timed delivery leases and fenced
 completion/retry operations now exist under
-[ADR-020](../adr/ADR-020-outbox-delivery-leases.md). Dispatcher, AWS transport,
-monitoring/DLQ validation, and API wiring remain next.
+[ADR-020](../adr/ADR-020-outbox-delivery-leases.md). The bounded dispatcher and
+EventBridge publisher now implement claim/commit/send/ack with broker acceptance
+and crash-replay tests in Floci; see
+[ADR-022](../adr/ADR-022-eventbridge-outbox-publisher.md). Consumer routing,
+deduplication, monitoring/DLQ validation, and API wiring remain next.
 
 ## Prerequisites and bootstrap
 

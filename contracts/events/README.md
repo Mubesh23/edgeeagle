@@ -11,11 +11,13 @@ normalization receipt lineage. Consumers must resolve that receipt, not assume
 current event state is the original accepted output. Occurrence/publication times
 are operational timestamps, never substitutes for data `available_at`.
 
-The outbox stores pending envelopes with `published_at: null`. A future publisher
-must supply a publication-attempt time at or after occurrence before transport.
+The outbox stores pending envelopes with `published_at: null`. The EventBridge publisher
+supplies a publication-attempt time at or after occurrence in the delivered copy.
 The schema accepts both states; temporal ordering is also enforced by the Python
 serializer. IDs and occurrence/trace metadata remain unchanged across retries.
-No relay or delivered-message consumer exists yet.
+The bounded dispatcher and EventBridge publisher now exist; no worker loop or
+delivered-message consumer exists yet. See
+[publisher scope](../../docs/adr/ADR-022-eventbridge-outbox-publisher.md).
 
 There is no released event baseline. Future evolution is additive by default;
 breaking event/schema changes require human review. See

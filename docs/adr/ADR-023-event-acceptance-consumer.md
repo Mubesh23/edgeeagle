@@ -74,6 +74,8 @@ delivery fails as XPASS until the marker is removed. No messages are manually
 inserted into either DLQ. EventBridge delivery-DLQ behavior remains unvalidated;
 this blocks claiming full failure-path coverage or unattended readiness. Keep
 Floci pinned; evaluate a supporting version in a separate reviewed increment.
+An [upstream report draft](../development/floci-eventbridge-dlq-report.md) records
+the reproduction and evidence; it has not been submitted.
 
 ### References
 

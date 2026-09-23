@@ -1,6 +1,6 @@
 # ADR-031 — Read-only local retained-dataset catalog
 
-**Status:** Accepted; implementation pending
+**Status:** Accepted; pure read model implemented, local composition pending
 **Date:** 2026-09-23
 
 ## Decision
@@ -63,3 +63,9 @@ Test absent/changed roots/pages/raw, unlisted roots, ordering/bounds, no writes,
 fresh verification semantics and unchanged eligibility. Run full validation before
 handoff. API/UI exposure is a later additive consumer increment, not authorization
 to host the private dataset or bypass authentication/licensing review.
+
+`edgeeagle_ingestion.dataset_catalog` implements frozen catalog entries, metadata,
+listing and inspection results. It reuses strict root decoding and complete replay;
+no storage or database adapter is imported into ingestion. Offline tests cover
+unknown and known raw availability, fresh status, missing artifacts, trusted-root
+mismatch, bounds, deterministic ordering and write-free behavior.

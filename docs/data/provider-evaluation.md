@@ -112,6 +112,49 @@ Acquiring or using real files remains subject to separate rights review.
 - Field notes: https://football-data.co.uk/notes.txt
 - Download index: https://football-data.co.uk/downloadm.php
 
+### Premier League 2024/25 real-file evidence gate
+
+**Reviewed:** 2026-09-23. **Status:** Human licensing review and kickoff-time evidence
+remain outstanding; no real-data canonical import is authorized by this review.
+
+The user-requested local download of `mmz4281/2425/E0.csv` contains 380 results,
+20 team labels and 120 columns (197,110 bytes). Its retained SHA-256 is
+`d0c8ce4a96d886cf60cf101f570f4a3893844226f91c7bd769eb568c49edbfa4`.
+The CSV, acquisition metadata and HTTP headers are kept in Git-ignored `.data/`,
+not redistributed as fixtures. Acquisition is not canonical acceptance or a
+replay snapshot. Routine tests remain synthetic and offline.
+
+Evidence reviewed:
+
+- The [provider homepage](https://football-data.co.uk/) and
+  [download index](https://football-data.co.uk/downloadm.php) advertise free files
+  for quantitative analysis. The homepage also reserves rights. This supports
+  considering a local research use, not assuming a general open-data license.
+- The [linked disclaimer](https://football-data.co.uk/disclaimer.php) addresses
+  accuracy, liability and gambling; the reviewed text does not establish a
+  commercial-use, retention or redistribution license for EdgeEagle.
+- The [field notes](https://football-data.co.uk/notes.txt) identify the kickoff
+  field without specifying its timezone. Do not assume UTC or Europe/London from
+  league location alone. A timezone rule needs provider confirmation or adequate
+  independent match-time evidence before per-row offsets are approved.
+- The advertised commercial permissions for the
+  [separate subscription API](https://football-data.co.uk/thestatsapi.php) are
+  not evidence of permission for these CSV files.
+
+Before importing, a human must review the intended use and its licensing basis.
+A possible narrow scope is private, local-only engineering/research with no
+redistribution, hosted display or commercial deployment; that scope is a proposal,
+not an approved license interpretation. If the basis is insufficient, obtain
+written provider permission through its
+[contact page](https://football-data.co.uk/contact.php). No contact has been sent.
+Ask separately about retention of raw files and derived records, commercial use,
+redistribution, and the 2024/25 E0 kickoff timezone/DST convention.
+
+Historical result availability remains unknown regardless of acquisition time
+or HTTP Last-Modified. Whole-season support also requires a reviewed extension
+to ADR-028's 100-row capture bound and assessment of the 1 MiB manifest limit;
+neither limit has changed. No training/backtesting eligibility is established.
+
 ### General provider references
 
 - Kalshi API: https://help.kalshi.com/en/articles/13823854-kalshi-api

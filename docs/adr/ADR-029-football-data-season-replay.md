@@ -1,6 +1,6 @@
 # ADR-029 — Bounded whole-season CSV replay
 
-**Status:** Accepted; storage and atomic import implemented, real-data run pending  
+**Status:** Accepted; storage, atomic import and private real-data replay verified  
 **Date:** 2026-09-23
 
 ## Context
@@ -193,8 +193,7 @@ readback/size/commit failures and bad acknowledgements, and
 380 authored rows, exact retries, final-row rollback, retained replay after
 reference revocation, missing final pages and post-commit storage recovery.
 See [application composition](../development/football-data-import.md).
-The real-data import remains pending reviewed canonical mappings and kickoff
-offsets. No availability timestamp is inferred by this operation.
+No availability timestamp is inferred by this operation.
 
 For the specific EPL 2024/25 capture identified in provider evaluation, the owner
 approved the sample-corroborated Europe/London clock interpretation on 2026-09-23.
@@ -202,3 +201,9 @@ Treat its per-row offsets as owner-approved assumptions for private replay only,
 not independently confirmed kickoff evidence. This explicit dataset-specific
 exception to the confirmed-offset prerequisite does not relax adapter validation,
 authorize other captures, or create backtest eligibility.
+
+The approved local run imported all 380 results and verified exact retry, canonical
+database receipt readback and independent retained-object replay without database
+reads. Real bytes/bindings/root hash and verification evidence stay Git-ignored;
+routine tests continue using authored fixtures. See provider evaluation for scope,
+assumptions and the local operator-check correction.

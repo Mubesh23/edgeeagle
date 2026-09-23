@@ -115,7 +115,7 @@ Acquiring or using real files remains subject to separate rights review.
 ### Premier League 2024/25 real-file evidence gate
 
 **Reviewed:** 2026-09-23. **Status:** Owner-approved private research scope;
-whole-season implementation complete; real import pending kickoff review and bindings.
+private local import and replay verified under the owner-approved kickoff assumption.
 
 The user-requested local download of `mmz4281/2425/E0.csv` contains 380 results,
 20 team labels and 120 columns (197,110 bytes). Its retained SHA-256 is
@@ -185,13 +185,30 @@ provider confirmation or independent verification of every kickoff. Freeze the
 resulting offset in each retained request/receipt rather than recomputing it on
 replay. Do not generalize this approval to other captures or historical features.
 
-The local pre-import review confirms 380 unique ordered team pairings and exactly
+The local pre-import review confirmed 380 unique ordered team pairings and exactly
 19 home/19 away appearances for each of 20 labels. An explicit label-to-canonical
-name proposal is retained under ignored `.data/`; no fuzzy mapping or canonical
-ID allocation has occurred. Read-only inspection found only `alembic_version`
-in the local developer database's public schema. Applying the documented local
-migrations and retaining exact canonical ID/mapping/request bindings are still
-prerequisites; routine integration tests do not initialize that database.
+name review is retained under ignored `.data/`; no fuzzy mapping was used.
+The explicit local run then applied existing migrations through
+`0010_soccer_receipts`, allocated and retained canonical IDs and 380 request
+bindings, and registered the source plus 23 current-review mapping revisions.
+Their availability timestamps describe this review, not historical match knowledge.
+
+On 2026-09-23, all 380 results were accepted in the local developer database.
+The original raw capture, six receipt pages and root are retained in a dedicated
+private Floci bucket. Exact retries returned the same root hash without duplicate
+events/receipts or outbox notifications. Every score, event ID and asserted kickoff
+matched the retained CSV/bindings; canonical receipt bytes matched database readback.
+A separate replay process reproduced all 380 without opening PostgreSQL.
+The root hash, frozen bindings, operator script and verification report remain
+under ignored `.data/`; no real result export is committed or sent to hosted CI.
+The original acquisition metadata is preserved as the download-time record.
+
+The initial operator checker compared participant tuple ordering instead of the
+canonical receipt representation. The 190 reversed pairs were equivalent in all
+380 canonical encodings; correcting that local checker required no product-code
+or retained-data change. Full `scripts/validate` passed (782 unit tests,
+136 integration tests, one existing expected Floci delivery-DLQ failure).
+Local retention is not an independently tested backup or production storage.
 
 Historical result availability remains unknown regardless of acquisition time
 or HTTP Last-Modified. [ADR-029](../adr/ADR-029-football-data-season-replay.md)

@@ -1,6 +1,6 @@
 # ADR-027 — Immutable replay manifest storage
 
-**Status:** Accepted for the internal storage contract; implementation pending  
+**Status:** Accepted; port and S3 adapter implemented, retrieve-and-replay composition pending  
 **Date:** 2026-09-23
 
 ## Context
@@ -151,3 +151,19 @@ independently reviewable composition work separate when practical. Run the cheap
 relevant checks during development and `scripts/validate` before handoff. Normal
 tests use fixtures, disposable local resources, and no paid provider/AWS credentials.
 The known Floci delivery-DLQ gap remains unrelated and unresolved.
+
+## Implementation status
+
+`edgeeagle_ingestion.manifest_storage` owns the protocol and integrity exception;
+`edgeeagle_persistence.manifest_storage.S3ReplayManifestStore(client, bucket, codec)`
+implements conditional writes and bounded, strict dataset-version reads. It adds
+no runtime dependency, database schema, production resource, or generated contract.
+Existing manifest/receipt bytes remain unchanged. It never reads raw artifacts.
+
+Run `scripts/test-unit tests/unit/test_manifest_storage.py` for network-disabled
+input, length, stream-cleanup, identity, retry, and error-path checks, including the
+inclusive 1 MiB boundary. Run `scripts/test-integration -k manifest_storage` for
+disposable Floci concurrent/exact retries, conditional enforcement, missing objects,
+incidental metadata, and corrupt/wrong-version objects that remain unmodified.
+The retained-PostgreSQL-receipt retrieve-by-version replay composition in step 4
+remains a separate increment. Cataloging and historical eligibility remain deferred.

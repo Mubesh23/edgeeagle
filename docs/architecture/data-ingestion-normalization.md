@@ -104,13 +104,13 @@ The first bounded [dataset manifest contract](dataset-snapshot-manifest.md) pins
 complete raw captures and embedded mapped receipts under a content-derived version;
 see [ADR-026](../adr/ADR-026-replay-dataset-manifest.md). Frozen values and the
 strict, bounded metadata codec and read-only whole-snapshot verification are
-implemented; manifest persistence/cataloging remain pending. Its `REPLAY_ONLY`
+implemented; manifest cataloging remains pending. Its `REPLAY_ONLY`
 restriction preserves unknown availability and
 prohibits historical decision-input use; it does not implement historical Parquet,
 feature/model datasets, or a snapshot catalog.
-The next storage boundary is specified by
+The implemented storage boundary is specified by
 [ADR-027](../adr/ADR-027-replay-manifest-storage.md): conditional canonical-manifest
-writes and exact dataset-version lookup. The adapter is not implemented yet;
+writes and exact dataset-version lookup. The S3 adapter now implements this port;
 storage, replay verification, and historical eligibility remain separate outcomes.
 
 ## Data quality checks

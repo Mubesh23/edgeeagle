@@ -1,6 +1,6 @@
 # Replay Dataset Snapshot Manifest — v1
 
-**Status:** Values, strict codec, and artifact verification implemented; manifest storage pending  
+**Status:** Values, strict codec, artifact verification, and manifest storage implemented  
 **Decision:** [ADR-026](../adr/ADR-026-replay-dataset-manifest.md)
 
 ## Purpose and scope
@@ -10,10 +10,10 @@ that can be reproduced without current-state reads. This is the first narrow
 dataset snapshot contract, not a historical research dataset or backtest API.
 The mapped replay helper verifies one capture; `snapshot_replay.verify_manifest`
 now composes it across the entire manifest. No new root command or generated
-artifact exists. Manifest persistence/cataloging remains unimplemented.
+artifact exists. Manifest cataloging remains unimplemented.
 The separate [storage contract](../adr/ADR-027-replay-manifest-storage.md) now defines
 immutable canonical-envelope writes and integrity-checked lookup by dataset version.
-Its implementation is pending; storage success will not imply artifact verification.
+Its S3 adapter is implemented; storage success does not imply artifact verification.
 
 ## Wire shape
 
@@ -200,4 +200,5 @@ and `scripts/test-integration -k snapshot_replay` for retained PostgreSQL receip
 Floci reads, later reference edits, and artifact-loss/corruption coverage.
 Successful decoding alone never claims artifact verification. Successful verification
 does not guarantee continuing storage availability, authenticated acceptance, or
-historical eligibility. Manifest persistence/cataloging remains pending.
+historical eligibility. Manifest storage is implemented under ADR-027; cataloging
+and retained-receipt retrieve-by-version replay composition remain pending.

@@ -1,6 +1,6 @@
 # ADR-026 — Versioned replay dataset manifests
 
-**Status:** Accepted; codec and read-only verification implemented, manifest storage pending  
+**Status:** Accepted; codec and read-only verification implemented; storage follows ADR-027  
 **Date:** 2026-09-23
 
 ## Context

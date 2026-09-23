@@ -321,6 +321,24 @@ unchanged; manifest v1 accepts only supported mapped format-2 candidates. See
 [ADR-026](../../../docs/adr/ADR-026-replay-dataset-manifest.md). Manifest encoding
 does not attest that a caller-supplied candidate was accepted by PostgreSQL.
 
+## Replay manifest storage
+
+`manifest_storage.S3ReplayManifestStore(client, bucket, codec)` implements ingestion's
+`ReplayManifestStore`. Supply the existing `receipts.EventReceiptCodec` and an
+explicitly configured S3 client/bucket; local tests use Floci and dummy credentials.
+Writes validate canonical bytes before I/O and use `IfNoneMatch="*"`. Exact retries
+read/check existing bytes; corrupt or missing-on-retry objects fail without repair.
+Reads use `snapshots/replay-manifests/v1/<dataset_version>.json`, enforce the inclusive
+1 MiB limit and ContentLength, close streams, and check all pins and requested identity.
+Only NoSuchKey becomes None. SDK/stream failures propagate; caller-owned timeouts,
+retries, lifecycle, and retention remain explicit.
+
+Storage does not verify raw artifacts, query PostgreSQL, publish events, or grant
+historical eligibility. It introduces no production bucket or IAM policy. See
+[ADR-027](../../../docs/adr/ADR-027-replay-manifest-storage.md). Run
+`scripts/test-unit tests/unit/test_manifest_storage.py` and
+`scripts/test-integration -k manifest_storage` for offline and disposable Floci tests.
+
 ## Validation
 
 From repository root:

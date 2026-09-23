@@ -147,7 +147,16 @@ database/current-reference lookups, or publication. Callers own storage configur
 and transport timeouts. Run `scripts/test-unit tests/unit/test_snapshot_replay.py`
 and `scripts/test-integration -k snapshot_replay` for offline and PostgreSQL/Floci
 coverage. Verification does not change `REPLAY_ONLY`, authenticate acceptance, or
-guarantee future artifact availability. Manifest persistence remains pending.
+guarantee future artifact availability.
+
+`manifest_storage.ReplayManifestStore` defines immutable canonical-envelope writes
+and exact dataset-version reads. `put(body)` returns the validated dataset version;
+`get(version)` returns exact validated bytes or None only for an absent object.
+Stored corruption raises `ManifestIntegrityError`; service/transport errors propagate.
+Persistence supplies the S3 adapter under
+[ADR-027](../../../docs/adr/ADR-027-replay-manifest-storage.md). Storage performs no
+raw reads or replay verification. Retrieve-by-version replay composition with
+retained PostgreSQL receipts remains a separate increment; no catalog is present.
 
 ## Initial event acceptance
 

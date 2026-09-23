@@ -36,7 +36,7 @@ Event reads: [ADR-024 — current-state API](adr/ADR-024-event-read-api.md).
 Mapping-backed fixture context: [ADR-025 — resolution and receipt compatibility](adr/ADR-025-mapping-backed-fixture-context.md).
 Replay dataset manifests: [ADR-026 — codec and read-only verification implemented](adr/ADR-026-replay-dataset-manifest.md)
 and [manifest v1 specification](architecture/dataset-snapshot-manifest.md).
-Manifest storage: [ADR-027 — immutable version lookup, implementation pending](adr/ADR-027-replay-manifest-storage.md).
+Manifest storage: [ADR-027 — immutable version lookup implemented](adr/ADR-027-replay-manifest-storage.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.

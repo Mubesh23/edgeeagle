@@ -89,6 +89,26 @@ fresh snapshots see corrections, revoked mappings fail closed, and accepted
 evidence survives later revisions. Retain the accepted candidate for exact retry;
 a newly opened snapshot is not a frozen historical dataset, even at the same cutoff.
 
+Retained-receipt replay is implemented by `replay_mapped_fixture_events` in the
+fixture adapter. It takes trusted decoded format-2 candidates covering one complete
+raw capture, not a current reference resolver. Only parser
+`synthetic-odds-events-v1` and normalizer `synthetic-event-mappings-v1` are supported;
+unsupported versions or missing evidence fail before storage I/O. Existing parsing
+and normalization enforce raw integrity, source/label guards, exact coverage, and
+unique event identities. Full candidate comparison detects projection drift that
+the lineage digest alone cannot detect; entry order and equivalent timestamp
+offsets are not drift. Any failure returns no partial batch; output follows raw
+order. Empty captures still require verified empty raw bytes.
+
+This read-only operation reproduces retained context after mapping corrections or
+revocations without making current-state reads, writes, or publication decisions.
+It does not authorize fresh ingestion, authenticate supplied receipts, or validate
+authored event IDs/status/context versions independently. Fresh normalization still
+resolves current histories and rejects revoked mappings at its cutoff. PostgreSQL
+and Floci tests replay a persisted receipt after revocation and a canonical-name
+edit, preserving the original evidence/digest and idempotent acceptance. No schema,
+legacy codec, historical eligibility, or execution behavior changes.
+
 Format 2 adds `candidate.mapping_evidence`: exact competition/home/away guards and
 the resolved references (canonical records, cutoff, and complete selected revision
 values in sport/competition/season/home/away order). Event ID, status, source event

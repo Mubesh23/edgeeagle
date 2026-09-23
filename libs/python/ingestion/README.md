@@ -96,6 +96,24 @@ the persistence factory `fixture_reference_reads(engine)` supplies this composit
 Retain returned candidates
 for exact retries: a fresh database snapshot is not a historical replay dataset.
 
+`synthetic_events.replay_mapped_fixture_events(store, reference, candidates)`
+reproduces a complete capture using trusted retained format-2 candidates, with no
+current mapping or canonical-reference reads. It requires parser
+`synthetic-odds-events-v1`, normalizer `synthetic-event-mappings-v1`, and retained
+mapping evidence before reading storage. It verifies raw size/hash, exact event
+coverage and label guards, then compares the entire reconstructed candidate,
+ignoring participant-entry order and equivalent timestamp offsets. Results follow
+raw event order; any mismatch fails the batch. Even an empty capture is read and
+verified. No writes, acceptance, or publication occur. Use
+`scripts/test-unit tests/unit/test_fixture_replay.py` for offline coverage and
+`scripts/test-integration -k mapped_normalization` for PostgreSQL/Floci coverage.
+
+Replay preserves captured evidence after later corrections/revocations; it does
+not authorize fresh normalization or prove the supplied receipt is authentic.
+Authored event ID, status, context version, and reference values are replay inputs,
+not independently verified facts. Unknown availability stays unknown. Format-1
+receipts have no retained mapping context and are deliberately unsupported here.
+
 ## Initial event acceptance
 
 Candidates now optionally carry `FixtureMappingEvidence`: resolved canonical

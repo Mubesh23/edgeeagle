@@ -1,21 +1,27 @@
 from dataclasses import replace
 from datetime import timedelta
-from unittest.mock import Mock
 
 import pytest
+from mypy_boto3_s3 import S3Client
 from sqlalchemy import Connection, Engine, text
 from sqlalchemy.exc import InternalError
 
 from edgeeagle_domain.mappings import MappingStatus
 from edgeeagle_ingestion.events import EventAcceptanceConflict
-from edgeeagle_ingestion.synthetic_events import normalize_mapped_fixture_events
+from edgeeagle_ingestion.identity import acceptance_key
+from edgeeagle_ingestion.synthetic_events import (
+    normalize_mapped_fixture_events,
+    replay_mapped_fixture_events,
+)
 from edgeeagle_persistence.events import PostgresEventAcceptanceRepository
 from edgeeagle_persistence.fixture_references import (
     PostgresFixtureReferenceResolver,
     fixture_reference_reads,
 )
 from edgeeagle_persistence.mappings import PostgresMappingRepository
+from edgeeagle_persistence.raw import S3RawPayloadStore
 from tests.integration.test_event_acceptance import seed
+from tests.integration.test_raw_storage import raw_bucket as raw_bucket
 from tests.integration.test_repositories import repository_engine as repository_engine
 from tests.unit.test_event_normalization import fixture_payload
 from tests.unit.test_fixture_references import NOW, setup_references
@@ -76,11 +82,14 @@ def test_mapped_resolver_guards_and_read_only_enforcement(repository_engine: Eng
 
 def test_mapped_normalization_retains_receipt_after_revision_and_revocation(
     repository_engine: Engine,
+    raw_bucket: tuple[S3Client, str],
 ) -> None:
     with repository_engine.begin() as connection:
         seed_mapped_context(connection)
-    raw, store = fixture_payload(), Mock()
-    store.get.return_value = raw.body
+    raw = fixture_payload()
+    client, bucket = raw_bucket
+    store = S3RawPayloadStore(client, bucket)
+    assert store.put(raw) == raw.reference()
     reads = fixture_reference_reads(repository_engine)
     original = normalize_mapped_fixture_events(
         store, raw.reference(), (request(),), reads, as_of=NOW
@@ -112,12 +121,30 @@ def test_mapped_normalization_retains_receipt_after_revision_and_revocation(
         PostgresMappingRepository(connection).append(
             replace(revision, revision=3, status=MappingStatus.REVOKED)
         )
+        connection.execute(
+            text("UPDATE participants SET canonical_name = 'Changed' WHERE participant_id = 'p1'")
+        )
     with pytest.raises(ValueError, match="revoked"):
         normalize_mapped_fixture_events(
             store, raw.reference(), (request(),), reads, as_of=revision.available_at
         )
     with repository_engine.begin() as connection:
-        assert (
-            PostgresEventAcceptanceRepository(connection).get(original.event.event_id) == original
-        )
+        retained = PostgresEventAcceptanceRepository(connection).get(original.event.event_id)
+        assert retained == original
         assert connection.scalar(text("SELECT count(*) FROM events")) == 1
+    assert retained is not None
+    # No open database transaction or current reference reader is passed to replay.
+    replayed = replay_mapped_fixture_events(store, retained.raw, (retained,))[0]
+    assert replayed == retained
+    assert acceptance_key(replayed) == acceptance_key(original)
+    assert replayed.mapping_evidence is not None
+    assert replayed.mapping_evidence.references.home.canonical_name == "Internal home"
+    assert replayed.raw.capture.available_at is None
+    with repository_engine.begin() as connection:
+        repository = PostgresEventAcceptanceRepository(connection)
+        assert not repository.accept(replayed)  # Existing receipt retry, not fresh approval.
+        assert repository.get(original.event.event_id) == retained
+        assert connection.scalar(text("SELECT count(*) FROM event_normalizations")) == 1
+        assert connection.scalar(text("SELECT count(*) FROM event_outbox")) == 0
+    assert store.get(raw.reference()) == raw.body
+    assert len(client.list_objects_v2(Bucket=bucket)["Contents"]) == 1

@@ -66,6 +66,10 @@ without rewriting legacy receipts. Pinned PostgreSQL resolution and both paths
 through the fixture-to-API acceptance test are implemented under
 [ADR-025](../adr/ADR-025-mapping-backed-fixture-context.md). Explicit authored
 event identity, labels, status, and reference keys remain necessary fixture context.
+Read-only mapped-receipt replay now reproduces complete retained captures without
+current mapping reads, checks supported versions and full candidate equality, and
+survives later mapping revocation/reference edits. This is reproducibility evidence,
+not authorization for fresh ingestion or a historically eligible dataset.
 
 ## Phase 3 — V1 Provider Adapters
 

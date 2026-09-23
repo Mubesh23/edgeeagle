@@ -294,3 +294,71 @@ def normalize_mapped_fixture_events(
         )
         for candidate in _normalize_rows(rows, reference, tuple(bindings))
     )
+
+
+def replay_mapped_fixture_events(
+    store: RawPayloadStore,
+    reference: RawPayloadReference,
+    candidates: tuple[EventCandidate, ...],
+) -> tuple[EventCandidate, ...]:
+    """Reproduce a complete capture from trusted mapped receipts, without current reads.
+
+    Only the supported fixture parser/normalizer pair is replayable. Retained
+    context is input, not authenticated truth or permission for fresh ingestion.
+    No writes occur; any mismatch fails the entire batch. Results follow raw order.
+    """
+    instance(reference, RawPayloadReference, "reference")
+    instance(candidates, tuple, "candidates")
+    bindings = []
+    for candidate in candidates:
+        instance(candidate, EventCandidate, "candidate")
+        evidence = candidate.mapping_evidence
+        if (
+            candidate.parser_version != "synthetic-odds-events-v1"
+            or candidate.normalizer_version != "synthetic-event-mappings-v1"
+            or evidence is None
+        ):
+            raise ValueError("replay requires supported versions and retained mapping evidence")
+        if candidate.raw != reference:
+            raise ValueError("replay candidates must share the exact raw reference")
+        refs = evidence.references
+        bindings.append(
+            FixtureEventBinding(
+                key=candidate.provider_key,
+                competition_key=evidence.competition_key,
+                home_label=evidence.home_label,
+                away_label=evidence.away_label,
+                event_id=candidate.event.event_id,
+                sport=refs.sport,
+                competition=refs.competition,
+                season=refs.season,
+                home=refs.home,
+                away=refs.away,
+                status=candidate.event.status,
+                context_version=candidate.context_version,
+            )
+        )
+    # The existing adapter enforces exact coverage and rejects identity collapse.
+    regenerated = _normalize_rows(_read_rows(store, reference), reference, tuple(bindings))
+    retained = {candidate.provider_key: candidate for candidate in candidates}
+    results = []
+    for candidate in regenerated:
+        original = retained[candidate.provider_key]
+        replayed = replace(
+            candidate,
+            normalizer_version="synthetic-event-mappings-v1",
+            mapping_evidence=original.mapping_evidence,
+        )
+        # Receipt storage may sort entries; order is not participant semantics.
+        ordered_replayed = tuple(
+            sorted(replayed.entries, key=lambda entry: entry.participant_id.value)
+        )
+        ordered_original = tuple(
+            sorted(original.entries, key=lambda entry: entry.participant_id.value)
+        )
+        if replace(replayed, entries=ordered_replayed) != replace(
+            original, entries=ordered_original
+        ):
+            raise ValueError("retained candidate does not reproduce from raw fixture")
+        results.append(replayed)
+    return tuple(results)

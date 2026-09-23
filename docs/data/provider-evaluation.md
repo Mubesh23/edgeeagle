@@ -178,11 +178,12 @@ corroborates the seasonal offset convention. These are scheduled-time samples,
 not independent validation of all final kickoff timestamps.
 
 Interpreting this capture's clocks as Europe/London would assign 203 rows offset
-0 minutes and 177 rows +60 minutes. That remains an explicitly proposed,
-sample-corroborated assumption, not provider confirmation or an approved offset
-for every row. The owner has been asked whether to accept that bounded assumption
-for private replay-only use or require independent verification of all 380 times.
-Do not import while that choice is unresolved.
+0 minutes and 177 rows +60 minutes. On 2026-09-23 the owner explicitly accepted
+this documented, sample-corroborated assumption for private replay-only use.
+This clears the dataset-specific timezone decision; it does not establish
+provider confirmation or independent verification of every kickoff. Freeze the
+resulting offset in each retained request/receipt rather than recomputing it on
+replay. Do not generalize this approval to other captures or historical features.
 
 The local pre-import review confirms 380 unique ordered team pairings and exactly
 19 home/19 away appearances for each of 20 labels. An explicit label-to-canonical

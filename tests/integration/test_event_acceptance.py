@@ -187,7 +187,8 @@ def test_event_acceptance_immutable_receipt_and_current_drift(repository_engine:
         for statement in (
             "UPDATE event_normalizations SET acceptance_key = acceptance_key",
             "DELETE FROM event_normalizations",
-            "TRUNCATE event_normalizations, event_outbox, event_outbox_delivery",
+            "TRUNCATE event_normalizations, event_outbox, event_outbox_delivery, "
+            "event_acceptance_consumptions",
         ):
             with pytest.raises(IntegrityError), connection.begin_nested():
                 connection.execute(text(statement))

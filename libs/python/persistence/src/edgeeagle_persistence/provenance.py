@@ -1,10 +1,6 @@
 """Synchronous PostgreSQL adapters using a caller-owned, non-autocommit transaction."""
 
-from collections.abc import Iterator
-from contextlib import contextmanager
-
 from sqlalchemy import Connection, text
-from sqlalchemy.exc import IntegrityError
 
 from edgeeagle_domain.provenance import (
     DataSource,
@@ -14,32 +10,7 @@ from edgeeagle_domain.provenance import (
     VenueId,
     VenueType,
 )
-from edgeeagle_domain.repositories import DuplicateRecordError
-
-
-def _require_transaction(connection: Connection) -> None:
-    if connection.dialect.name != "postgresql":
-        raise ValueError("PostgreSQL is required")
-    if not connection.in_transaction():
-        raise RuntimeError("An active caller-owned transaction is required")
-    # SQLAlchemy may report a logical transaction even with DBAPI autocommit enabled.
-    dbapi_connection = connection.connection.dbapi_connection
-    assert dbapi_connection is not None  # An active SQLAlchemy connection owns its DBAPI handle.
-    if dbapi_connection.autocommit:
-        raise RuntimeError("Autocommit connections are not supported")
-
-
-@contextmanager
-def _insert(connection: Connection) -> Iterator[None]:
-    _require_transaction(connection)
-    try:
-        # Keep a parent+capabilities write atomic even if the caller catches its error.
-        with connection.begin_nested():
-            yield
-    except IntegrityError as error:
-        if getattr(error.orig, "sqlstate", None) == "23505":
-            raise DuplicateRecordError("Canonical identity already exists") from error
-        raise
+from edgeeagle_persistence._transactions import insert, require_transaction
 
 
 class PostgresDataSourceRepository:
@@ -51,7 +22,7 @@ class PostgresDataSourceRepository:
     def add(self, source: DataSource) -> None:
         if not isinstance(source, DataSource):
             raise TypeError("source must be a DataSource")
-        with _insert(self._connection):
+        with insert(self._connection):
             self._connection.execute(
                 text(
                     "INSERT INTO data_sources (data_source_id, code, source_type) "
@@ -78,7 +49,7 @@ class PostgresDataSourceRepository:
     def get(self, source_id: DataSourceId) -> DataSource | None:
         if not isinstance(source_id, DataSourceId):
             raise TypeError("source_id must be a DataSourceId")
-        _require_transaction(self._connection)
+        require_transaction(self._connection)
         rows = (
             self._connection.execute(
                 text(
@@ -112,7 +83,7 @@ class PostgresVenueRepository:
     def add(self, venue: Venue) -> None:
         if not isinstance(venue, Venue):
             raise TypeError("venue must be a Venue")
-        with _insert(self._connection):
+        with insert(self._connection):
             self._connection.execute(
                 text(
                     "INSERT INTO venues (venue_id, operator, product, jurisdiction, venue_type) "
@@ -141,7 +112,7 @@ class PostgresVenueRepository:
     def get(self, venue_id: VenueId) -> Venue | None:
         if not isinstance(venue_id, VenueId):
             raise TypeError("venue_id must be a VenueId")
-        _require_transaction(self._connection)
+        require_transaction(self._connection)
         rows = (
             self._connection.execute(
                 text(

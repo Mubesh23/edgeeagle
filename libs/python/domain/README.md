@@ -68,6 +68,13 @@ The [persistence package](../persistence/README.md) implements them for current
 PostgreSQL state; writes do not overwrite existing identities. Transaction
 orchestration belongs to callers, not individual repository methods.
 
+`edgeeagle_domain.sports_repository.SportsRepository` adds current-state
+insert/read ports for sports, competitions, seasons, participants, and events.
+Event insertion includes its immutable tuple of entries atomically and requires
+existing references plus the resolved-context validation above. The PostgreSQL
+implementation remains in the persistence package, not in the pure domain.
+This does not expose API endpoints or historical research data.
+
 These internal records use frozen standard-library dataclasses. Constructors
 reject wrong types, blank text, surrounding whitespace, and mutable capability
 collections; they do not silently normalize provider input. Adapters will own

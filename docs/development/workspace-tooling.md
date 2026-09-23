@@ -11,9 +11,9 @@ typing, network-blocked unit tests, and offline sdist/wheel builds include it.
 It has no runtime dependencies. Source/venue and sports/event database entities
 are maintained by Alembic, not implicit dependencies of the domain package.
 The [persistence library](../../libs/python/persistence/README.md) implements
-source/venue repository ports with caller-owned transactions. Root checks and
+source/venue and sports/event repository ports with caller-owned transactions. Root checks and
 offline package builds include it; real transaction tests use disposable local
-PostgreSQL databases. API wiring, event repositories, and historical storage
+PostgreSQL databases. API wiring, mapping-history persistence, and historical storage
 remain later increments.
 
 ## Prerequisites and bootstrap

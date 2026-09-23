@@ -20,9 +20,9 @@ Migration `0002_source_venue` adds source/venue tables and capability sets; see
 [migration scope](apps/api/migrations/README.md). Validation migrates disposable
 test databases only, not the developer's application database.
 Migration `0003_sports_events` adds the sports/event hierarchy and cross-record
-foreign keys. Source/venue transactional adapters now live in
-[Python persistence](libs/python/persistence/README.md); event repositories and
-historical storage remain deferred. No business API endpoints are wired yet.
+foreign keys. Source/venue and sports/event transactional adapters now live in
+[Python persistence](libs/python/persistence/README.md); mapping-history persistence
+and historical storage remain deferred. No business API endpoints are wired yet.
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports

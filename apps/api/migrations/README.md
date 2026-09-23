@@ -66,9 +66,9 @@ and do not establish `available_at`, snapshot versions, or backtest eligibility.
 
 These are schema-only increments, not a runtime repository or an HTTP ownership
 boundary: API startup still owns no business data or database connection.
-Source/venue repository adapters now live in the separate
+Source/venue and sports/event repository adapters now live in the separate
 [persistence package](../../../libs/python/persistence/README.md), using caller-owned
-transactions. Event repositories, mapping history, and seed workflows remain
+transactions. Mapping history and seed workflows remain
 later increments. Revisions own explicit DDL; ORM metadata and migration
 autogeneration are not enabled.
 

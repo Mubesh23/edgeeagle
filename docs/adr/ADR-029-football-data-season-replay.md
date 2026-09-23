@@ -1,6 +1,6 @@
 # ADR-029 — Bounded whole-season CSV replay
 
-**Status:** Accepted; normalization/replay profile implemented, paged storage pending  
+**Status:** Accepted; normalization and paged replay codecs implemented, storage pending  
 **Date:** 2026-09-23
 
 ## Context
@@ -123,5 +123,40 @@ features, model training, backtesting, odds processing, settlement or execution.
 new profile using the same strict parser/projection as ADR-028. Legacy limits and
 pins are unchanged. `tests/unit/test_football_data_season.py` covers 380/512-row
 normalization and replay, over-limit/final-row failures before reference reads,
-legacy isolation, raw loss and changed output. Root/page codecs, storage and the
-real-data import remain pending; these candidates cannot use legacy manifests.
+legacy isolation, raw loss and changed output. These candidates cannot use legacy
+manifests.
+
+`season_bundle` now implements `SeasonIndex`, root/page codecs, `build_bundle`,
+the `SeasonObjectStore` protocol, object validation and eager `verify_bundle`.
+It reuses the existing internal strict JSON/raw-reference helpers and receipt
+codec rather than inventing a second raw or receipt representation.
+
+### Wire contract
+
+All objects use sorted-key compact ASCII-escaped UTF-8 JSON without a newline.
+The object identity is SHA-256 of its entire canonical body; it is supplied
+separately to storage and is not embedded in the body. This differs deliberately
+from ADR-026's envelope: these are different kinds in a separate namespace.
+
+All objects require integer `format: 1` (not Boolean), exact `kind`, and
+`usage: "REPLAY_ONLY"`. Additional fields are forbidden.
+
+- Root kind `FOOTBALL_DATA_SEASON_INDEX`: fields `raw` (existing full raw reference),
+  `row_count` (integer 1..512), `page_hashes` (ordered lowercase SHA-256 strings),
+  `parser_version` and `normalizer_version` (the exact pins specified above).
+- Page kind `FOOTBALL_DATA_SEASON_RECEIPTS`: field `receipts` (1..64 pins).
+  Each pin has exactly `acceptance_key`, `receipt_sha256` and `receipt`. Hash the
+  canonical existing receipt codec bytes; recompute both pins on decode.
+- Sort receipts lexicographically by their source-scoped provider row locator
+  string before taking consecutive groups of 64. All receipts share the full raw
+  reference and hence source. Root hash ordering follows those groups, not hash
+  lexical order. A builder canonicalizes inputs; readers reject reordered bytes.
+- Strict readers reject duplicate JSON keys, floats/nonstandard numbers, malformed
+  nested fields and unsupported versions. Re-encoding must equal the original
+  bytes, not silently repair content. Cross-page validation rebuilds the complete
+  canonical bundle before raw I/O, enforcing the root count and partitioning.
+
+Run `scripts/test-unit tests/unit/test_season_bundle.py` for canonical ordering,
+380/512-row bundles, final-page loss/corruption, invalid types/pins/counts, oversize
+objects and replay without writes. Storage, transactional composition and the
+real-data import remain pending. Codec success is structural evidence only.

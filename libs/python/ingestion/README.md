@@ -194,9 +194,17 @@ composition, failure/retry semantics, and the local acceptance command.
 ADR-029 adds `football_data.normalize_season_results` and `replay_season_results`
 for complete captures up to 512 rows with a distinct parser pin. They share the
 strict field rules and projection with the original 100-row profile, which stays
-unchanged. Season candidates require the separate paged replay bundle (pending),
+unchanged. Season candidates require the separate paged replay bundle,
 not ADR-026 manifests. No real-data import or historical eligibility is implied.
 Run `scripts/test-unit tests/unit/test_football_data_season.py` for the new bounds.
+
+`season_bundle` supplies canonical root/page codecs and `verify_bundle` through
+the inward-owned `SeasonObjectStore` port. A root pins up to eight 64-receipt pages
+and one unchanged raw capture; verification validates all metadata before the raw
+read and requires complete-capture replay. Roots are limited to 64 KiB, pages to
+1 MiB. Storage/composition remain pending. See
+[ADR-029](../../../docs/adr/ADR-029-football-data-season-replay.md) for the exact wire
+contract and `scripts/test-unit tests/unit/test_season_bundle.py` for offline tests.
 
 Optional `SoccerResultEvidence` adds validated full-time goals and an asserted
 per-row UTC offset to finished soccer candidates. Format-3 receipts preserve it;

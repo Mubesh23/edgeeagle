@@ -17,6 +17,13 @@ Open http://127.0.0.1:5173. Vite binds only to loopback, uses a strict port, and
 proxies `/api/*` to the local API at port 8000, stripping the `/api` prefix.
 No backend CORS change or browser provider credentials are needed.
 
+This existing loopback-only development proxy is permitted for the private
+dataset API under [ADR-032](../../docs/adr/ADR-032-local-dataset-api.md).
+Keep both servers bound to 127.0.0.1; do not expose them to the LAN or internet
+through another proxy, tunnel or hosted deployment. This is not authentication
+and does not change dataset rights or replay-only eligibility. The shell does
+not yet implement a dataset browser.
+
 The browser uses same-origin `/api/health`. Requests have a five-second timeout,
 consume TanStack's cancellation signal, and do not poll or retry automatically.
 The user can explicitly check again. A successful response does not assert

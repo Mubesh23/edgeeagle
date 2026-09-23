@@ -24,11 +24,21 @@ configuration once; restart to change selected roots. It uses existing loopback
 Floci composition, dummy credentials, bounded SDK timeouts and request-scoped
 clients closed on success and failure. It needs no PostgreSQL connection.
 
-Bind only to 127.0.0.1, without a reverse proxy or tunnel, as with ADR-024. This is
-an operator-only development interface, not authentication or authorization.
+Bind the API and any development proxy only to 127.0.0.1, consistent with
+ADR-024's local-only boundary. The existing Vite development proxy may forward
+same-origin `/api/*` requests to the loopback API. Reverse proxies are not
+categorically prohibited; external exposure is. Do not expose either server to
+the LAN or internet, use externally reachable proxies or tunnels, or host/deploy
+this private interface. Loopback binding is an operator-only development boundary,
+not authentication or authorization.
 No CORS, auth policy, network/IAM resource, hosting, UI or MCP tool is added.
 Production exposure and multi-user access still require human security/licensing
 review. Do not run against private captures in hosted CI.
+
+This clarification was explicitly approved by the owner: permit the existing
+loopback-only development proxy, while preserving the prohibition on external
+exposure. It changes no runtime networking configuration, CORS policy, provider
+rights or replay-only eligibility.
 
 Malformed hashes return 422 before storage access; unselected hashes return 404
 before storage access. Missing/corrupt retained artifacts and storage transport

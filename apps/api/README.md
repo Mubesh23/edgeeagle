@@ -46,7 +46,9 @@ Configuration is loaded once; restart to change pins. Storage clients are scoped
 to requests and always closed. No PostgreSQL connection, migration, bucket creation
 or provider request occurs. Event reads remain unconfigured in this factory;
 the existing event factory remains separate and unchanged. This development
-interface has no authentication: do not bind publicly, proxy, tunnel or deploy it.
+interface has no authentication: keep both API and development proxy bound to
+127.0.0.1. The existing loopback-only Vite `/api/*` proxy is permitted; LAN/internet
+exposure, externally reachable proxies or tunnels, and hosted deployment are not.
 No CORS access is enabled. Test with `scripts/test-integration -k dataset_api`.
 
 ## Local event reads

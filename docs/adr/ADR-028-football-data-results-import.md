@@ -4,8 +4,9 @@
 **Date:** 2026-09-23
 
 Receipt rollout status: `SoccerResultEvidence`, format-3 codec and migration
-`0010_soccer_receipts` are implemented. CSV normalization and snapshot dispatch
-remain pending. Legacy byte/digest golden tests and local PostgreSQL rollout/
+`0010_soccer_receipts` are implemented. CSV normalization and retained-receipt
+replay are implemented; snapshot dispatch and end-to-end composition remain pending.
+Legacy byte/digest golden tests and local PostgreSQL rollout/
 downgrade guards cover the additive reader/schema increment.
 
 ## Context and Phase 2 gate
@@ -123,3 +124,11 @@ provider compatibility or licensing permission. Caller-supplied real files requi
 separate rights review before acquisition/use. No new licensing assumption, IAM,
 production resource, risk behavior, dependency, or API is introduced. Use the
 existing root checks and full `scripts/validate` before handoff.
+
+The `edgeeagle_ingestion.football_data` adapter now exposes `FootballDataRequest`,
+`row_locator`, `normalize_results`, and `replay_results`. It validates the whole
+CSV and request coverage before a single pinned reference snapshot; canonical
+construction additionally rejects kickoff outside the supplied season. Replay uses
+the same parser/projection with retained evidence. Network-disabled tests cover
+malformed CSV, source/label/identity conflicts, bounds, offsets, mapping/snapshot
+failures, and full-output drift. Run `scripts/test-unit tests/unit/test_football_data.py`.

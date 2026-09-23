@@ -160,6 +160,25 @@ retained PostgreSQL receipts is tested by `scripts/test-integration -k snapshot_
 no catalog is present. Call `get(version)`, explicitly handle None, then pass the
 returned bytes to `verify_manifest`. Never reconstruct missing metadata from current state.
 
+## Football-Data results CSV adapter
+
+`football_data.normalize_results(raw_store, reference, requests, reads, as_of=...)`
+accepts the bounded ADR-028 subset from retained raw bytes. `FootballDataRequest`
+supplies an explicit canonical event ID, five mapping keys, exact labels/division,
+context version, and per-row UTC offset. `row_locator` constructs the adapter's
+source-scoped locator; it is not a native provider match ID. All rows must be
+covered exactly once. One pinned reference snapshot supplies the complete batch.
+
+`replay_results(raw_store, reference, candidates)` reproduces the complete capture
+from retained format-3 evidence, without current reference reads or writes.
+Kickoff, scores, coverage, and output must agree. Unknown availability remains
+unknown. Inputs are UTF-8 CSV completed results with dd/mm/yyyy and HH:MM, limited
+to 100 rows/1 MiB; extra named columns stay raw-only. No odds, missing-time/date-only
+records, automatic downloads, identity matching, or backtest eligibility are added.
+See the [authored fixture](../../../tests/fixtures/providers/football_data/README.md).
+Run `scripts/test-unit tests/unit/test_football_data.py`. Storage/transactional
+composition and snapshot-kind support follow separately.
+
 ## Initial event acceptance
 
 Optional `SoccerResultEvidence` adds validated full-time goals and an asserted

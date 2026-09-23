@@ -114,8 +114,8 @@ Acquiring or using real files remains subject to separate rights review.
 
 ### Premier League 2024/25 real-file evidence gate
 
-**Reviewed:** 2026-09-23. **Status:** Human licensing review and kickoff-time evidence
-remain outstanding; no real-data canonical import is authorized by this review.
+**Reviewed:** 2026-09-23. **Status:** Owner-approved private research scope;
+kickoff-time evidence and whole-season implementation remain outstanding.
 
 The user-requested local download of `mmz4281/2425/E0.csv` contains 380 results,
 20 team labels and 120 columns (197,110 bytes). Its retained SHA-256 is
@@ -141,14 +141,31 @@ Evidence reviewed:
   [separate subscription API](https://football-data.co.uk/thestatsapi.php) are
   not evidence of permission for these CSV files.
 
-Before importing, a human must review the intended use and its licensing basis.
-A possible narrow scope is private, local-only engineering/research with no
-redistribution, hosted display or commercial deployment; that scope is a proposal,
-not an approved license interpretation. If the basis is insufficient, obtain
-written provider permission through its
-[contact page](https://football-data.co.uk/contact.php). No contact has been sent.
-Ask separately about retention of raw files and derived records, commercial use,
-redistribution, and the 2024/25 E0 kickoff timezone/DST convention.
+On 2026-09-23 the owner explicitly selected private research and no commercial
+deployment: the application is initially for their own use, with commercial use
+to be revisited if that changes. This satisfies the repository's human-review
+gate for proceeding within that intended scope based on the advertised analytical
+use. It is an owner scope/risk decision, not written provider permission or a
+finding that unrestricted rights exist. No commercial-use or redistribution
+license has been established.
+
+The current engineering work stays local; this approval does not authorize a
+deployment or publication of the dataset. Keep the real file and derived records
+out of Git and routine hosted CI. Before commercialization or distribution,
+revisit provider permissions for raw retention, derived records, display and
+redistribution, using the [contact page](https://football-data.co.uk/contact.php)
+where clarification is necessary. No contact has been sent.
+
+Initial timezone cross-check: the retained CSV has Manchester United versus Fulham
+on 16 August 2024 at 20:00. The
+[club's match preview](https://www.manutd.com/en/news/match-preview-for-man-utd-v-fulham-in-the-premier-league-13-august-2024)
+explicitly identifies that kickoff as 20:00 BST. This establishes a corroborating
+summer-time sample, not a verified rule for all 380 rows. The
+[league's season fixture article](https://www.premierleague.com/en/news/4040106)
+uses local time but warns fixtures can change; it is not by itself a final
+historical kickoff record. Winter/DST coverage and discrepancies must be reviewed
+before approving the file's per-row offsets. Odds-collection/upload times on the
+provider's fixtures page are not kickoff-timezone evidence.
 
 Historical result availability remains unknown regardless of acquisition time
 or HTTP Last-Modified. Whole-season support also requires a reviewed extension

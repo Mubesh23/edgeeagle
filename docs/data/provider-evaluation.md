@@ -115,7 +115,7 @@ Acquiring or using real files remains subject to separate rights review.
 ### Premier League 2024/25 real-file evidence gate
 
 **Reviewed:** 2026-09-23. **Status:** Owner-approved private research scope;
-kickoff-time evidence and whole-season implementation remain outstanding.
+whole-season implementation complete; real import pending kickoff review and bindings.
 
 The user-requested local download of `mmz4281/2425/E0.csv` contains 380 results,
 20 team labels and 120 columns (197,110 bytes). Its retained SHA-256 is
@@ -167,10 +167,36 @@ historical kickoff record. Winter/DST coverage and discrepancies must be reviewe
 before approving the file's per-row offsets. Odds-collection/upload times on the
 provider's fixtures page are not kickoff-timezone evidence.
 
+Additional review on 2026-09-23 matched the retained CSV to official club notices:
+Arsenal–Liverpool on 27 October 2024 at 16:30 GMT
+([Liverpool ticket notice](https://www.liverpoolfc.com/news/arsenal-v-liverpool-away-ticket-details-2))
+and Liverpool–Everton on 2 April 2025 at 20:00 BST
+([Liverpool viewing notice](https://www.liverpoolfc.com/news/liverpool-v-everton-tv-channels-live-commentary-and-highlights-details-0)).
+These cover winter time on the autumn transition date and summer time after the
+spring transition. The [UK clock rule](https://www.gov.uk/when-do-the-clocks-change)
+corroborates the seasonal offset convention. These are scheduled-time samples,
+not independent validation of all final kickoff timestamps.
+
+Interpreting this capture's clocks as Europe/London would assign 203 rows offset
+0 minutes and 177 rows +60 minutes. That remains an explicitly proposed,
+sample-corroborated assumption, not provider confirmation or an approved offset
+for every row. The owner has been asked whether to accept that bounded assumption
+for private replay-only use or require independent verification of all 380 times.
+Do not import while that choice is unresolved.
+
+The local pre-import review confirms 380 unique ordered team pairings and exactly
+19 home/19 away appearances for each of 20 labels. An explicit label-to-canonical
+name proposal is retained under ignored `.data/`; no fuzzy mapping or canonical
+ID allocation has occurred. Read-only inspection found only `alembic_version`
+in the local developer database's public schema. Applying the documented local
+migrations and retaining exact canonical ID/mapping/request bindings are still
+prerequisites; routine integration tests do not initialize that database.
+
 Historical result availability remains unknown regardless of acquisition time
-or HTTP Last-Modified. Whole-season support also requires a reviewed extension
-to ADR-028's 100-row capture bound and assessment of the 1 MiB manifest limit;
-neither limit has changed. No training/backtesting eligibility is established.
+or HTTP Last-Modified. [ADR-029](../adr/ADR-029-football-data-season-replay.md)
+now implements a separate 512-row profile, paged replay storage and atomic
+PostgreSQL acceptance; ADR-028's 100-row profile and legacy 1 MiB manifest limit
+remain unchanged. No training/backtesting eligibility is established.
 
 ### General provider references
 

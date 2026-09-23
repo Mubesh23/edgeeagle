@@ -41,6 +41,7 @@ First CSV importer: [ADR-028 — bounded retained soccer results](adr/ADR-028-fo
 Run it locally: [Football-Data import workflow](development/football-data-import.md).
 Whole-season extension: [ADR-029 — bounded paged replay](adr/ADR-029-football-data-season-replay.md).
 Private recovery: [ADR-030 — local backup and isolated restoration](adr/ADR-030-private-local-recovery.md).
+Run it locally: [Private recovery operator guide](development/private-recovery.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.

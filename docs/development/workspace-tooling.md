@@ -129,6 +129,13 @@ The [foundation CI workflow](ci.md) invokes bootstrap and validation on a fresh
 GitHub-hosted Linux runner without provider/AWS credentials. Its YAML policy test
 runs with unit tests. A locally passing command is not a hosted CI run.
 
+Private retained research data has an explicit local
+[backup/restore verification command](private-recovery.md):
+`scripts/research-recovery exercise` creates a private archive and checks isolated
+recovery; `scripts/research-recovery verify` repeats verification from a trusted
+archive. Neither touches live source data or runs against private captures in CI.
+Synthetic recovery tests are included in routine unit/integration validation.
+
 ## Dependency and generated-file policy
 
 TypeScript packages use `workspace:*` for internal dependencies. Python members

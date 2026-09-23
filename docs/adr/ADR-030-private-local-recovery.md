@@ -1,6 +1,6 @@
 # ADR-030 — Private local research recovery
 
-**Status:** Accepted; portable archive implemented, local restore pending
+**Status:** Accepted; local archive and isolated restore implemented
 **Date:** 2026-09-23
 
 ## Context
@@ -101,4 +101,9 @@ nonprivate members, unknown names, changed content and incomplete archives befor
 replay. The initial PostgreSQL dump limit is 64 MiB; root, raw and page limits
 remain bounded by ADR-029. It loads validated bytes into bounded memory before
 restore to avoid reopening mutable archive files during destination writes.
-PostgreSQL recovery composition is the next increment.
+`scripts/research-recovery` now composes a local PostgreSQL custom dump, fresh
+UUID-named restoration, restored-only replay/receipt verification and owned-target
+cleanup. Source identities/counts/objects are compared around the exercise.
+See the [operator guide](../development/private-recovery.md) for commands, bounded
+scope, trusted-dump requirements and failure handling. Synthetic integration tests
+exercise this path without private data; actual research exercises remain explicit.

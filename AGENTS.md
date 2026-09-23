@@ -14,6 +14,11 @@ Implementation status: workspace/API increments implement `bootstrap`,
 `local-up`, `local-down`, and `test-integration` now manage/test PostgreSQL and
 Floci. `validate` starts these local services and leaves them running; named data
 volumes survive `local-down`. `scripts/migrate` manages the local Alembic history.
+`scripts/research-recovery` explicitly backs up and verifies private retained
+research data using isolated local restore targets; see
+[the recovery guide](docs/development/private-recovery.md).
+Real recovery archives/reports stay ignored under `.data/recovery/`; routine
+validation exercises authored synthetic recovery data only.
 The synthetic provider mock now runs with local-up and is covered by unit and
 HTTP integration tests. The first offline Football-Data results CSV adapter now
 retains raw bytes, atomically accepts score-bearing receipts, and stores replay-only

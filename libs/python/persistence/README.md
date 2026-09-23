@@ -351,6 +351,13 @@ historical eligibility. It introduces no production bucket or IAM policy. See
 
 ## Validation
 
+Private operator recovery composes the existing raw/season/receipt adapters with
+a bounded archive and a local PostgreSQL logical snapshot. The explicit
+`scripts/research-recovery` command restores only into fresh exercise-owned
+resources; it never replaces the developer database or source bucket. See
+[the recovery guide](../../../docs/development/private-recovery.md) for trusted
+archive requirements, commands, limits and cleanup behavior.
+
 From repository root:
 
 ```sh

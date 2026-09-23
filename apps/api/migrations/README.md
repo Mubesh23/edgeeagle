@@ -1,5 +1,11 @@
 # Database migrations
 
+Revision `0005_event_acceptance` adds immutable `event_normalizations` receipts
+with event/source foreign keys and a versioned JSONB accepted-output snapshot.
+Its downgrade removes only that table and its immutability function. See
+[ADR-018](../../../docs/adr/ADR-018-event-acceptance-lineage.md). The application
+database is not migrated automatically; integration tests use disposable databases.
+
 Run from repository root after `scripts/bootstrap` and `scripts/local-up`:
 
 ```sh

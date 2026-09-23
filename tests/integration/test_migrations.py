@@ -123,13 +123,13 @@ def test_migration_upgrade_repeat_downgrade_and_reapply() -> None:
                 command.upgrade(config, "head")
                 assert connection.scalars(
                     text("SELECT version_num FROM alembic_version")
-                ).all() == ["0004_mapping_history"]
+                ).all() == ["0005_event_acceptance"]
                 assert_sports_constraints(connection)
             # A separate transaction must observe the committed migration state.
             with engine.begin() as connection:
                 config.attributes["connection"] = connection
                 assert connection.scalar(text("SELECT version_num FROM alembic_version")) == (
-                    "0004_mapping_history"
+                    "0005_event_acceptance"
                 )
                 assert connection.scalar(text("SELECT count(*) FROM data_sources")) == 4
                 assert connection.scalar(text("SELECT count(*) FROM event_participants")) == 12
@@ -149,7 +149,7 @@ def test_migration_upgrade_repeat_downgrade_and_reapply() -> None:
                 )
                 command.upgrade(config, "head")
                 assert connection.scalar(text("SELECT version_num FROM alembic_version")) == (
-                    "0004_mapping_history"
+                    "0005_event_acceptance"
                 )
                 assert_source_venue_constraints(connection)
                 assert_sports_constraints(connection)

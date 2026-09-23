@@ -12,10 +12,15 @@ only on domain); ingestion never imports persistence. No API dependency is added
 `accept(candidate)` inserts an event, its participant entries, and one immutable
 normalization receipt atomically inside a caller-owned PostgreSQL transaction.
 It returns True for a first acceptance and False for an exact replay. The canonical
-event ID is the replay identity for this **initial-insert-only** operation. Changed
+event ID is one replay identity for this **initial-insert-only** operation. Changed
 event/entry data, provenance, or any version conflicts rather than overwriting.
 An event inserted outside this operation without a receipt also conflicts.
 This is not the future multi-source refresh/correction/versioning policy.
+A second unique identity is the SHA-256 of canonical JSON containing the raw
+reference, provider event key, and parser/normalizer/context versions (not output
+event IDs or entries). Thus one lineage cannot produce two canonical event IDs.
+A digest collision fails closed as a conflict; replay still compares the full
+snapshot. JSON keys are sorted, with compact separators and ASCII escaping.
 
 Use READ COMMITTED for writes. The existing event primary-key constraint serializes
 competing initial inserts. On duplicate insertion, roll back that insert savepoint,
@@ -27,7 +32,8 @@ Callers own timeouts, retries, and consistent multi-event ordering. Reference
 entities must already exist; they are neither created nor updated implicitly.
 
 Migration `0005_event_acceptance` adds `event_normalizations`: event ID primary key
-and restrictive FK, source ID restrictive FK/index, and a versioned JSONB snapshot.
+and restrictive FK, source ID restrictive FK/index, unique lineage digest
+`acceptance_key`, and a versioned JSONB snapshot.
 The snapshot preserves the complete accepted event/entry projection, raw reference
 (capture timestamps, checksum, length), provider event key, and parser/normalizer/
 context versions. Schema checks tie snapshot identities to indexed FK columns.

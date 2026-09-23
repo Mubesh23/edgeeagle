@@ -96,3 +96,27 @@ formats. Those identities are not interchangeable. An additive API/UI consumer,
 durable catalog publication/consistency rules, multi-user access, and hosted
 display remain separate increments and reviews. Existing API/client contracts
 are unchanged.
+
+## Local inspection evidence — 2026-09-23
+
+The approved private EPL 2024/25 root was registered in ignored local catalog
+configuration and inspected with the operator command. Listing reported 380
+declared rows and six pages with `NOT_CHECKED`; fresh complete replay returned
+380 verified receipts and 20 participants. The retained context version identifies
+the owner-approved London-offset assumption; it is not independent kickoff proof.
+Unknown raw availability remained null and all three exclusion reasons remained
+present. No provider download, store write, PostgreSQL connection, rights upgrade
+or historical-eligibility change was part of the catalog command. Private
+configuration and any saved output remain outside Git and routine tests.
+
+A separate read-only comparison against the retained backup report confirmed
+that all eight source objects retained their keys, sizes and ETags.
+
+`scripts/validate` passed: 863 Python unit tests, 140 integration tests and one
+documented Floci expected failure, plus generated-contract checks, formatting,
+linting, typechecking, OpenAPI compatibility, builds, credential-free CDK synthesis
+and dependency advisory scans. The 20 targeted catalog unit tests achieved 100%
+statement coverage for the two new Python modules; the synthetic CLI integration
+also passed independently. Unchanged TypeScript tasks used local Turbo cache.
+Existing Starlette deprecations and the resource-free CDK skeleton warning remain.
+Hosted CI and fresh-checkout validation were not run in this local session.

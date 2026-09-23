@@ -70,6 +70,13 @@ Read-only mapped-receipt replay now reproduces complete retained captures withou
 current mapping reads, checks supported versions and full candidate equality, and
 survives later mapping revocation/reference edits. This is reproducibility evidence,
 not authorization for fresh ingestion or a historically eligible dataset.
+The next snapshot increment is contract-first:
+[ADR-026](../adr/ADR-026-replay-dataset-manifest.md) and its
+[manifest specification](../architecture/dataset-snapshot-manifest.md) define a
+bounded, content-versioned collection of complete captures and mapped receipts.
+Implementation is pending. This replay-only metadata contract does not complete
+historical datasets or permit backtesting; pure values/codec and then read-only
+snapshot verification are the next separately verifiable increments.
 
 ## Phase 3 — V1 Provider Adapters
 

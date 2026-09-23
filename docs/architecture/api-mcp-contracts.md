@@ -8,10 +8,11 @@ The API is the authoritative application boundary. MCP orchestrates API/domain c
 
 ## REST/OpenAPI domains
 
-Foundation implementation currently exposes only `GET /health`. Its OpenAPI
+Implementation exposes `GET /health` and local-only configured current-state event
+list/detail reads under [ADR-024](../adr/ADR-024-event-read-api.md). Its OpenAPI
 snapshot and TypeScript client types are generated locally; see
 [`contracts/README.md`](../../contracts/README.md). The domains below remain
-planned capabilities. Generated drift is enforced by `scripts/validate`;
+planned capabilities except the two event read routes. Generated drift is enforced by `scripts/validate`;
 compatibility against a frozen pre-release foundation snapshot is enforced by
 `scripts/check-contracts`. There is no released API baseline yet; see
 [baseline policy](../../contracts/baselines/README.md).

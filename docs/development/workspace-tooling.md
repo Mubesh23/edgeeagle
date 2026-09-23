@@ -31,7 +31,9 @@ and crash-replay tests in Floci; see
 transactional deduplication, retries, processing-DLQ redrive, and queue-depth
 monitoring now have local coverage under [ADR-023](../adr/ADR-023-event-acceptance-consumer.md).
 The EventBridge delivery-DLQ probe is an explicit strict expected failure due to
-the pinned emulator's limitation. Worker supervision and API wiring remain later work.
+the pinned emulator's limitation. Current-state event list/detail API wiring now
+exists under [ADR-024](../adr/ADR-024-event-read-api.md); full raw-to-API composition,
+worker supervision, and historical research datasets remain later work.
 
 ## Prerequisites and bootstrap
 

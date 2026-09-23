@@ -4,6 +4,8 @@ version = "0.0.0"
 description = "EdgeEagle FastAPI application boundary"
 requires-python = ">=3.11,<3.12"
 dependencies = [
+    "edgeeagle-domain",
+    "edgeeagle-persistence",
     "alembic>=1.16,<2",
     "fastapi>=0.115,<1",
     "psycopg[binary]>=3.2,<4",
@@ -11,6 +13,10 @@ dependencies = [
     "sqlalchemy>=2.0,<3",
     "uvicorn>=0.34,<1",
 ]
+
+[tool.uv.sources]
+edgeeagle-domain = { workspace = true }
+edgeeagle-persistence = { workspace = true }
 
 [build-system]
 requires = ["hatchling>=1.27,<2"]

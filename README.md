@@ -19,7 +19,8 @@ For implemented commands and prerequisites, see
 [workspace tooling](docs/development/workspace-tooling.md). Start with
 `scripts/bootstrap`, then `scripts/validate`.
 
-The first application is the [FastAPI health-only shell](apps/api/README.md).
+The [FastAPI application](apps/api/README.md) provides liveness and explicitly
+configured local current-state event reads.
 Its [OpenAPI snapshot and typed client](contracts/README.md) are generated locally
 with `scripts/generate-contracts` and verified by `scripts/check-generated`.
 

@@ -1,6 +1,112 @@
 {
   "components": {
     "schemas": {
+      "EventDetailResponse": {
+        "properties": {
+          "competition_id": { "title": "Competition Id", "type": "string" },
+          "event_id": { "title": "Event Id", "type": "string" },
+          "participants": {
+            "items": { "$ref": "#/components/schemas/EventEntryResponse" },
+            "title": "Participants",
+            "type": "array"
+          },
+          "season_id": { "title": "Season Id", "type": "string" },
+          "sport_id": { "title": "Sport Id", "type": "string" },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": { "title": "Status", "type": "string" },
+          "venue_location": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Venue Location"
+          }
+        },
+        "required": [
+          "event_id",
+          "sport_id",
+          "competition_id",
+          "season_id",
+          "starts_at",
+          "status",
+          "venue_location",
+          "participants"
+        ],
+        "title": "EventDetailResponse",
+        "type": "object"
+      },
+      "EventEntryResponse": {
+        "properties": {
+          "participant_id": { "title": "Participant Id", "type": "string" },
+          "role": { "title": "Role", "type": "string" }
+        },
+        "required": ["participant_id", "role"],
+        "title": "EventEntryResponse",
+        "type": "object"
+      },
+      "EventErrorResponse": {
+        "properties": { "detail": { "title": "Detail", "type": "string" } },
+        "required": ["detail"],
+        "title": "EventErrorResponse",
+        "type": "object"
+      },
+      "EventListResponse": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/EventResponse" },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_after_event_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Next After Event Id"
+          }
+        },
+        "required": ["items", "next_after_event_id"],
+        "title": "EventListResponse",
+        "type": "object"
+      },
+      "EventResponse": {
+        "properties": {
+          "competition_id": { "title": "Competition Id", "type": "string" },
+          "event_id": { "title": "Event Id", "type": "string" },
+          "season_id": { "title": "Season Id", "type": "string" },
+          "sport_id": { "title": "Sport Id", "type": "string" },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": { "title": "Status", "type": "string" },
+          "venue_location": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Venue Location"
+          }
+        },
+        "required": [
+          "event_id",
+          "sport_id",
+          "competition_id",
+          "season_id",
+          "starts_at",
+          "status",
+          "venue_location"
+        ],
+        "title": "EventResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": { "$ref": "#/components/schemas/ValidationError" },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
       "HealthResponse": {
         "description": "Process liveness only; this does not assert dependency readiness.",
         "properties": {
@@ -12,6 +118,22 @@
           }
         },
         "title": "HealthResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": { "title": "Context", "type": "object" },
+          "input": { "title": "Input" },
+          "loc": {
+            "items": { "anyOf": [{ "type": "string" }, { "type": "integer" }] },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": { "title": "Message", "type": "string" },
+          "type": { "title": "Error Type", "type": "string" }
+        },
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError",
         "type": "object"
       }
     }
@@ -33,6 +155,136 @@
           }
         },
         "summary": "Health"
+      }
+    },
+    "/v1/events": {
+      "get": {
+        "operationId": "list_events",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after_event_id",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "After Event Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sport_id",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Sport Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "competition_id",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Competition Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EventListResponse" }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EventErrorResponse" }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "List Events"
+      }
+    },
+    "/v1/events/{eventId}": {
+      "get": {
+        "operationId": "get_event",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eventId",
+            "required": true,
+            "schema": { "title": "Eventid", "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EventDetailResponse" }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EventErrorResponse" }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EventErrorResponse" }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Get Event"
       }
     }
   }

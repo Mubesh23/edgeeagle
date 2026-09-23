@@ -51,6 +51,10 @@ strict expected-failure probe; no production permission enforcement is claimed. 
 [ADR-021](docs/adr/ADR-021-outbox-dispatch-boundary.md),
 [ADR-019](docs/adr/ADR-019-event-outbox.md) and
 [ADR-020](docs/adr/ADR-020-outbox-delivery-leases.md).
+The API now exposes current-state event list/detail contracts, with explicit local
+PostgreSQL composition, bounded ID pagination, and read-only request transactions.
+The default credential-free app returns 503 for unconfigured event reads; see
+[API setup](apps/api/README.md) and [ADR-024](docs/adr/ADR-024-event-read-api.md).
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports

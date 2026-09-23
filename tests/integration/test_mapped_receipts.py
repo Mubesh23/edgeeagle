@@ -79,7 +79,7 @@ def test_mapped_receipt_commit_replay_conflict_and_downgrade_guard(
             command.downgrade(migration_config(connection), "0008_event_consumption")
         assert (
             connection.scalar(text("SELECT version_num FROM alembic_version"))
-            == "0009_mapped_receipts"
+            == "0010_soccer_receipts"
         )
         assert repository.get(value.event.event_id) == canonical(value)
         assert connection.scalar(text("SELECT count(*) FROM events")) == 1

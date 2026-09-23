@@ -40,7 +40,8 @@ class ManifestCapture:
         for candidate in self.candidates:
             instance(candidate, EventCandidate, "candidate")
             if (
-                candidate.mapping_evidence is None
+                candidate.soccer_result is not None
+                or candidate.mapping_evidence is None
                 or candidate.parser_version != "synthetic-odds-events-v1"
                 or candidate.normalizer_version != "synthetic-event-mappings-v1"
             ):

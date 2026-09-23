@@ -3,6 +3,11 @@
 **Status:** Accepted for bounded local implementation; implementation pending  
 **Date:** 2026-09-23
 
+Receipt rollout status: `SoccerResultEvidence`, format-3 codec and migration
+`0010_soccer_receipts` are implemented. CSV normalization and snapshot dispatch
+remain pending. Legacy byte/digest golden tests and local PostgreSQL rollout/
+downgrade guards cover the additive reader/schema increment.
+
 ## Context and Phase 2 gate
 
 The fixture raw-to-canonical-to-event-to-API exit is demonstrated locally. Stored

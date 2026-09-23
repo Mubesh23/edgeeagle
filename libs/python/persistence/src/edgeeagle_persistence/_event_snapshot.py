@@ -1,4 +1,4 @@
-"""Private receipt formats 1 and 2; not an API or provider wire contract."""
+"""Private receipt formats 1, 2, and 3; not an API or provider wire contract."""
 
 import json
 from dataclasses import asdict, replace
@@ -18,7 +18,7 @@ from edgeeagle_domain.sports import (
     SeasonId,
     SportId,
 )
-from edgeeagle_ingestion.events import EventCandidate
+from edgeeagle_ingestion.events import EventCandidate, SoccerResultEvidence
 from edgeeagle_ingestion.identity import acceptance_key as acceptance_key
 from edgeeagle_ingestion.identity import lineage_json_value
 from edgeeagle_persistence._mapping_snapshot import decode_evidence
@@ -42,13 +42,17 @@ def encode(candidate: EventCandidate) -> str:
     if candidate.mapping_evidence is None:
         del fields["mapping_evidence"]
         version = 1
+    if candidate.soccer_result is None:
+        del fields["soccer_result"]
+    else:
+        version = 3
     return _json({"format": version, "candidate": fields})
 
 
 def decode(snapshot: Any) -> EventCandidate:
     """Revalidate the JSON boundary; reject extra fields and noncanonical encodings."""
     try:
-        if type(snapshot["format"]) is not int or snapshot["format"] not in (1, 2):
+        if type(snapshot["format"]) is not int or snapshot["format"] not in (1, 2, 3):
             raise ValueError("unsupported receipt format")
         value = snapshot["candidate"]
         event = value["event"]
@@ -94,7 +98,14 @@ def decode(snapshot: Any) -> EventCandidate:
                 normalizer_version=value["normalizer_version"],
                 context_version=value["context_version"],
                 mapping_evidence=(
-                    decode_evidence(value["mapping_evidence"]) if snapshot["format"] == 2 else None
+                    decode_evidence(value["mapping_evidence"])
+                    if snapshot["format"] in (2, 3)
+                    else None
+                ),
+                soccer_result=(
+                    SoccerResultEvidence(**value["soccer_result"])
+                    if snapshot["format"] == 3
+                    else None
                 ),
             )
         )

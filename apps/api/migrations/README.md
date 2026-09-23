@@ -1,5 +1,10 @@
 # Database migrations
 
+Revision `0010_soccer_receipts` permits additive format-3 score-bearing mapped
+receipts under ADR-028, preserving format-1/2 rows. Downgrade refuses while format-3
+receipts exist. Full evidence validation stays in the strict receipt codec.
+No developer database is automatically migrated.
+
 Revision `0009_mapped_receipts` extends the normalization snapshot identity check
 to admit format 2 with an evidence object. It preserves format 1, existing rows,
 foreign keys, and immutability triggers. Full mapped-context validation remains

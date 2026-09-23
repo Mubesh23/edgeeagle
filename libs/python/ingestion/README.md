@@ -162,6 +162,12 @@ returned bytes to `verify_manifest`. Never reconstruct missing metadata from cur
 
 ## Initial event acceptance
 
+Optional `SoccerResultEvidence` adds validated full-time goals and an asserted
+per-row UTC offset to finished soccer candidates. Format-3 receipts preserve it;
+legacy candidates omit it from serialization and identity. This is retained result
+evidence, not settlement or historical eligibility. CSV ingestion follows
+[ADR-028](../../../docs/adr/ADR-028-football-data-results-import.md).
+
 Candidates now optionally carry `FixtureMappingEvidence`: resolved canonical
 references with selected mapping revisions and cutoff, plus explicit fixture
 label guards. Candidate validation ties that evidence to source, event references,

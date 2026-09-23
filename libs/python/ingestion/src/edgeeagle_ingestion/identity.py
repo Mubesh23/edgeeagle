@@ -29,6 +29,8 @@ def lineage_json_value(value: object) -> str:
 def acceptance_key(candidate: EventCandidate) -> str:
     instance(candidate, EventCandidate, "candidate")
     fields = asdict(candidate)
+    if candidate.soccer_result is None:
+        del fields["soccer_result"]
     if candidate.mapping_evidence is None:
         del fields["mapping_evidence"]
     del fields["event"], fields["entries"]

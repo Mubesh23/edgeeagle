@@ -19,6 +19,8 @@ HTTP integration tests; real provider adapters/contract tests are not implemente
 Migration `0002_source_venue` adds source/venue tables and capability sets; see
 [migration scope](apps/api/migrations/README.md). Validation migrates disposable
 test databases only, not the developer's application database.
+Migration `0003_sports_events` adds the sports/event hierarchy and cross-record
+foreign keys; runtime repository adapters and historical storage remain deferred.
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports

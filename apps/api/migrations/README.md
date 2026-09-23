@@ -37,12 +37,41 @@ Python's full Unicode whitespace validation. Categories are frozen in this
 revision rather than imported from evolving domain enums. Future additions must
 use a new migration. Codes/operator labels are not asserted globally unique.
 
-This is a schema-only increment, not a runtime repository or an HTTP ownership
+Revision `0003_sports_events` adds `sports`, `competitions`, `seasons`,
+`participants`, `events`, and `event_participants`. It retains opaque text IDs
+and the same text guards. Optional gender/division and venue-location fields may
+be NULL; supplied labels cannot be blank. Status, participant-type, and role
+labels remain extensible; no provider taxonomy or lifecycle policy is invented.
+
+Composite foreign keys enforce event/competition sport agreement and
+event/season competition agreement. The storage-only `event_participants.sport_id`
+must match **both** its event and participant through composite foreign keys.
+This redundant column enables database enforcement without triggers; it does not
+add a field to the canonical domain `EventParticipant` or change public contracts.
+Repositories must derive it from the validated context, not accept a conflicting
+caller value. Supporting unique constraints and referencing-side indexes are
+explicit. Restrictive updates/deletes prevent silently breaking existing links.
+
+The `(event_id, participant_id)` primary key prevents duplicate event entries,
+even under different roles. Repeated roles and any participant count are allowed;
+empty/partial events remain representable until the domain's resolved-context
+validation runs. Role validity and roster completeness remain application rules.
+
+Schedule columns use finite `timestamptz` instants; season end must not precede
+start. Events may fall outside season dates (for example, rescheduling). PostgreSQL
+does not retain the original timezone/offset and may interpret naive SQL input
+using the session timezone: future adapters must still reject naive datetimes
+through the domain constructors. Current-state tables are not historical datasets
+and do not establish `available_at`, snapshot versions, or backtest eligibility.
+
+These are schema-only increments, not a runtime repository or an HTTP ownership
 boundary: API startup still owns no business data or database connection.
-Sports/event tables, mapping history, repository adapters, and seed workflows
+Mapping history, repository adapters, and seed workflows
 remain later increments. Revisions own explicit DDL; ORM metadata and migration
 autogeneration are not enabled.
 
+An explicit downgrade from `0003_sports_events` drops its six sports tables and
+their data, leaving the source/venue tables intact.
 An explicit downgrade below `0002_source_venue` drops these four tables and their
 data. Do not downgrade populated application databases without human review and
 a recovery plan. Automated tests perform this only in disposable databases.
@@ -55,7 +84,8 @@ human review; database resets are not part of normal validation.
 Unit tests check the single migration head and offline SQL generation with
 network disabled. Integration tests create a uniquely named temporary database,
 upgrade from the foundation, repeat the upgrade, verify committed state and
-PostgreSQL constraints, downgrade to base, and reapply head. An unrelated sentinel
+PostgreSQL constraints and FK indexes, downgrade to the source/venue revision
+and reapply, then downgrade to base and reapply head. An unrelated sentinel
 table proves the migration does not remove tables it does not own. They
 dispose connections and delete only that temporary database. The developer's
 `edgeeagle` database is not downgraded or reset by tests.

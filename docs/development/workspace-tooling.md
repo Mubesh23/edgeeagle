@@ -67,7 +67,8 @@ passed to `scripts/test-unit` apply only to pytest. No client tests use real HTT
 PostgreSQL and Floci smoke tests now run at the end of validation. See
 [local development](local-development-testing.md) for ports and lifecycle.
 `scripts/migrate` applies local Alembic migrations, now including independent
-source/venue tables and their capability sets. See [migration scope and safety](../../apps/api/migrations/README.md).
+source/venue tables, capability sets, and the sports/event hierarchy with composite
+foreign keys. See [migration scope and safety](../../apps/api/migrations/README.md).
 Migration offline-SQL tests run with unit tests and isolated-database round trips
 run with integration tests. Neither bootstrap nor API startup migrates a database.
 Provider fixture routing tests now run with unit tests, and real loopback HTTP

@@ -12,6 +12,8 @@ from psycopg import sql
 from sqlalchemy import URL, Connection, create_engine, inspect, text
 from sqlalchemy.exc import IntegrityError
 
+from tests.integration.sports_schema import assert_sports_constraints
+
 
 def assert_source_venue_constraints(connection: Connection) -> None:
     """Exercise actual PostgreSQL constraints with savepoints after each rejection."""
@@ -115,19 +117,27 @@ def test_migration_upgrade_repeat_downgrade_and_reapply() -> None:
                 command.upgrade(config, "0001_foundation")
                 connection.execute(text("CREATE TABLE migration_sentinel (value text NOT NULL)"))
                 connection.execute(text("INSERT INTO migration_sentinel VALUES ('preserved')"))
+                command.upgrade(config, "0002_source_venue")
+                assert_source_venue_constraints(connection)
                 command.upgrade(config, "head")
                 command.upgrade(config, "head")
                 assert connection.scalars(
                     text("SELECT version_num FROM alembic_version")
-                ).all() == ["0002_source_venue"]
-                assert_source_venue_constraints(connection)
+                ).all() == ["0003_sports_events"]
+                assert_sports_constraints(connection)
             # A separate transaction must observe the committed migration state.
             with engine.begin() as connection:
                 config.attributes["connection"] = connection
                 assert connection.scalar(text("SELECT version_num FROM alembic_version")) == (
-                    "0002_source_venue"
+                    "0003_sports_events"
                 )
                 assert connection.scalar(text("SELECT count(*) FROM data_sources")) == 4
+                assert connection.scalar(text("SELECT count(*) FROM event_participants")) == 12
+                command.downgrade(config, "0002_source_venue")
+                assert connection.scalar(text("SELECT count(*) FROM data_sources")) == 4
+                assert "sports" not in inspect(connection).get_table_names()
+                command.upgrade(config, "head")
+                assert_sports_constraints(connection)
                 command.downgrade(config, "base")
                 assert connection.scalar(text("SELECT count(*) FROM alembic_version")) == 0
                 assert set(inspect(connection).get_table_names()) == {
@@ -139,9 +149,10 @@ def test_migration_upgrade_repeat_downgrade_and_reapply() -> None:
                 )
                 command.upgrade(config, "head")
                 assert connection.scalar(text("SELECT version_num FROM alembic_version")) == (
-                    "0002_source_venue"
+                    "0003_sports_events"
                 )
                 assert_source_venue_constraints(connection)
+                assert_sports_constraints(connection)
         finally:
             engine.dispose()
             admin.execute(sql.SQL("DROP DATABASE {}").format(sql.Identifier(database)))

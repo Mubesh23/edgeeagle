@@ -30,8 +30,10 @@ conditional writes and integrity-checked reads; see
 [ADR-015](docs/adr/ADR-015-raw-payload-storage.md). Floci tests use disposable
 buckets only; the storage adapter introduces no production bucket or orchestration.
 The [ingestion library](libs/python/ingestion/README.md) composes bounded local-file
-acquisition with raw retention. This fixture -> raw path does not yet normalize,
-write canonical records, or publish events.
+acquisition with raw retention. A versioned fixture-only event adapter now produces
+canonical candidates using explicit bindings; see
+[ADR-017](docs/adr/ADR-017-synthetic-event-normalization.md). It does not write
+canonical records, publish events, or replace production mapping history.
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports

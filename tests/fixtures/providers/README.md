@@ -14,9 +14,11 @@ their retention/redistribution permission reviewed before they are committed.
 This increment makes no claims about provider data licensing or live compatibility.
 
 These are test inputs, not historical research datasets: the displayed quote
-timestamps must not be treated as real observed/available-at evidence. No canonical
-normalizer or live provider contract test is implemented yet. The
+timestamps must not be treated as real observed/available-at evidence. No live
+provider contract test is implemented yet. The
 [offline importer](../../../libs/python/ingestion/README.md) can retain these
 exact bytes through the raw-storage port; it is not a live provider adapter.
+The fixture-only event projection validates retained bytes and uses explicit
+canonical bindings; it does not normalize bookmakers, markets, or prices.
 
 See [mock server usage](../../mock_providers/README.md).

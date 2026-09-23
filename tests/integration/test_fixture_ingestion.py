@@ -9,8 +9,10 @@ from edgeeagle_domain.provenance import DataSourceId
 from edgeeagle_domain.raw import RawCapture
 from edgeeagle_ingestion.offline import LocalFileImporter
 from edgeeagle_ingestion.service import OfflineDatasetImporter, ingest_raw
+from edgeeagle_ingestion.synthetic_events import normalize_fixture_events
 from edgeeagle_persistence.raw import S3RawPayloadStore
 from tests.integration.test_raw_storage import raw_bucket as raw_bucket
+from tests.unit.test_event_normalization import binding
 
 
 def test_fixture_ingestion_retains_exact_bytes_and_replays(
@@ -31,4 +33,11 @@ def test_fixture_ingestion_retains_exact_bytes_and_replays(
     assert receipt.capture.observed_at is None
     assert receipt.capture.available_at is None
     assert ingest_raw(importer, store) == receipt
+    assert len(client.list_objects_v2(Bucket=bucket)["Contents"]) == 1
+    candidates = normalize_fixture_events(store, receipt, (binding(),))
+    assert candidates[0].raw == receipt
+    assert candidates[0].event.event_id == binding().event_id
+    assert candidates[0].raw.capture.available_at is None
+    assert store.get(receipt) == path.read_bytes()
+    assert normalize_fixture_events(store, receipt, (binding(),)) == candidates
     assert len(client.list_objects_v2(Bucket=bucket)["Contents"]) == 1

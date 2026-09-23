@@ -31,10 +31,36 @@ should replay retained references or pinned inputs, not mutable local files.
 Ingestion time is supplied by the caller; synthetic fixture quote times must
 not be promoted to observed/available-at evidence.
 
-Current scope is fixture -> raw only. There is no schema validation, normalization,
-canonical write, event publication, quarantine, HTTP acquisition, provider quota
-logic, real provider adapter, or source/venue catalog registration. Other
-capability-specific interfaces will be added with their first consumers.
+There is no canonical write, event publication, durable quarantine, HTTP
+acquisition, provider quota logic, real provider adapter, or source/venue catalog
+registration. Other capability-specific interfaces will be added with their
+first consumers.
+
+## Synthetic event candidates
+
+`synthetic_events.normalize_fixture_events(store, reference, bindings)` reads
+retained raw bytes and returns immutable `events.EventCandidate` records.
+This fixture-only adapter implements the event subset of the authored odds
+fixture, not a live provider contract or market/quote normalizer. See
+[ADR-017](../../../docs/adr/ADR-017-synthetic-event-normalization.md).
+
+Each `FixtureEventBinding` explicitly supplies the source-scoped event key,
+exact competition/home/away labels, canonical event ID, sport/competition/season,
+canonical home/away participants, status, and context version. No IDs, seasons,
+statuses, or availability timestamps are inferred. Labels are exact guards on a
+caller-supplied binding, not global participant identifiers or fuzzy matching.
+The fixture context is not authenticated review evidence or production mapping
+history. Preserve immutable versioned contexts alongside retained references.
+
+The adapter verifies checksum and length before parsing, rejects malformed or
+ambiguous batches, and validates canonical relationships with the domain validator.
+All candidates retain the raw reference, source-scoped provider event key, parser
+version `synthetic-odds-events-v1`, normalizer version
+`synthetic-event-bindings-v1`, and caller's context version. Unknown fields stay
+in raw storage and are ignored by this event projection; prices are not validated.
+Errors return no partial batch and leave raw storage unchanged. Candidates are
+neither persisted events nor historically eligible datasets. Database writes,
+durable resolution lineage, event publication, and API exposure remain next steps.
 
 Root commands include this package in lint/typecheck, tests, and Python builds:
 

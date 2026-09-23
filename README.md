@@ -8,7 +8,9 @@ Start with the [documentation index](docs/README.md),
 [PRD](docs/product/PRD.md), [TDD](docs/architecture/TDD.md), and
 [repository instructions](AGENTS.md).
 
-Implementation is beginning with roadmap Phase 1. The
+Roadmap Phase 1 foundation is implemented and has passed local fresh-checkout
+bootstrap/validation without AWS credentials or paid provider calls. Hosted CI
+and native-device validation are not yet demonstrated. The
 [readiness review and incremental plan](docs/development/foundation-readiness.md)
 records the initial state, scope discrepancies, acceptance gates, and progress.
 Commands described in the architecture are targets until explicitly implemented.
@@ -39,3 +41,8 @@ with an empty tool list; business tools remain deferred.
 
 The [CDK foundation](infra/cdk/README.md) provides credential-free synthesis of
 an empty stack. It creates no AWS resources and is not deployable yet.
+
+The [CI workflow](docs/development/ci.md) runs the root validation commands.
+Validation includes frozen [OpenAPI compatibility](contracts/baselines/README.md)
+and [dependency security scans](docs/development/security-scanning.md); the latter
+require access to public advisory services, not paid providers.

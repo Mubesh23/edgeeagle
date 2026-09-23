@@ -513,3 +513,42 @@ Validation: supported Node 20.20.1 frozen bootstrap passed; explicitly selected
 Node 20.14.0 was rejected with ERR_PNPM_UNSUPPORTED_ENGINE before installation.
 Formatting and workspace checks passed. A new clone will use the supported
 runtime explicitly; no machine-wide runtime configuration was changed.
+
+## Phase 1 fresh-checkout evidence — 2026-09-22
+
+At 73b2d0b, a new local clone in a mktemp-created directory passed
+scripts/bootstrap followed by the full scripts/validate. The environment was
+cleared with env -i and allowed only PATH (explicitly selecting Node 20.20.1),
+TMPDIR, and CI=true. Python was 3.11.5. No AWS/provider credentials or deployed
+environment were supplied. This is a macOS local checkout test, not a hosted
+GitHub Actions or Linux run.
+
+No node_modules, .venv, .turbo, or build outputs were copied. Installation reused
+the machine's package download caches; Docker images and existing local named
+volumes were reused. All package checks executed in the new checkout, with
+later steps reusing outputs from earlier steps of that same run. This is not an
+empty-cache install or empty-database test. Migration integration still uses its
+own temporary database and does not reset development data.
+
+Passed: generated drift, formatting, lint, strict typechecks, 16 Python unit
+tests, 9 script tests, 2 API-client tests, 6 web tests, 2 mobile tests, 2 MCP
+tests, 1 CDK assertion, 9 Python integration tests, 3 comparator regressions,
+OpenAPI compatibility, credential-free synth, npm/Python advisory scans, and all
+builds (including iOS/Android bundle exports). No known advisories were reported.
+Tracked files were unchanged. With HOME absent, Docker created local .docker
+state only inside the temporary checkout; no such state entered the repository.
+Both temporary clones and their generated files were removed after validation;
+the original repository and persistent local service volumes were preserved.
+
+The roadmap Phase 1 fresh-checkout exit gate is demonstrated locally. The broader
+TDD foundation checklist remains subject to the recorded Phase 2 sequencing for
+event envelopes/idempotency/DLQs and correlation logging. No new ADR or production
+architecture decision was made. No push, release, deployment, branch-protection
+change, provider contract call, or hosted workflow run was performed.
+
+Remaining limits: hosted Ubuntu/Node 22 CI evidence, native-device/browser E2E,
+production infrastructure, live-provider compatibility, and comprehensive security
+testing are not claimed. The resource-free CDK warning and Python deprecation
+warnings remain visible. The dependency compatibility patch must be removed when
+upstream supports the fixed decoder natively. Next roadmap increment: Phase 2
+sport-neutral canonical domain primitives and separate DataSource/Venue concepts.

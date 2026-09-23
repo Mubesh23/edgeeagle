@@ -29,6 +29,7 @@ Fixture normalization: [ADR-017 — event candidates](adr/ADR-017-synthetic-even
 Transactional acceptance: [ADR-018 — event receipts and replay](adr/ADR-018-event-acceptance-lineage.md).
 Publication intents: [ADR-019 — initial event outbox](adr/ADR-019-event-outbox.md).
 Delivery coordination: [ADR-020 — fenced leases](adr/ADR-020-outbox-delivery-leases.md).
+Dispatcher orchestration: [ADR-021 — transaction boundary](adr/ADR-021-outbox-dispatch-boundary.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.

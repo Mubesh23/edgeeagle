@@ -96,9 +96,33 @@ and API exposure remain next steps.
 claim one intent, acknowledge a live claim, schedule its retry, and inspect state.
 `DeliveryClaim` and `DeliveryState` are validated immutable application values;
 their timestamps are operational, not research availability. Persistence implements
-the port with PostgreSQL timing. No dispatcher or publisher exists yet; callers
-must commit a claim before any external send, then complete it in a new transaction.
+the port with PostgreSQL timing. The dispatcher below sequences transactions;
+no concrete broker publisher exists yet.
 See [ADR-020](../../../docs/adr/ADR-020-outbox-delivery-leases.md).
+
+## Bounded dispatch
+
+`dispatch.dispatch_one(transactions, publisher, lease_for=..., retry_after=...)`
+claims at most one intent, commits before sending, and acknowledges in a fresh
+transaction. It returns IDLE, PUBLISHED (broker acceptance, not consumption), or
+RETRY_SCHEDULED. Only `RetryablePublicationError` schedules a retry; unexpected
+errors, configuration errors, interrupts, lease loss, and commit failures propagate.
+No loop, sleep, terminal discard, or hidden resend is performed.
+
+Supply a fresh commit-on-success, rollback-on-error repository context each time;
+it must close its connection and never suppress exceptions or join an outer
+transaction. For PostgreSQL, a caller-owned `@contextmanager` can yield
+`PostgresOutboxDeliveryRepository(connection)` inside `with engine.begin()`.
+The publisher receives the immutable claim, preserves notification identity,
+checks broker acceptance, and bounds its transport calls within the lease.
+Neither protocol creates clients or discovers credentials.
+
+Crash recovery may resend the same notification after lease expiry. Consumers
+must deduplicate; this is not exactly-once delivery. EventBridge transport, worker
+composition, consumer processing, DLQ, and monitoring remain unimplemented.
+See [ADR-021](../../../docs/adr/ADR-021-outbox-dispatch-boundary.md).
+`scripts/test-integration -k dispatch` verifies actual PostgreSQL commit/rollback
+boundaries with a recording publisher, not Floci event delivery.
 
 Root commands include this package in lint/typecheck, tests, and Python builds:
 

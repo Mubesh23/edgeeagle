@@ -38,8 +38,11 @@ The separate acceptance repository persists canonical candidates and immutable
 receipts. Its publication-aware `accept_with_notification` method now also saves
 an immutable outbox intent atomically; legacy `accept` remains persistence-only.
 Delivery coordination now supports database-timed leases, fenced acknowledgements,
-and scheduled retries in a separate operational table. No dispatcher or AWS
-publication is implemented yet. See [ADR-019](docs/adr/ADR-019-event-outbox.md) and
+and scheduled retries in a separate operational table. A bounded transport-neutral
+dispatcher now commits claims before sending and completes them in a new transaction;
+the AWS publisher is not implemented yet. See
+[ADR-021](docs/adr/ADR-021-outbox-dispatch-boundary.md),
+[ADR-019](docs/adr/ADR-019-event-outbox.md) and
 [ADR-020](docs/adr/ADR-020-outbox-delivery-leases.md).
 The React/Vite web shell uses the generated API client for liveness; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.

@@ -54,6 +54,40 @@ Reviewer names remain provenance, not proof of authorization.
 
 ## Alternatives
 
+## Repository append/replay contract
+
+The internal repository will accept a complete `ProviderMappingRevision`. Its
+`(key, revision)` is the stable replay identity and optimistic concurrency token.
+Within a caller-owned READ COMMITTED transaction, create the key if absent, lock
+its row, load and validate complete history, then compute the next revision as
+`len(history) + 1`. Accept the proposed revision only if it equals that number.
+There is no automatic renumbering or blind retry of a conflicting decision.
+
+An already-stored revision is a successful replay only when every domain field
+matches. Compare aware timestamps as UTC instants and Decimal confidence by value;
+timezone labels and numeric display scale are not separate decision metadata.
+A changed field or skipped/stale new revision raises an explicit conflict. A
+later legitimate correction uses a new revision, even if its target repeats.
+Validate the complete stored history before accepting a replay; malformed future
+history must still fail closed. Preserve all original decision timestamps on retry.
+
+Revision allocation is therefore compare-and-append under a row lock, not an
+unconditional next-number API. Callers may propose the next number from a previous
+read but must handle conflict explicitly. This needs no new replay table/column.
+READ COMMITTED is required for writes so a waiter sees newly committed history
+after acquiring the lock. Other isolation levels remain usable for reads, including
+pinned REPEATABLE READ snapshots. The caller owns timeout, transaction retry, and
+multi-key lock ordering; authentication/reviewer approval remains outside this port.
+
+## Alternatives considered for replay
+
+- Content hashes: rejected because equal-looking later decisions can be legitimate
+  new revisions; content alone is not transport identity.
+- Separate transport UUID: deferred until an ingestion request contract requires
+  it; key/revision already identifies the immutable decision being redelivered.
+
+## Storage alternatives
+
 - Generic `(kind, id)` target: rejected because it cannot enforce canonical FKs.
 - Separate history tables per target kind: deferred to avoid six copies of the
   revision/provenance workflow; sparse typed columns cover the six current targets.

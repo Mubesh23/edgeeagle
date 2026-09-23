@@ -68,8 +68,12 @@ readiness, and the Floci delivery-DLQ gap remain separate work.
 Implementation status: the port-level reference resolver and offline tests are
 implemented in `edgeeagle_ingestion.fixture_references`. Format-2 candidate evidence
 and the dual-format codec are implemented. Migration `0009_mapped_receipts` permits
-both formats without rewriting receipts. Pinned PostgreSQL resolution composition
-and mapped normalization remain pending.
+both formats without rewriting receipts. The ingestion-owned mapped fixture
+normalizer now verifies raw bytes/manifest coverage before resolving the complete
+batch through one `FixtureReferenceReads` context. It closes the snapshot before
+returning candidates with evidence and version `synthetic-event-mappings-v1`.
+The legacy parser and normalizer versions remain unchanged. Concrete pinned
+PostgreSQL composition and mapped fixture-to-API evidence remain pending.
 
 Format 2 adds `candidate.mapping_evidence`: exact competition/home/away guards and
 the resolved references (canonical records, cutoff, and complete selected revision

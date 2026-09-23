@@ -74,12 +74,26 @@ fail closed; no writes, retries, label matching, or event creation occur.
 
 Supply both repository ports from the same pinned read-only snapshot; this
 port-level helper cannot enforce PostgreSQL isolation. It is tested offline and
-is **not yet wired into normalization or receipt persistence**. Do not discard its
-revision evidence to use legacy receipts. Explicit fixture event IDs, label guards,
+feeds the mapped normalizer below. Do not discard its revision evidence to use
+legacy receipts. Explicit fixture event IDs, label guards,
 status, and context versions remain necessary. See
 [ADR-025](../../../docs/adr/ADR-025-mapping-backed-fixture-context.md) for the
 approved format-1 compatibility and incremental format-2 rollout. Run
 `scripts/test-unit tests/unit/test_fixture_references.py` for focused coverage.
+
+`synthetic_events.normalize_mapped_fixture_events(store, reference, requests,
+reads, as_of=...)` accepts frozen `MappedFixtureRequest` manifests instead of
+canonical reference records. Each manifest supplies source-scoped reference keys
+and the explicit event ID, labels, status, and context version. The function reads
+and verifies raw bytes and exact batch coverage before opening one `reads()`
+snapshot. It resolves all references through `FixtureReferenceResolver`, closes
+the snapshot, and returns candidates with `FixtureMappingEvidence` and normalizer
+version `synthetic-event-mappings-v1`. Parser and legacy normalizer versions do
+not change. Empty batches need no snapshot; any failure returns no partial batch.
+No canonical writes, mapping decisions, publication, or retries occur here.
+The factory must own a fresh pinned read-only snapshot for the entire batch;
+concrete PostgreSQL composition follows separately. Retain returned candidates
+for exact retries: a fresh database snapshot is not a historical replay dataset.
 
 ## Initial event acceptance
 

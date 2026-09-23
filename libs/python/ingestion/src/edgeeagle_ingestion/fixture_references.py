@@ -1,9 +1,10 @@
 """Read-only fixture reference resolution; mapped receipt wiring is separate (ADR-025)."""
 
 from collections.abc import Callable
+from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TypeVar
+from typing import Protocol, TypeVar
 
 from edgeeagle_domain._validation import aware_datetime, instance
 from edgeeagle_domain.mapping_repository import MappingRepository
@@ -46,6 +47,15 @@ class FixtureReferenceKeys:
             raise ValueError("reference keys must be distinct")
         if len({key.data_source_id for key in self.ordered()}) != 1:
             raise ValueError("reference keys must share a source")
+
+
+class FixtureReferenceResolver(Protocol):
+    def resolve(
+        self, keys: FixtureReferenceKeys, *, as_of: datetime
+    ) -> "ResolvedFixtureReferences": ...
+
+
+FixtureReferenceReads = Callable[[], AbstractContextManager[FixtureReferenceResolver]]
 
 
 @dataclass(frozen=True, kw_only=True)

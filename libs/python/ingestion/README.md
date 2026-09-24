@@ -367,9 +367,9 @@ Use persistence `odds_references.odds_reference_reads(engine)` for one REPEATABL
 READ, read-only snapshot across a capture, with bounded SQL/idle waits. Complete
 these reads before the acceptance transaction; do not perform raw storage I/O
 inside the snapshot. Caller owns engine lifecycle and connection/pool timeouts.
-Returned reference evidence is currently in-memory only; composition with the
-capture manifest and a versioned retained codec are still required before quote
-normalization or persistence can use it.
+Returned reference evidence is currently in-memory only. Capture normalization
+now composes these reads with the manifest; a retained codec and persistence
+rollout remain separate increments.
 
 `odds_guards.OddsEventGuard` records explicit provider HOME/AWAY labels associated
 with canonical participant IDs, a source-scoped event key and the expected kickoff.
@@ -378,7 +378,7 @@ pinned references without repository reads. Labels must match exactly (not canon
 display names); participant roles, event/competition identity and all three kickoff
 values must agree. Kickoff must be strictly after the supplied capture/fixture instant.
 This pure guard does not establish rights, settlement semantics or historical
-availability, and is not yet wired into normalization or persisted receipts.
+availability. It is now used by normalization, but not yet persisted in receipts.
 Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_guards.py`
 for its offline tests.
 
@@ -406,6 +406,30 @@ responses are valid: retain the manifest even when no native events are returned
 This is not canonical quote normalization, receipt serialization or acquisition.
 Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_manifest.py`
 for offline coverage; even the provider-origin branch tests use invented evidence.
+
+`odds_normalization.normalize_odds_capture(store, manifest, guards, reads, as_of=...)`
+verifies raw bytes before opening one caller-supplied reference snapshot for the
+entire capture. Exact event guards and source-scoped competition/event/bookmaker
+keys must cover the whole response; collapsed events, changed labels, missing
+bookmaker mappings and inconsistent cutoffs fail without returning a partial batch.
+Projection occurs after the snapshot closes. No canonical records are written.
+
+The in-memory result retains the manifest, full selected reference evidence and
+regulation-time three-way selections/quotes with exact Decimal prices. Known
+market-level update times populate quote `observed_at`; bookmaker timestamps
+are retained separately and never used as a market-level fallback. Raw capture
+timestamps do not imply per-quote effective time or availability: both remain null.
+Empty captures and no-quote events retain their evidence without invented prices.
+
+Versioned observation IDs bind the complete manifest/raw identity and native
+event/bookmaker/outcome, not derived prices or canonical mappings. A mapping
+correction therefore changes the projection rather than silently allocating a
+second observation for the same capture. Future acceptance must compare the full
+projection on retry. Legacy synthetic identities/receipts are unchanged.
+`replay_odds_capture(store, result)` re-reads raw bytes and compares the full
+projection using only retained references, including after current mappings change
+or are revoked. It is not a persistence command or authenticated evidence codec.
+Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_normalization.py`.
 
 Run `scripts/test-integration -k odds_reference` to check snapshot isolation,
 concurrent revocation and transaction guards against disposable PostgreSQL.

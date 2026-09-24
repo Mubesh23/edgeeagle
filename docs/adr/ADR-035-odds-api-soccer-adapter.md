@@ -173,6 +173,27 @@ reviewed contract. The reader verifies retained byte size/hash before whole-resp
 parsing and rejects undeclared bookmakers. Empty responses remain valid and do not
 erase the caller's manifest. No acquisition, reference lookup or writes occur.
 
-These values are not yet serialized or wired into canonical normalization/quote
-acceptance. Versioned receipts, database rollout, API extension and end-to-end goal
-validation remain pending. Legacy synthetic receipts and quote identities are unchanged.
+Canonical in-memory normalization now reads/verifies raw bytes first, resolves all
+events through one caller-supplied reference snapshot, closes it, and projects
+exact Decimal prices into regulation-time three-way markets/selections/quotes.
+The complete capture must have exact guards, matching source-scoped keys and
+bookmaker mappings, non-collapsing event identities and one mapping cutoff.
+No writes occur and no partially normalized prefix is returned on failure.
+
+Market-level updates alone populate quote observed_at; bookmaker-level updates
+remain separate evidence, never a silent market-level fallback. Quote effective_at
+and available_at stay null regardless of raw-capture timestamps. Manifest, full
+reference evidence and both timestamp scopes survive in the in-memory result,
+including valid zero-observation captures. Observation IDs bind the versioned
+manifest/raw identity and native event/bookmaker/outcome, excluding derived prices
+and canonical mappings; retry acceptance must compare full projections to detect
+mapping changes instead of quietly inserting a second observation.
+
+Replay re-reads verified raw bytes and compares the entire projection using retained
+context, with no current mapping queries. Tests cover exact high-precision decimals,
+single-snapshot multi-event captures, changed/revoked mappings, altered projections,
+unsupported replay versions, scoped timestamps and empty/no-quote results.
+
+These values are not yet serialized or wired into quote acceptance. Versioned
+receipts, database rollout, API extension and end-to-end goal validation remain
+pending. Legacy synthetic receipts and quote identities are unchanged.

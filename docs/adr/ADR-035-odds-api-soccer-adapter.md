@@ -1,6 +1,6 @@
 # ADR-035 — Fixture-first The Odds API soccer odds adapter
 
-**Status:** Proposed; API compatibility decision requires human review before implementation  
+**Status:** Accepted; pre-release API extension approved; implementation in progress  
 **Date:** 2026-09-23
 
 ## Goal
@@ -30,7 +30,7 @@ The standard bookmaker timestamp differs from the synthetic market-level
 timestamp; source timestamp scope must be retained explicitly. Provider response
 shape alone does not prove that a game is pre-match or historically available.
 
-## Proposed boundary
+## Decision
 
 - Add a separate versioned provider parser/normalizer and retained candidate
   format; reuse canonical Market/Selection/Quote values and transactional rules.
@@ -70,27 +70,24 @@ shape alone does not prove that a game is pre-match or historically available.
   credentials or storage configuration. No pricing, EV, execution, auth/CORS,
   deployment, outbox or live/in-play revaluation changes are included.
 
-## Decision requiring approval
+## Approved API compatibility exception
 
-Choose one before changing the quote response contract:
+The user explicitly approved extending the existing endpoint on 2026-09-23.
+Permit the deliberate pre-release change from the usage constant SYNTHETIC_ONLY
+to the enum SYNTHETIC_ONLY | REPLAY_ONLY and regenerate clients together. Existing
+synthetic records and receipt identities remain unchanged; genuine captures must
+never be labelled synthetic. Do not introduce a duplicate versioned endpoint.
 
-1. Approve a deliberate pre-release breaking extension of the existing quote
-   endpoint's usage field, regenerate clients together and record the exact
-   compatibility exception. Do not weaken the comparator or rewrite the frozen
-   foundation checkpoint. Existing synthetic records still report SYNTHETIC_ONLY;
-   genuine captures report REPLAY_ONLY, never synthetic provenance.
-2. Preserve the v1 contract and introduce a versioned observation endpoint with
-   the broader provenance contract. Specify how v1 remains synthetic-only when
-   the underlying store contains both kinds; do not silently filter legacy reads
-   without documenting the boundary.
-
-The goal does not authorize this protected breaking decision by implication.
-No permission to spend quota, use credentials or assert licensing follows from
-either API choice. Those decisions remain separate if needed.
+The exception covers only this response-value expansion, not arbitrary breaking
+changes. Compare against the preceding contract as well as the foundation
+checkpoint, account explicitly for the known const-removal/enum-addition findings,
+and reject unrelated breaks. Do not weaken the comparator or rewrite the frozen
+foundation checkpoint. No permission to spend quota, use credentials or assert
+licensing follows from this API approval. Those decisions remain separate.
 
 ## Incremental implementation and acceptance
 
-1. Resolve the API choice and finalize this ADR; validate documentation links.
+1. Record the approved API choice and finalize this ADR; validate documentation links.
 2. Provider parsing and authored fixtures: offline tests for response bounds,
    duplicates, exact decimals, empty results, unsupported markets and pre-match
    checks. Commit independently.

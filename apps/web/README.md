@@ -72,6 +72,22 @@ identity mismatch, prior-success invalidation, refresh, empty states, cancellati
 and safe text rendering. All test data is authored synthetic data.
 These are component/transport tests, not real-browser E2E tests.
 
+Local validation evidence (2026-09-23): all 24 web tests, lint, typing and build
+passed. A temporary loopback Vite/API smoke test served the app and exercised the
+generated client's catalog list/inspection through `/api`, returning 380 receipts
+and 20 participants from the retained season with backtest eligibility still false.
+Both temporary app servers were stopped afterward. This verifies HTTP/proxy
+composition, not browser rendering. Visual verification was attempted using the
+Browser skill, but its native connection was unavailable before session setup;
+no screenshot or real-browser interaction result is claimed.
+
+Full `scripts/validate` also passed: 875 Python unit tests, 141 integration tests,
+the existing one Floci expected failure, generated drift/compatibility checks,
+formatting, lint, typing, builds, credential-free synthesis and advisory scans.
+Changed web tasks ran; unchanged packages reused local Turbo cache. Existing
+Starlette deprecations and the resource-free CDK warning remain. Hosted CI and
+fresh-checkout validation were not run in this local session.
+
 `scripts/build` generates ignored `apps/web/dist/` from index.html, src/, and
 Vite configuration. Production hosting is not implemented: it must route
 `/api/*` to the backend with the same prefix rewrite. Vite's development proxy

@@ -96,6 +96,9 @@ older manifest formats and production catalog publication remain separate work.
 The additive [ADR-032](../adr/ADR-032-local-dataset-api.md) local HTTP consumer now
 supports listing and fresh inspection through the generated client contract,
 with explicit opt-in configuration and no hosted access or authentication changes.
+The [ADR-033](../adr/ADR-033-private-dataset-browser.md) local web consumer now
+shows retained provenance and replay-only warnings with explicit fresh inspection.
+This is a private data-foundation view, not completion of the Phase 8 terminal.
 
 ## Phase 3 — V1 Provider Adapters
 

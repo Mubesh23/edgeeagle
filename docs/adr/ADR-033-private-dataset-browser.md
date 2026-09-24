@@ -1,6 +1,6 @@
 # ADR-033 — Private local dataset browser
 
-**Status:** Accepted for implementation
+**Status:** Accepted; local browser implemented
 **Date:** 2026-09-23
 
 ## Decision

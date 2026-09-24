@@ -79,7 +79,8 @@ The default credential-free app returns 503 for unconfigured event reads; see
 `scripts/test-integration -k fixture_raw_to_api` exercises the composed local
 fixture path with retained provenance, exact reingestion, actual broker duplicates,
 consumer deduplication, and unchanged API reads. It does not close the Floci DLQ gap.
-The React/Vite web shell uses the generated API client for liveness; see
+The React/Vite web shell uses the generated API client for liveness and private
+read-only dataset browsing with explicit replay inspection; see
 [`apps/web/README.md`](apps/web/README.md) for its local development commands.
 The offline Expo mobile shell is included in root checks; its build exports
 iOS/Android bundles, not native binaries. See [mobile commands](apps/mobile/README.md).

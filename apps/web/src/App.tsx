@@ -1,10 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import type { createHealthReader } from "./health";
+import type { DatasetReader } from "./datasets";
+import { DatasetBrowser } from "./DatasetBrowser";
 
 export function App({
   readHealth,
+  datasetReader,
 }: {
   readHealth: ReturnType<typeof createHealthReader>;
+  datasetReader?: DatasetReader;
 }) {
   const health = useQuery({
     queryKey: ["api", "health"],
@@ -49,6 +53,7 @@ export function App({
           readiness.
         </p>
       </section>
+      {datasetReader && <DatasetBrowser reader={datasetReader} />}
       <footer>
         Foundation shell — market research, paper trading, and execution are not
         available yet.

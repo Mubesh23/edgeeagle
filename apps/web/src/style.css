@@ -80,3 +80,61 @@ footer {
 footer {
   margin-top: 40px;
 }
+.dataset-card {
+  margin-top: 24px;
+  padding: 24px 0;
+  border-top: 1px solid #34434f;
+}
+.dataset-card h3 {
+  margin-bottom: 0;
+}
+.restriction {
+  color: #ffd389;
+  font-weight: 650;
+}
+.root-hash,
+dd,
+code {
+  overflow-wrap: anywhere;
+}
+.facts {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(0, 3fr);
+  gap: 8px 16px;
+}
+dt {
+  color: #aebdca;
+}
+dd {
+  margin: 0;
+}
+summary {
+  cursor: pointer;
+  color: #76d9ba;
+}
+summary:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 4px;
+}
+.inspection {
+  margin-top: 24px;
+}
+.replay-result {
+  padding: 16px;
+  border-left: 3px solid #76d9ba;
+  background: #101820;
+}
+@media (max-width: 600px) {
+  main {
+    padding: 24px 16px;
+  }
+  .panel {
+    padding: 16px;
+  }
+  .facts {
+    grid-template-columns: 1fr;
+  }
+  dd {
+    margin-bottom: 8px;
+  }
+}

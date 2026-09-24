@@ -16,7 +16,7 @@ def test_baseline_has_one_head_and_can_emit_offline_sql(monkeypatch: MonkeyPatch
     )
     output = StringIO()
     config = Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"), output_buffer=output)
-    assert ScriptDirectory.from_config(config).get_heads() == ["0011_market_quotes"]
+    assert ScriptDirectory.from_config(config).get_heads() == ["0012_odds_captures"]
     command.upgrade(config, "head", sql=True)
     assert "CREATE TABLE alembic_version" in output.getvalue()
     assert "0001_foundation" in output.getvalue()
@@ -37,6 +37,8 @@ def test_baseline_has_one_head_and_can_emit_offline_sql(monkeypatch: MonkeyPatch
     assert "CREATE TABLE provider_mapping_keys" in output.getvalue()
     assert "CREATE TABLE event_normalizations" in output.getvalue()
     for table in ("markets", "market_selections", "market_receipts", "market_quotes"):
+        assert f"CREATE TABLE {table}" in output.getvalue()
+    for table in ("odds_capture_receipts", "odds_capture_quotes"):
         assert f"CREATE TABLE {table}" in output.getvalue()
     assert "CREATE TABLE event_outbox" in output.getvalue()
     assert "CREATE TABLE event_outbox_delivery" in output.getvalue()

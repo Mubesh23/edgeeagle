@@ -76,7 +76,9 @@ def test_market_api_serialization_and_query_forwarding() -> None:
         assert quote["provenance"]["raw"]["sha256"] == candidate.raw.sha256
         assert quote["provenance"]["raw"]["capture"]["available_at"] is None
         assert quote["provenance"]["usage"] == "SYNTHETIC_ONLY"
-        assert "bucket" not in result.text and "snapshot" not in result.text
+        # Check forbidden object keys, not substrings of simulated_snapshot_at.
+        assert '"bucket":' not in result.text and '"snapshot":' not in result.text
+        assert quote["provenance"]["simulated_snapshot_at"] is None
         assert reader.list_quotes.call_args.args[1].after_quote_id.value == "cursor"
         reader.list_markets.return_value = None
         reader.list_quotes.return_value = None

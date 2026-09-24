@@ -408,3 +408,21 @@ S3 access or mutable reference-name lookups. Run
 `scripts/test-integration -k market_query` for pagination, snapshot, precision and
 corruption checks. The explicit local API factory exposes these reads through
 [market endpoints](../../../apps/api/README.md#local-market-observations).
+
+## Odds API whole-capture acceptance
+
+`PostgresOddsCaptureRepository` implements ingestion's `OddsCaptureRepository`.
+Supply a caller-owned READ COMMITTED transaction and a fully validated capture;
+raw verification must precede entry. It stores format-2 whole-capture receipts
+and quotes separately from legacy synthetic receipts, sharing canonical markets
+and selections. Empty captures persist too. Sorted event locks, unique capture
+identity, full projection comparisons and an operation savepoint give atomic
+acceptance, conflict rejection and idempotent concurrent retries. The caller commits.
+
+New acceptance checks canonical context and the presence of the selected immutable
+mapping revisions. Those revisions belong to the earlier reference snapshot; a
+later correction/revocation is not silently substituted. Exact retained retries
+and `get` do not resolve current mappings. They do not certify current suitability,
+licensing, executability or historical availability. No S3 I/O occurs here.
+Run `scripts/test-integration -k odds_acceptance` for transaction, rollback,
+empty-capture, conflicting-retry and first-writer-race coverage.

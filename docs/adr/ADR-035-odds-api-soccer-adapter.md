@@ -215,5 +215,13 @@ checking full receipt/projection integrity. Additive provenance includes origin,
 mapping revision identities/cutoff, separate update scopes, capture/simulation
 time and settlement-profile version. Usage follows the approved enum extension;
 legacy authored observations remain SYNTHETIC_ONLY. No current mappings or raw S3
-reads enter API reads. Acceptance and end-to-end goal validation remain pending.
+reads enter API reads.
+
+Whole-capture acceptance now uses a caller-owned READ COMMITTED transaction and
+operation savepoint. New imports check canonical context and selected immutable
+mapping evidence from the earlier snapshot; subsequent mappings are not substituted.
+Sorted event locks and full projection comparisons reject conflicting retries;
+unique capture insertion also handles concurrent empty captures. Exact retained
+retries avoid current mapping resolution. No S3 I/O occurs inside acceptance.
+Import orchestration and end-to-end goal validation remain pending.
 Legacy synthetic receipts and quote identities are unchanged.

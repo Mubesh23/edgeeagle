@@ -1,6 +1,6 @@
 # ADR-034 — Retained synthetic market and quote ingestion
 
-**Status:** Accepted for implementation; executable support pending  
+**Status:** Accepted; pure domain values implemented, ingestion/storage/API pending  
 **Date:** 2026-09-23
 
 ## Goal and scope
@@ -132,3 +132,15 @@ Generate OpenAPI/TypeScript artifacts and verify additive compatibility.
 
 Commit each independently reviewable increment. Routine tests remain authored,
 credential-free and local. The existing Floci delivery-DLQ gap remains unresolved.
+
+## Implementation evidence
+
+`edgeeagle_domain.markets` implements frozen values, semantic market/selection
+identities and complete three-way selection validation. Identity v1 uses the exact
+objects `{identity_version: 1, event_id, market_type, period}` and
+`{identity_version: 1, market_id, outcome}` in sorted-key compact ASCII JSON;
+IDs are lowercase SHA-256 hex. Tests pin independent preimages for these identities.
+Quote IDs remain caller-supplied typed values until ingestion allocates them.
+Run the domain tests for identity, immutable values, exact Decimal prices, unknown
+and UTC timestamps, wrong ID types and invalid/incomplete market membership.
+This is the domain prerequisite, not a functioning ingestion or API path.

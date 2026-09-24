@@ -94,12 +94,24 @@ that transformation. Empty capability sets are valid and confer no permissions.
 Capabilities are descriptive string tags, not execution or authorization policy;
 the controlled vocabulary remains deferred until adapters require it.
 
-IDs wrap opaque strings and are distinct at runtime and under static typing.
+Reference IDs wrap opaque strings and are distinct at runtime and under static typing.
 They do not choose UUID/ULID encoding, generate IDs, establish uniqueness, or
 prove that an ID was internally allocated. Future persistence/application code
 must allocate stable canonical IDs and store provider IDs in explicit mappings.
 No provider catalog, real jurisdiction/licensing assertion, persistence mapping,
 external serialization contract, or API endpoint is introduced here.
+
+`edgeeagle_domain.markets` implements ADR-034's frozen three-way regulation-result
+Market/Selection values, versioned semantic identities and immutable Quote values.
+Market identity depends on canonical event/type/period, selection identity on
+market/outcome, never source, venue or price. Quote identity allocation belongs to
+versioned ingestion, not this domain constructor. `validate_market_selections`
+checks complete HOME/DRAW/AWAY membership against two supplied event entries;
+the adapter must separately establish soccer/TEAM context and persisted references.
+Odds require exact finite Decimal values greater than one; unknown timestamps stay
+null and known times normalize to UTC. No pricing, executability, persistence,
+provider normalization or backtest eligibility is implied. See
+[ADR-034](../../../docs/adr/ADR-034-synthetic-market-quotes.md).
 
 Run from the repository root:
 

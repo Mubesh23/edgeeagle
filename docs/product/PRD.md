@@ -143,17 +143,42 @@ V1 is soccer pregame analysis with:
 
 ## 12. Soccer Modeling
 
-The initial model should prioritize interpretability and research speed. Candidate baseline: team strength/Elo plus attack/defense, recency, home advantage, and xG-derived features where available, feeding a Poisson/Dixon-Coles-style score distribution.
+The initial model should prioritize interpretability and probability distributions:
+team strength/Elo, attack/defense and home advantage, followed by independent
+Poisson and Dixon-Coles score models. Dynamic/bivariate Poisson, xG-enhanced and
+Bayesian/richer statistical models are challengers. Probability-producing ML
+(logistic or gradient-boosted models), market-aware challengers and calibrated
+ensembles follow strong statistical baselines, not replace them by default.
+The [research ladder](../adr/ADR-008-soccer-baseline-model.md) is an evaluation
+sequence, not a requirement to productionize every model or select an ML library.
 
-The model output is a joint outcome distribution, not a bet recommendation.
+xG/xGA and shot-quality information are high-priority features when legally and
+operationally available with point-in-time evidence. An eligible goals/results
+dataset can support the earliest baseline without xG or paid provider dependence.
+No soccer model is considered an improvement without robust chronological
+forward/OOS improvement against appropriate simpler baselines and the no-vig
+market consensus on comparable tasks/horizons. Negative findings are valid.
+The market is a strong benchmark, not assumed correct or unbeatable.
+
+Models produce probabilities/distributions, never BET/NO_BET. Initial score models
+produce a joint score distribution; market-specific ML probabilities do not by
+themselves provide joint-model coverage. Market-aware models and ensembles must
+disclose odds inputs; their market comparison is not independent fundamentals skill.
 
 ## 13. Recency
 
-Recency weighting should be testable rather than assumed. Candidate mechanisms include rolling windows and exponential decay. Different features and sports may require different decay rates.
+Recency weighting is tested, not assumed. Compare rolling windows, exponential
+decay and dynamic latent team strength. Tune competition-aware parameters within
+chronological training/validation windows, never a universal decay rate.
 
 ## 14. Pricing
 
 A deterministic pricing engine maps outcome distributions to markets. It must support fair probability, fair odds, vig-removal comparisons, and reproducible pricing versions.
+
+No-vig methods are pluggable and versioned: MULTIPLICATIVE, SHIN and POWER are
+candidates, not universally ranked choices. Market consensus is a reproducible
+benchmark with pinned source/venue coverage, quotes, freshness, aggregation and
+de-vig policy, not an executable price. Missing benchmark coverage stays explicit.
 
 ## 15. Market Taxonomy
 
@@ -188,19 +213,59 @@ For a decimal price `d` and model win probability `p`, the basic EV representati
 
 Fees, push probability, partial settlement, exchange spread, and execution assumptions must be included where relevant.
 
+Raw estimated EV, confidence/reliability and actionable edge are distinct. Model
+probability and executable price determine estimated EV under stated costs;
+model uncertainty and market/de-vig uncertainty inform strategy qualification or
+abstention. No universal confidence-adjusted formula or fixed edge threshold is
+assumed. Market disagreement alone is insufficient to act.
+
 ## 20. Model Confidence
 
-The platform should distinguish model probability from confidence/reliability. Confidence may incorporate calibration, sample size, model stability, data freshness, uncertainty, and competition/market coverage.
+ModelUncertainty is first-class evidence distinct from outcome probability:
+calibration uncertainty, sample support, competition coverage, freshness, parameter
+uncertainty, stability, model disagreement and forecast-horizon effects. Preserve
+method/version, scope, missing evidence and limitations; no universal estimator
+or opaque confidence score is prescribed.
+
+ForecastHorizon distinguishes OPEN, T_MINUS_24H, T_MINUS_6H, T_MINUS_60M and
+LATEST_PREMATCH conceptually. Version exact cutoff/tolerance and kickoff-change
+policies, retain actual decision time and compare like horizons. Lineups, injuries,
+market information and CLV interpretation differ by horizon. These are Phase 4+
+requirements, not currently implemented model contracts.
 
 ## 21. Backtesting
 
-Backtesting must be chronologically valid and leakage-safe. Feature timestamps and quote timestamps must be no later than the simulated decision time, which must precede event start.
+Backtesting must be chronologically valid and leakage-safe: every feature, quote
+and context dependency requires evidenced `available_at <= decision_time`, and
+pregame decisions precede kickoff. Conceptual as-of reads must not substitute
+effective/observed time for availability or consult present state as historical
+truth. Separate later outcomes from decision inputs; unknown availability and
+existing replay-only datasets remain ineligible.
 
-Required metrics include ROI/P&L, CLV, calibration/Brier/log loss, drawdown, volatility, sample count, and segmented performance. Bootstrap/Monte Carlo uncertainty should be added as the research framework matures.
+Primary predictive metrics are log loss, Brier score and calibration/reliability,
+with deltas versus the no-vig market consensus and simpler statistical baselines.
+Economic/strategy metrics are estimated EV, CLV, realized ROI/P&L, drawdown,
+volatility and sample count. Segment by league, season, forecast horizon, market,
+odds bucket and selection type. Add dependence-aware bootstrap/confidence intervals
+as the framework matures. Accuracy or win rate is not the main optimization target.
+
+Positive CLV can indicate earlier information discovery, but alone is not proof of
+sustainable profitability. Retain closing-price policy and continue tracking
+outcomes, calibration, EV, sample size, uncertainty and robustness. Closing odds
+must not leak into earlier-horizon predictions. See
+[evaluation policy](../adr/ADR-036-soccer-model-evaluation-and-market-benchmarking.md).
 
 ## 22. Strategy
 
 Strategies are deterministic, versioned rules reusable across backtesting, paper trading, scanning, and later execution.
+
+Strategies qualify estimated edges using explicit reliability and execution
+assumptions, including abstention; models do not make betting decisions. Research
+fractional Kelly alongside simpler sizing benchmarks, not as an automatic default.
+Full Kelly is not the default. Any eventual Kelly-style size is constrained by
+maximum position, event, participant and correlated exposure, bankroll-at-risk,
+daily/weekly loss controls and confidence/model quality. No real-money or current
+risk implementation change follows from this requirement.
 
 ## 23. Opportunity
 

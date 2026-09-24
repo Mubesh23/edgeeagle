@@ -249,6 +249,13 @@ Research-sensitive records should support:
 
 Backtests query `available_at <= simulated_decision_time`.
 
+Apply that invariant to every consumed feature, quote, mapping/context dependency
+and training label as appropriate to its fit/decision cutoff. Conceptual
+`features.as_of(decision_time)` / `quotes.as_of(decision_time)` cannot read current
+state or backfill unknown availability. Outcome labels are separate later
+evaluation data. Frozen replay alone does not establish historical eligibility;
+ADR-026/029/034/035 restrictions remain unchanged.
+
 ## 18. Entity Resolution
 
 Maintain explicit provider-to-canonical mappings with confidence and validation metadata. Ambiguous mappings go to review rather than silent fuzzy matching in production logic.
@@ -265,9 +272,19 @@ Initial soccer output is a joint score distribution.
 
 ## 21. Soccer Baseline
 
-Baseline candidates: team strength/Elo, recency-aware attack/defense, home advantage, xG/xGA where available, and Poisson/Dixon-Coles-style scoring.
+Follow [ADR-008](../adr/ADR-008-soccer-baseline-model.md): no-vig market benchmark,
+Elo/simple strength, independent Poisson, Dixon-Coles, then dynamic/bivariate,
+xG-enhanced and richer statistical challengers. Probability-producing ML,
+market-aware challengers and calibrated ensembles follow strong baselines.
+Complexity earns promotion through repeatable chronological OOS improvement
+against both simpler models and the same-horizon market baseline, not in-sample
+fit or win rate. Experiments may fail without promotion.
 
-The baseline must be beaten out-of-sample before introducing materially more complex models.
+xG/xGA and shot quality are high-priority where rights, coverage and availability
+permit; eligible goals/results data can establish the first baseline without xG.
+Recency windows, decay and dynamic latent strength are competition-aware empirical
+choices tuned on earlier folds, never a universal constant. Direct market
+probability challengers do not automatically supply joint score distributions.
 
 ## 22. Model Registry
 
@@ -275,9 +292,23 @@ Track model version, sport/competition scope, training interval, feature schema,
 
 Model artifacts live in S3; metadata lives in PostgreSQL.
 
+Also retain model family/input dependencies (independent fundamentals versus
+market-aware, including ensembles), training cutoff/readiness, calibration and
+uncertainty method versions, supported horizons, benchmark snapshot/policy pins,
+paired OOS metrics, excluded cohorts and promotion evidence. No ML library is
+selected. These remain conceptual Phase 4 contracts, not existing storage fields.
+
 ## 23. Prediction Architecture
 
 Pregame inference is batch/job-oriented in V1. Upcoming event or data changes schedule prediction refresh. The request path reads persisted predictions rather than performing model inference.
+
+Reuse Prediction as the immutable forecast snapshot, with a versioned
+ForecastHorizon policy, actual decision time, generation time and kickoff context.
+OPEN/T_MINUS_24H/T_MINUS_6H/T_MINUS_60M/LATEST_PREMATCH are illustrative labels;
+cutoffs, tolerances, missing windows and rescheduling rules must be explicit.
+Historical simulation generated today is labelled separately from then-published
+forecasts. Attach ModelUncertainty evidence; do not confuse probability with
+reliability or silently manufacture unavailable uncertainty estimates.
 
 ## 24. Pricing Engine
 
@@ -287,9 +318,23 @@ Deterministic function:
 
 Support explicit vig-removal methods with method/version recorded in results.
 
+Candidate methods include MULTIPLICATIVE, SHIN and POWER. Retain parameters,
+numeric/failure policy and input pins. A derived MarketConsensusSnapshot aggregates
+compatible, complete, contemporaneous venue outcome sets under a versioned policy;
+retain source/venue deduplication, freshness, exclusions, coverage and method
+sensitivity. Consensus is not an executable quote. Implement the narrow research
+benchmark in Phase 4, then reuse it in Phase 5; no duplicate pricing business logic.
+
 ## 25. Opportunity Engine
 
 Combine model fair probability, executable/current market price, no-vig market probability, edge, EV, quote freshness, prediction freshness, and strategy filters.
+
+Distinguish raw estimated EV from reliability and actionable strategy qualification.
+EV uses the probability and offered executable price with applicable fees/slippage
+and settlement assumptions; model uncertainty and market/de-vig uncertainty inform
+qualification/abstention, not an invented EV adjustment term. No fixed universal
+threshold or confidence-adjusted formula is chosen. ADR-034/035 observations alone
+are not executable-price evidence.
 
 For exchange-style venues, prioritize bid/ask/depth over a decorative midpoint.
 
@@ -303,9 +348,23 @@ Backtests run against versioned historical datasets and a simulated clock. Never
 
 Large backtests run asynchronously on one-off containers and persist summary metadata to PostgreSQL plus artifacts to S3.
 
+[ADR-036](../adr/ADR-036-soccer-model-evaluation-and-market-benchmarking.md) defines
+chronological fitting/calibration/tuning and untouched OOS comparison. Primary
+metrics are log loss, Brier and calibration/reliability with paired deltas against
+simple and market baselines. Report EV, CLV, realized ROI/P&L, drawdown, volatility
+and sample size separately. Segment by league, season, horizon, market, odds bucket
+and selection type; add dependence-aware uncertainty intervals as research matures.
+Positive CLV is diagnostic, not proof of sustainable profit. Pin closing-price
+conventions and keep closing observations out of earlier decision inputs.
+
 ## 28. Portfolio and Risk
 
 Use append-only ledger concepts for cash-affecting state. Risk checks are centralized and cannot be bypassed by the agent or execution adapters.
+
+Fractional Kelly is a future sizing research benchmark, not an automatic production
+default; full Kelly is not the default. Any such sizing is constrained by position,
+event, participant and correlated exposure, bankroll-at-risk, daily/weekly loss
+limits and confidence/model quality. This design adds no implemented risk behavior.
 
 ## 29. Execution Abstraction
 

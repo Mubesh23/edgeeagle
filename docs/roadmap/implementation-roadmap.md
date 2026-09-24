@@ -143,19 +143,42 @@ Exit: contract tests pass within free/demo budgets and canonical market/event ma
 
 ## Phase 4 — Soccer Model
 
-- Data quality notebook/analysis
-- Baseline team strength
-- score distribution
-- calibration/evaluation
-- model registry/artifact persistence
+Follow [ADR-008](../adr/ADR-008-soccer-baseline-model.md) and
+[ADR-036](../adr/ADR-036-soccer-model-evaluation-and-market-benchmarking.md).
+This is future research scope; the active Phase 3 adapter goal remains unchanged.
 
-Exit: reproducible OOS metrics on frozen datasets.
+- Dataset/rights/data-quality and point-in-time availability analysis, including
+  missing coverage, reference dependencies and outcome/feature separation. Current
+  replay-only snapshots cannot be used for model training/backtest decisions;
+  establish an eligible research dataset contract first.
+- Define versioned forecast horizons and as-known kickoff/cutoff policies.
+- Reproducible no-vig market-consensus baseline with coverage and de-vig sensitivity.
+  Bring forward only the deterministic research pricing/de-vig slice needed for
+  this comparison; Phase 5 reuses it, not a second implementation.
+- Elo/simple team-strength probability baseline; independent Poisson; Dixon-Coles.
+- Evaluate dynamic/bivariate Poisson challengers; prioritize xG/xGA-enhanced models
+  when rights and eligible data support them. Goals/results-only baseline first
+  is permitted. Richer/Bayesian statistical models require justification.
+- Competition-aware chronological recency/feature/model selection, calibration,
+  explicit uncertainty representation and frozen OOS comparison framework.
+- Model registry/artifact persistence with family, market dependencies, feature,
+  dataset, horizon, calibration and evaluation lineage.
+- ML challengers only after statistical baselines; market-aware challengers remain
+  distinguishable; calibrated ensembles only if repeatable OOS evidence justifies.
+
+Exit: reproducible chronological OOS evaluation on frozen eligible datasets reports
+performance against documented statistical and no-vig market baselines, including
+coverage, calibration, uncertainty limitations and negative findings. Every promoted
+model demonstrates robust incremental performance under the declared policy.
+Not every challenger must be implemented or beat the market; the phase can complete
+with no challenger promoted. Unavailable benchmark data is a recorded prerequisite
+gap, not a pass or permission to use hindsight prices.
 
 ## Phase 5 — Pricing & Opportunity Engine
 
 - Market pricers
-- de-vig methods
-- EV/edge
+- versioned pluggable de-vig methods, reusing the Phase 4 research baseline
+- raw EV versus uncertainty-aware strategy qualification/actionable edge
 - quote freshness/executability model
 - opportunity queries
 
@@ -167,7 +190,11 @@ Exit: model-vs-market results available through API.
 - simulated clock
 - execution assumptions
 - walk-forward runs
-- CLV/calibration/drawdown metrics
+- log loss/Brier/calibration and paired simple/market baseline comparisons
+- CLV (diagnostic, not proof of profit), ROI/P&L, drawdown, volatility and sample count
+- horizon/league/season/market/odds/selection segments and confidence intervals
+- fractional Kelly sizing research under exposure/loss/model-quality constraints,
+  not full Kelly or an automatic production default
 
 Exit: leakage tests and deterministic regression fixtures pass.
 

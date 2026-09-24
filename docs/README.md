@@ -48,6 +48,7 @@ Local catalog API: [ADR-032 — private read-only HTTP consumer](adr/ADR-032-loc
 Local catalog UI: [ADR-033 — private read-only dataset browser](adr/ADR-033-private-dataset-browser.md).
 Synthetic markets: [ADR-034 — retained market and quote ingestion](adr/ADR-034-synthetic-market-quotes.md).
 Provider odds adapter: [ADR-035 — approved fixture-first soccer integration](adr/ADR-035-odds-api-soccer-adapter.md).
+Soccer fundamentals adapter: [ADR-037 — bounded Sportmonks native fixture parsing](adr/ADR-037-sportmonks-fixture-adapter.md).
 Soccer research: [ADR-008 — statistical-first baseline](adr/ADR-008-soccer-baseline-model.md)
 and [ADR-036 — chronological model evaluation and market benchmarking](adr/ADR-036-soccer-model-evaluation-and-market-benchmarking.md).
 These are Phase 4+ design requirements, not implemented models or an upgrade of replay-only data.

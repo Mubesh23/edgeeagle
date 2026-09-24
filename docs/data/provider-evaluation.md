@@ -108,6 +108,28 @@ not establish capture licensing, executable freshness or historical availability
 The bounded adapter proposal and compatibility decision are in
 [ADR-035](../adr/ADR-035-odds-api-soccer-adapter.md).
 
+## Sportmonks adapter contract review
+
+Last verified: 2026-09-24 against official v3 documentation:
+[fixture by ID](https://docs.sportmonks.com/v3/endpoints-and-entities/endpoints/fixtures/get-fixture-by-id),
+[participants](https://docs.sportmonks.com/v3/tutorials-and-guides/tutorials/includes/participants),
+[states](https://docs.sportmonks.com/v3/tutorials-and-guides/tutorials/includes/states),
+[timezones](https://docs.sportmonks.com/v3/tutorials-and-guides/tutorials/introduction/set-your-time-zone)
+and [response metadata](https://docs.sportmonks.com/v3/api/meta-description).
+
+The fixture-by-ID endpoint returns one `data` object without pagination and
+supports participants/state includes. Fixture IDs reference sport, league, season
+and state; kickoff is exposed as date text and a Unix timestamp. Participants
+identify home/away using `meta.location`, not array position. Soccer uses sport ID
+1; state ID 1 denotes NS/not started. Both fixtures and teams can be placeholders.
+Provider times default to UTC but can be requested in another timezone; response
+metadata declares timezone. [ADR-037](../adr/ADR-037-sportmonks-fixture-adapter.md)
+deliberately supports only a stricter UTC, scheduled, non-placeholder subset.
+
+These are documentation observations, not live contract validation or approval of
+retention/display/redistribution rights. The existing pricing/free-plan snapshot
+above was not reverified by this schema review. No provider request was made.
+
 ## Sources
 
 ### Football-Data results importer subset

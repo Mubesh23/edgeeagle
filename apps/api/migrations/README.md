@@ -1,5 +1,15 @@
 # Database migrations
 
+Revision `0012_odds_captures` adds immutable whole-capture receipts (format 2,
+maximum 8 MiB) and their exact quote projections. Canonical markets/selections
+are shared, but all legacy synthetic receipt/quote tables and guards remain
+unchanged. Capture/source, selection/market and venue foreign keys plus bounded
+cursor indexes protect the new path. Empty captures can be retained without quotes.
+Downgrade locks both new tables and refuses if any capture exists; it never
+deletes retained captures to roll back. Validation uses disposable databases only.
+Reader/API rollout precedes enabling application acceptance writes; this revision
+alone does not expose or import provider data. See ADR-035.
+
 Revision `0011_market_quotes` adds ADR-034's immutable `markets`,
 `market_selections`, `market_receipts` and `market_quotes`. Quote composite foreign
 keys bind observations to their receipt's market/source/venue and their selection's

@@ -202,5 +202,13 @@ three-way observations, matching identities and scoped timestamps. Raw replay is
 still required before acceptance: receipt consistency alone does not establish
 price fidelity or evidence authenticity. Empty captures round-trip as well.
 
-Database rollout, API extension and end-to-end goal validation remain pending.
+Migration 0012 adds `odds_capture_receipts` and `odds_capture_quotes`, sharing
+canonical markets/selections while leaving every legacy synthetic table/guard
+unchanged. Whole-capture storage supports empty responses and avoids duplicating
+the full receipt for every bookmaker. New quotes reference their capture/source,
+selection/market and venue. Both tables are immutable; downgrade locks them and
+refuses if retained captures exist. Readers must query both quote paths before
+new application writes are enabled. The local schema tests use disposable databases.
+
+Reader/API rollout, acceptance and end-to-end goal validation remain pending.
 Legacy synthetic receipts and quote identities are unchanged.

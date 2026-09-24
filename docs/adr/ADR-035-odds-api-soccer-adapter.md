@@ -154,6 +154,25 @@ names; no fuzzy matching or implicit canonical updates occur. Equivalent timezon
 offsets compare as instants and capture must remain strictly pre-match. The guard
 is in-memory evidence, not authenticated review or a capture/rights declaration.
 
-This evidence is not yet serialized or wired into quote acceptance. Capture/rights
-provenance, settlement profiles, versioned receipts,
-database rollout, API extension and end-to-end goal validation remain pending.
+The in-memory capture manifest now binds the raw reference to a bounded explicit
+v4 soccer h2h/decimal/ISO request and one to twenty requested bookmaker profiles.
+Raw resource identity is the exact endpoint path, without credentials/query text.
+Profiles declare regulation-time semantics with a version, capture origin and
+SHA-256 evidence reference. No actual bookmaker rules or rights are approved by
+these declarations, and no genuine settlement profiles ship in the implementation.
+Referenced documents must be separately retained and human-reviewed before real use;
+the value objects do not authenticate reviewers or verify document retention.
+
+Authored fixtures require a simulated instant and no actual capture/rights claim;
+provider captures require an actual instant no later than ingestion, a rights
+evidence digest and no simulated clock. Usage is derived as SYNTHETIC_ONLY versus
+REPLAY_ONLY, not caller-selected. Profile origins must match capture origin.
+This bounded path rejects known raw availability rather than treating capture
+time as publication evidence; future historically eligible inputs need their own
+reviewed contract. The reader verifies retained byte size/hash before whole-response
+parsing and rejects undeclared bookmakers. Empty responses remain valid and do not
+erase the caller's manifest. No acquisition, reference lookup or writes occur.
+
+These values are not yet serialized or wired into canonical normalization/quote
+acceptance. Versioned receipts, database rollout, API extension and end-to-end goal
+validation remain pending. Legacy synthetic receipts and quote identities are unchanged.

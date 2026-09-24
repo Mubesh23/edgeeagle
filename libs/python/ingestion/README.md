@@ -367,9 +367,9 @@ Use persistence `odds_references.odds_reference_reads(engine)` for one REPEATABL
 READ, read-only snapshot across a capture, with bounded SQL/idle waits. Complete
 these reads before the acceptance transaction; do not perform raw storage I/O
 inside the snapshot. Caller owns engine lifecycle and connection/pool timeouts.
-Returned evidence is currently in-memory only: capture/rights provenance,
-settlement profiles and a versioned retained codec
-are still required before quote normalization or persistence can use it.
+Returned reference evidence is currently in-memory only; composition with the
+capture manifest and a versioned retained codec are still required before quote
+normalization or persistence can use it.
 
 `odds_guards.OddsEventGuard` records explicit provider HOME/AWAY labels associated
 with canonical participant IDs, a source-scoped event key and the expected kickoff.
@@ -381,6 +381,31 @@ This pure guard does not establish rights, settlement semantics or historical
 availability, and is not yet wired into normalization or persisted receipts.
 Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_guards.py`
 for its offline tests.
+
+`odds_manifest.OddsCaptureManifest` binds the raw reference to an explicit v4
+soccer h2h/decimal/ISO request with one to twenty requested bookmaker settlement
+profiles. The raw resource must be exactly `/v4/sports/{sport_key}/odds`, without
+query strings or credentials; arbitrary request parameters are not supported.
+Each profile declares regulation-time semantics, a version, origin and SHA-256
+reference to separately retained evidence. No real bookmaker profiles ship here.
+
+Authored fixtures require `simulated_snapshot_at`, no `captured_at`, and derive
+`SYNTHETIC_ONLY` usage. Provider captures require `captured_at <= ingested_at`, no
+simulated clock, and an explicit rights-evidence digest; they derive `REPLAY_ONLY`.
+Profiles must match capture origin, so fixture declarations cannot silently serve
+as real settlement evidence. These are structural checks, **not rights approval**,
+reviewer authentication or proof that the referenced evidence exists. Human review
+of actual capture rights and settlement evidence remains required before use.
+This bounded path requires unknown raw `available_at`; neither capture clocks nor
+provider updates establish historical availability or backtest eligibility.
+
+`read_odds_capture(store, manifest)` reads already-retained raw bytes once, verifies
+size/hash, parses the entire response and rejects undeclared bookmakers. Run it
+before reference/write transactions. Requested books may be absent, and empty
+responses are valid: retain the manifest even when no native events are returned.
+This is not canonical quote normalization, receipt serialization or acquisition.
+Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_manifest.py`
+for offline coverage; even the provider-origin branch tests use invented evidence.
 
 Run `scripts/test-integration -k odds_reference` to check snapshot isolation,
 concurrent revocation and transaction guards against disposable PostgreSQL.

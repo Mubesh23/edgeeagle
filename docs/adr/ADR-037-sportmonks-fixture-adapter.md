@@ -82,3 +82,18 @@ plan or Football-Data-specific approval is generalized to Sportmonks.
 Use existing root tooling, targeted pytest/coverage, Ruff/mypy, documentation link
 checks and full `scripts/validate` before handoff. Live provider contract tests and
 HTTP acquisition are separate opt-in work, not routine validation dependencies.
+
+## Implementation status
+
+The pure scheduled-fixture parser and authored fixture are implemented with
+67 network-disabled tests and 100% parser statement coverage. Tests cover native
+identity bounds, exact roles independent of ordering, UTC/Unix agreement,
+snapshot cutoffs, missing/unsupported data, error envelopes and malformed JSON.
+Capture manifests, retained-read composition, canonical mappings and downstream
+integration remain unimplemented; this is not completion of the Sportmonks adapter.
+
+Full `scripts/validate` passed locally on 2026-09-24: 1,231 Python unit tests,
+178 integration tests plus the documented strict Floci delivery-DLQ expected
+failure, generated-artifact checks, formatting/lint/types, package tests, contract
+compatibility, credential-free synthesis, advisory scans and builds. Hosted CI,
+fresh-checkout and live provider validation were not run for this increment.

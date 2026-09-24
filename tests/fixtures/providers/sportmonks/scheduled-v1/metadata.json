@@ -1,0 +1,20 @@
+{
+  "fixture_id": "sportmonks-authored-scheduled-v1",
+  "version": 1,
+  "provider": "SPORTMONKS",
+  "api_version": "v3",
+  "endpoint": "/v3/football/fixtures/910001",
+  "parameters": { "include": "participants;state", "timezone": "UTC" },
+  "origin": "AUTHORED_FIXTURE",
+  "captured_at": null,
+  "created_at": "2026-09-24",
+  "simulated_snapshot_at": "2026-09-24T12:00:00Z",
+  "parser_version": "sportmonks-scheduled-fixture-json-v1",
+  "provenance": "Invented IDs, names and timestamps; not a downloaded provider response or historical evidence.",
+  "documentation": [
+    "https://docs.sportmonks.com/v3/endpoints-and-entities/endpoints/fixtures/get-fixture-by-id",
+    "https://docs.sportmonks.com/v3/tutorials-and-guides/tutorials/includes/participants",
+    "https://docs.sportmonks.com/v3/tutorials-and-guides/tutorials/includes/states",
+    "https://docs.sportmonks.com/v3/tutorials-and-guides/tutorials/introduction/set-your-time-zone"
+  ]
+}

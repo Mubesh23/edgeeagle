@@ -475,3 +475,26 @@ for authored Floci/PostgreSQL/API tests covering corrections, revocations, empty
 captures, malformed responses and raw corruption. All evidence is invented;
 provider capture rights/settlement review and historically eligible data remain
 outside this goal. The legacy synthetic import path is unchanged.
+
+## Sportmonks scheduled-fixture parser
+
+Under [ADR-037](../../../docs/adr/ADR-037-sportmonks-fixture-adapter.md),
+`sportmonks_parser.parse_scheduled_fixture(body, expected_fixture_id=..., snapshot_at=...)`
+validates a bounded v3 single-fixture UTC response with participants/state includes.
+It returns immutable provider-native staging values, not canonical event candidates.
+Only soccer NS/non-placeholder fixtures are supported. Home/away comes from
+`meta.location`, not array order or fixture name. UTC kickoff text must match the
+integral Unix timestamp and follow the explicit aware snapshot instant.
+
+Malformed fields, duplicate JSON keys, mismatched IDs, placeholder teams, unsupported
+states/timezones and oversized inputs fail without side effects. Unknown additive
+fields remain raw-only, including scores, xG, physical stadium IDs and processing
+or subscription clocks. Native IDs never become canonical business IDs here.
+
+The parser reads no files, environment, network or wall clock. A future composition
+must retain/verify raw bytes first and pin capture origin and rights evidence;
+successful parsing is not retention or historical availability. Canonical mappings,
+receipt/storage compatibility, event correction and read-only consumer integration
+remain subsequent increments. Existing synthetic/CSV/Odds API paths are unchanged.
+See [authored fixture provenance](../../../tests/fixtures/providers/sportmonks/README.md).
+Run `uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_parser.py`.

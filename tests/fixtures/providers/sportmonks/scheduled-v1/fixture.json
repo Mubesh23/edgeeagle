@@ -1,0 +1,31 @@
+{
+  "data": {
+    "id": 910001,
+    "sport_id": 1,
+    "league_id": 920001,
+    "season_id": 930001,
+    "state_id": 1,
+    "name": "Authored Home FC vs Authored Away FC",
+    "starting_at": "2026-10-01 18:00:00",
+    "starting_at_timestamp": 1790877600,
+    "placeholder": false,
+    "state": { "id": 1, "state": "NS" },
+    "participants": [
+      {
+        "id": 940002,
+        "sport_id": 1,
+        "name": "Authored Away FC",
+        "placeholder": false,
+        "meta": { "location": "away" }
+      },
+      {
+        "id": 940001,
+        "sport_id": 1,
+        "name": "Authored Home FC",
+        "placeholder": false,
+        "meta": { "location": "home" }
+      }
+    ]
+  },
+  "timezone": "UTC"
+}

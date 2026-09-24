@@ -1,5 +1,9 @@
 # Provider fixtures
 
+The [Sportmonks-shaped scheduled fixture](sportmonks/README.md) is authored native
+staging data for the bounded offline v3 parser. It does not represent a real capture
+or change the existing mock server.
+
 The [Football-Data-shaped CSV](football_data/README.md) is authored synthetic
 completed-results data for the offline adapter. It is not a downloaded provider file.
 

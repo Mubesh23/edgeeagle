@@ -106,7 +106,9 @@ Next bounded provider increment: [ADR-037](../adr/ADR-037-sportmonks-fixture-ada
 defines authored Sportmonks v3 scheduled-fixture parsing: explicit native IDs,
 participant roles and cross-checked UTC kickoff. The pure parser and authored
 fixtures, capture manifests and integrity-checked retained reads are implemented,
-with offline and local Floci coverage. Canonical mappings, durable receipts,
+with offline and local Floci coverage. Port-level canonical-reference resolution
+and canonical-linked staging now have offline coverage; pinned PostgreSQL wiring
+is next. Durable receipts,
 multi-source event observations and canonical replay follow separately. Existing
 initial-only event acceptance remains unchanged; no live acquisition or model-ready
 data is implied.

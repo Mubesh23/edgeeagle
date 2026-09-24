@@ -493,7 +493,7 @@ or subscription clocks. Native IDs never become canonical business IDs here.
 
 The parser reads no files, environment, network or wall clock. The retained reader
 below verifies raw bytes first and pins declared origin and rights evidence;
-successful parsing is not retention or historical availability. Canonical mappings,
+successful parsing is not retention or historical availability. Durable receipts,
 receipt/storage compatibility, event correction and read-only consumer integration
 remain subsequent increments. Existing synthetic/CSV/Odds API paths are unchanged.
 See [authored fixture provenance](../../../tests/fixtures/providers/sportmonks/README.md).
@@ -517,10 +517,36 @@ only native staging values, performs no writes, and fails on missing/corrupt byt
 or unsupported payloads. No current-clock fallback or canonical reference access.
 
 Manifests are currently constructed by callers in memory, not serialized or loaded
-automatically from fixture sidecars. Durable receipts and canonical mappings are
-subsequent increments. Source-kind verification belongs to that later boundary;
+automatically from fixture sidecars. Durable receipts are a subsequent increment.
+Source-kind verification belongs to the reference-resolution boundary below;
 raw source identity is preserved, not inferred from a provider-specific ID string.
 
 Run `uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_manifest.py`.
 The Floci retention/reader composition is covered by
 `scripts/test-integration -k sportmonks_capture` (local services only).
+
+### Sportmonks canonical-linked candidates
+
+`sportmonks_normalization.normalize_sportmonks_capture(store, manifest, reads, as_of=...)`
+verifies and parses raw bytes before opening one caller-supplied reference snapshot.
+It derives six source-scoped keys from native IDs: sport, league, season, home and
+away participants, and fixture. `sportmonks_references.resolve_sportmonks_references`
+reuses the existing five-role fixture resolver and adds registered Sportmonks
+source validation, event mapping and exact canonical role/hierarchy checks.
+
+Only explicit available MAPPED revisions are selected; missing/revoked mappings,
+invalid histories (including future revisions), wrong target types and inconsistent
+records fail closed. No label matching, automatic creation or mapping writes occur.
+Normalization also requires scheduled status, exact kickoff agreement and kickoff
+within the season. Rescheduling/source conflicts are not resolved by this path.
+
+The immutable returned staging candidate keeps raw/native evidence, canonical
+records, selected revisions, cutoff and transformation versions together. It is
+not a durable receipt or an input for legacy initial-event acceptance. Retained
+objects do not change when mappings change; a fresh lookup can differ even at the
+same cutoff. The cutoff is not proof of historical context availability.
+
+The caller must supply all repositories from one pinned read-only snapshot;
+concrete PostgreSQL composition is the next increment. No raw I/O belongs inside
+that snapshot. Run the offline tests with
+`uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_references.py tests/unit/test_sportmonks_normalization.py`.

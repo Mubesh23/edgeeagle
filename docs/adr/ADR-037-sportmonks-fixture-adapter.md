@@ -1,6 +1,6 @@
 # ADR-037 — Fixture-first Sportmonks soccer fundamentals
 
-**Status:** Accepted for bounded offline parsing and retained reads; canonical integration deferred  
+**Status:** Accepted for bounded offline parsing, retained reads and reference resolution; writes deferred  
 **Date:** 2026-09-24
 
 ## Context
@@ -88,12 +88,49 @@ before invoking the parser with the declared fixture ID and snapshot instant.
 Missing/corrupt bytes and unsupported payloads fail closed. It performs no raw
 writes, acquisition, reference lookup or canonical transaction. Callers compose
 existing `LocalFileImporter`, `ingest_raw` and `S3RawPayloadStore` for retention.
-Provider identity stays in the raw reference; verifying its registered source kind
-belongs to the later source-scoped mapping boundary, not a hard-coded source ID.
+Provider identity stays in the raw reference; the source-scoped mapping boundary
+verifies its registered source kind, not a hard-coded source ID.
 
 This manifest is an in-memory declaration, not a persisted/versioned receipt or
 automatic sidecar loader. The caller must retain its evidence; native parser output
 alone is not durable replay provenance. No existing receipt format is changed.
+
+## Read-only canonical-reference resolution
+
+The next approved increment links verified native evidence to **preexisting**
+canonical records. Reuse the ADR-025 five-role resolver for sport, competition,
+season, home and away; add a Sportmonks-owned event/source wrapper. Provider
+namespaces are `sport`, `league`, `season`, `participant` and `fixture`, with exact
+positive native integer IDs encoded as decimal strings. Home/away keys come from
+the parser's roles, not labels. The raw source ID scopes every key; its registered
+record must have code `SPORTMONKS` and type `SPORTS_DATA`.
+
+Resolve all six complete histories under ADR-013 at one explicit aware mapping
+cutoff. Missing, revoked, future-only, malformed or wrong-type mappings fail.
+Validate canonical hierarchy, distinct soccer TEAM participants and exact event
+HOME/AWAY attachments. Names may differ across providers; there is no fuzzy match
+or confidence threshold. Recorded review metadata is not reviewer authentication.
+
+`normalize_sportmonks_capture` verifies retained raw bytes **before** one reference
+read context, then returns an immutable in-memory `NormalizedSportmonksFixture`
+containing the manifest, native fixture, selected canonical context, all six
+revisions, UTC mapping cutoff, parser version and normalizer version
+`sportmonks-scheduled-fixture-mappings-v1`. The result is staging evidence, not an
+ADR-018 event candidate, durable receipt or accepted write command.
+
+For this bounded path, canonical status must be `SCHEDULED`, kickoff must exactly
+match the native UTC instant, and kickoff must fall within the canonical season.
+Disagreement fails rather than choosing a source, tolerating drift or updating an
+event. Correction/rescheduling and other lifecycle states require a later contract.
+The mapping cutoff may differ from the capture clock; selected current records are
+not historically available context. Existing unknown availability/usage limits hold.
+
+All repositories must share a pinned read-only snapshot. The port cannot prove
+transaction isolation or complete supplied history; concrete PostgreSQL composition
+must enforce REPEATABLE READ/read-only before this is used against stored mappings.
+It must close before returning the candidate; raw-store I/O never spans that
+transaction. No retries, mapping registration, canonical creation/update, outbox,
+API change or reuse of Odds API receipt serialization is introduced.
 
 ## Delivery and validation
 
@@ -122,7 +159,9 @@ with 34 additional offline tests and 100% manifest statement coverage. A local
 Floci test composes authored-file retention, repeat reads, idempotent raw storage
 and rejection of missing/corrupt objects. Even provider-origin test declarations
 use invented data and evidence hashes; no actual capture approval is claimed.
-Canonical mappings, durable receipts and downstream integration remain deferred;
+Port-level source-scoped reference resolution and retained-capture normalization
+are implemented with offline failure-path tests. Concrete pinned PostgreSQL
+composition, durable receipts and downstream integration remain deferred;
 this is not completion of the Sportmonks adapter.
 
 Full `scripts/validate` passed locally on 2026-09-24 after the retained-reader

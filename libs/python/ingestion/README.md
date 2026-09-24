@@ -352,6 +352,24 @@ the current wall clock during replay. Parser output alone does not prove capture
 origin, retention rights, regulation-time settlement or historical availability.
 
 Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_api_parser.py`
-for network-disabled coverage. Canonical mapping, retained provider receipts and
-API composition are follow-up increments under
+for network-disabled coverage. Retained provider receipts and API composition
+remain follow-up increments under
 [ADR-035](../../../docs/adr/ADR-035-odds-api-soccer-adapter.md).
+
+`odds_references.resolve_odds_references` resolves explicit source-scoped
+competition, event and up to twenty bookmaker keys against existing mappings.
+It returns immutable canonical event/HOME/AWAY context, source, sportsbook venues,
+full selected revisions and a UTC cutoff. Missing, revoked, future, wrong-type,
+inconsistent or collapsed references fail closed. It does not infer participant
+identities from names, create references, or grant historical availability.
+
+Use persistence `odds_references.odds_reference_reads(engine)` for one REPEATABLE
+READ, read-only snapshot across a capture, with bounded SQL/idle waits. Complete
+these reads before the acceptance transaction; do not perform raw storage I/O
+inside the snapshot. Caller owns engine lifecycle and connection/pool timeouts.
+Returned evidence is currently in-memory only: exact provider-label guards,
+capture/rights provenance, settlement profiles and a versioned retained codec
+are still required before quote normalization or persistence can use it.
+
+Run `scripts/test-integration -k odds_reference` to check snapshot isolation,
+concurrent revocation and transaction guards against disposable PostgreSQL.

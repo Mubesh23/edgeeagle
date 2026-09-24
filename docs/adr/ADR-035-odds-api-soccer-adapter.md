@@ -133,6 +133,19 @@ uses the standard bookmaker-level timestamp shape; its metadata explicitly sets
 `captured_at: null` and a separate simulated snapshot time. It is not a downloaded
 provider response. Offline tests cover exact long decimals, empty results,
 pre-match boundaries, malformed/duplicate data, size/text limits and ordering.
-The parser's 49 tests report 100% branch coverage. Mapping evidence, versioned
-receipts, database rollout, API extension and end-to-end goal validation remain
-unimplemented; parser success alone does not certify live provider compatibility.
+The parser's 49 tests report 100% branch coverage. Parser success alone does not
+certify live provider compatibility.
+
+The read-only `odds_references` resolver now selects source-scoped competition,
+event and bookmaker mappings and returns immutable canonical context with full
+revision evidence and UTC cutoff. Canonical hierarchy, soccer HOME/AWAY teams,
+The Odds API source, sportsbook venues and non-collapsing mappings are validated.
+It performs no implicit writes or label-based identity inference. PostgreSQL
+composition pins all repositories to one REPEATABLE READ, read-only transaction
+with bounded SQL and idle waits. Tests prove a concurrent revocation leaves an
+existing snapshot unchanged and fails a fresh read; offline tests cover corrected
+mapping selection, unavailable references and evidence validation.
+
+This evidence is not yet serialized or wired into quote acceptance. Exact provider
+label guards, capture/rights provenance, settlement profiles, versioned receipts,
+database rollout, API extension and end-to-end goal validation remain pending.

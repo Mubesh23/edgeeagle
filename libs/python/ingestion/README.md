@@ -367,9 +367,20 @@ Use persistence `odds_references.odds_reference_reads(engine)` for one REPEATABL
 READ, read-only snapshot across a capture, with bounded SQL/idle waits. Complete
 these reads before the acceptance transaction; do not perform raw storage I/O
 inside the snapshot. Caller owns engine lifecycle and connection/pool timeouts.
-Returned evidence is currently in-memory only: exact provider-label guards,
-capture/rights provenance, settlement profiles and a versioned retained codec
+Returned evidence is currently in-memory only: capture/rights provenance,
+settlement profiles and a versioned retained codec
 are still required before quote normalization or persistence can use it.
+
+`odds_guards.OddsEventGuard` records explicit provider HOME/AWAY labels associated
+with canonical participant IDs, a source-scoped event key and the expected kickoff.
+`validate_odds_event_guard` compares parsed context against these guards and the
+pinned references without repository reads. Labels must match exactly (not canonical
+display names); participant roles, event/competition identity and all three kickoff
+values must agree. Kickoff must be strictly after the supplied capture/fixture instant.
+This pure guard does not establish rights, settlement semantics or historical
+availability, and is not yet wired into normalization or persisted receipts.
+Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_guards.py`
+for its offline tests.
 
 Run `scripts/test-integration -k odds_reference` to check snapshot isolation,
 concurrent revocation and transaction guards against disposable PostgreSQL.

@@ -146,6 +146,14 @@ with bounded SQL and idle waits. Tests prove a concurrent revocation leaves an
 existing snapshot unchanged and fails a fresh read; offline tests cover corrected
 mapping selection, unavailable references and evidence validation.
 
-This evidence is not yet serialized or wired into quote acceptance. Exact provider
-label guards, capture/rights provenance, settlement profiles, versioned receipts,
+Exact event guards now associate declared provider HOME/AWAY labels with canonical
+participant IDs, a source-scoped event key and kickoff. Pure validation checks these
+against native parser output and pinned references, rejecting label/role/identity
+changes and kickoff disagreement. Provider labels need not equal canonical display
+names; no fuzzy matching or implicit canonical updates occur. Equivalent timezone
+offsets compare as instants and capture must remain strictly pre-match. The guard
+is in-memory evidence, not authenticated review or a capture/rights declaration.
+
+This evidence is not yet serialized or wired into quote acceptance. Capture/rights
+provenance, settlement profiles, versioned receipts,
 database rollout, API extension and end-to-end goal validation remain pending.

@@ -32,6 +32,7 @@ from edgeeagle_persistence.eventbridge import EventBridgePublisher
 from edgeeagle_persistence.events import PostgresEventAcceptanceRepository
 from edgeeagle_persistence.fixture_references import fixture_reference_reads
 from edgeeagle_persistence.raw import S3RawPayloadStore
+from tests.integration.clocks import database_clock
 from tests.integration.sqs_routing import Routing
 from tests.integration.sqs_routing import event_bus as event_bus
 from tests.integration.sqs_routing import routing as routing
@@ -132,7 +133,9 @@ def test_fixture_raw_to_api_retains_lineage_and_replays(
         with repository_engine.begin() as connection:
             yield PostgresEventAcceptedHandler(connection)
 
-    publisher = EventBridgePublisher(routing.events, routing.bus)
+    publisher = EventBridgePublisher(
+        routing.events, routing.bus, clock=database_clock(repository_engine)
+    )
     published: list[DeliveryClaim] = []
 
     class RecordingPublisher:

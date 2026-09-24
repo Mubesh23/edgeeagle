@@ -3,7 +3,8 @@
 import os
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
+from unittest.mock import Mock
 from uuid import uuid4
 
 import boto3
@@ -18,6 +19,7 @@ from edgeeagle_ingestion.dispatch import DispatchResult, EventPublisher, dispatc
 from edgeeagle_persistence.delivery import PostgresOutboxDeliveryRepository
 from edgeeagle_persistence.eventbridge import EventBridgePublisher
 from edgeeagle_persistence.events import PostgresEventAcceptanceRepository
+from tests.integration.clocks import database_clock
 from tests.integration.test_event_acceptance import seed
 from tests.integration.test_outbox_delivery import enqueue, expire
 from tests.integration.test_repositories import repository_engine as repository_engine
@@ -56,7 +58,11 @@ def test_eventbridge_dispatch_and_recovery(
     repository_engine: Engine,
     event_bus: tuple[EventBridgeClient, str],
     crash: bool,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    host_clock = Mock(wraps=datetime)
+    host_clock.now.return_value = datetime(2000, 1, 1, tzinfo=UTC)
+    monkeypatch.setattr("edgeeagle_persistence.eventbridge.datetime", host_clock)
     client, arn = event_bus
     with repository_engine.begin() as connection:
         seed(connection)
@@ -67,7 +73,9 @@ def test_eventbridge_dispatch_and_recovery(
         with repository_engine.begin() as connection:
             yield PostgresOutboxDeliveryRepository(connection)
 
-    real_publisher: EventPublisher = EventBridgePublisher(client, arn)
+    real_publisher: EventPublisher = EventBridgePublisher(
+        client, arn, clock=database_clock(repository_engine)
+    )
     accepted: list[DeliveryClaim] = []
 
     class Publisher:
@@ -96,6 +104,7 @@ def test_eventbridge_dispatch_and_recovery(
 
     assert run() is DispatchResult.PUBLISHED
     assert run() is DispatchResult.IDLE
+    host_clock.now.assert_not_called()
     assert [claim.attempt for claim in accepted] == list(range(1, len(accepted) + 1))
     assert all(claim.notification == message for claim in accepted)
     with repository_engine.begin() as connection:
@@ -126,7 +135,7 @@ def test_eventbridge_missing_bus_does_not_acknowledge(
     with pytest.raises(ClientError) as error:
         dispatch_one(
             transactions,
-            EventBridgePublisher(client, arn + "-missing"),
+            EventBridgePublisher(client, arn + "-missing", clock=database_clock(repository_engine)),
             lease_for=timedelta(minutes=1),
             retry_after=timedelta(seconds=10),
         )

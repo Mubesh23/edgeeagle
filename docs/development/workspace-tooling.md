@@ -34,6 +34,14 @@ and crash-replay tests in Floci; see
 transactional deduplication, retries, processing-DLQ redrive, and queue-depth
 monitoring now have local coverage under [ADR-023](../adr/ADR-023-event-acceptance-consumer.md).
 
+Broker integration publishers use a test-only live PostgreSQL clock, matching
+the authority that timestamps delivery leases. This removes dependence on host
+versus Docker wall-clock synchronization; each clock read closes before broker
+I/O and does not freeze or clamp lease time. A deliberately lagging host-clock
+regression covers successful dispatch and crash recovery. Production publisher
+clock-order/lease-expiry guards remain unchanged and have explicit unit coverage;
+this test composition does not establish production clock synchronization.
+
 The authored 380-row season-import integration fixture uses a test-only 30-second
 lock timeout and 45-second statement timeout. A competing import must wait for
 the entire winning atomic transaction, not one row. Smaller import fixtures keep

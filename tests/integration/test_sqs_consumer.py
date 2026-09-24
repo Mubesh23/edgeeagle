@@ -17,6 +17,7 @@ from edgeeagle_ingestion.delivery import DeliveryClaim
 from edgeeagle_persistence.consumer import PostgresEventAcceptedHandler
 from edgeeagle_persistence.delivery import PostgresOutboxDeliveryRepository
 from edgeeagle_persistence.eventbridge import EventBridgePublisher
+from tests.integration.clocks import database_clock
 from tests.integration.sqs_routing import Routing
 from tests.integration.sqs_routing import event_bus as event_bus
 from tests.integration.sqs_routing import routing as routing
@@ -31,7 +32,7 @@ def publish(engine: Engine, routing: Routing, *, duplicate: bool = False) -> Del
         enqueue(connection)
         claim = PostgresOutboxDeliveryRepository(connection).claim(lease_for=timedelta(minutes=1))
         assert claim is not None
-    adapter = EventBridgePublisher(routing.events, routing.bus)
+    adapter = EventBridgePublisher(routing.events, routing.bus, clock=database_clock(engine))
     adapter.publish(claim)
     if duplicate:
         adapter.publish(claim)  # Simulate a lost publication acknowledgement.

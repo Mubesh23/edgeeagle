@@ -29,7 +29,10 @@ test("market reads preserve quote strings and exclusive cursors", async () => {
   assert.equal(quoteUrl.searchParams.get("after_quote_id"), "quote-a");
   assert.equal(quoteUrl.searchParams.get("limit"), "2");
   await client.GET("/v1/events/{eventId}/markets", {
-    params: { path: { eventId: "event-a" }, query: { after_market_id: "market-a" } },
+    params: {
+      path: { eventId: "event-a" },
+      query: { after_market_id: "market-a" },
+    },
   });
   const marketUrl = new URL(requests[1].url);
   assert.equal(marketUrl.pathname, "/v1/events/event-a/markets");

@@ -194,6 +194,13 @@ context, with no current mapping queries. Tests cover exact high-precision decim
 single-snapshot multi-event captures, changed/revoked mappings, altered projections,
 unsupported replay versions, scoped timestamps and empty/no-quote results.
 
-These values are not yet serialized or wired into quote acceptance. Versioned
-receipts, database rollout, API extension and end-to-end goal validation remain
-pending. Legacy synthetic receipts and quote identities are unchanged.
+Whole-capture receipt format 2 now serializes these values with an 8 MiB bound,
+explicit typed-record tags, exact decimal strings and canonical bytes. Only the
+statically declared schema can be decoded; payload tags cannot select imports or
+executable classes. Structural and derived-projection checks require complete
+three-way observations, matching identities and scoped timestamps. Raw replay is
+still required before acceptance: receipt consistency alone does not establish
+price fidelity or evidence authenticity. Empty captures round-trip as well.
+
+Database rollout, API extension and end-to-end goal validation remain pending.
+Legacy synthetic receipts and quote identities are unchanged.

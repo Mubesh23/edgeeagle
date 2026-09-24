@@ -431,5 +431,16 @@ projection using only retained references, including after current mappings chan
 or are revoked. It is not a persistence command or authenticated evidence codec.
 Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_normalization.py`.
 
+`odds_receipts.encode_odds_receipt` / `decode_odds_receipt` provide a separate
+whole-capture format 2 (maximum 8 MiB), including empty captures. Typed canonical
+IDs, mapping revisions, manifests and quote projections use strict field/type
+validation, exact decimal strings and canonical UTF-8-compatible ASCII JSON.
+Unknown fields/versions, duplicate keys, noncanonical bytes, inconsistent quote
+identities/membership/timestamps and excessive collections fail closed. This codec
+does not change legacy market format 1. It validates structure/projection only;
+`replay_odds_capture` must still verify prices against retained raw bytes before
+the write transaction. No raw-store access occurs while decoding a receipt.
+Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_receipts.py`.
+
 Run `scripts/test-integration -k odds_reference` to check snapshot isolation,
 concurrent revocation and transaction guards against disposable PostgreSQL.

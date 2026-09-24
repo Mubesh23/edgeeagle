@@ -307,3 +307,35 @@ Unit tests disable network. Integration uses the existing synthetic fixture and
 Floci with disposable buckets and PostgreSQL databases, loopback endpoints, and
 dummy credentials only.
 `scripts/build` regenerates ignored ingestion wheels/sdists under root `dist/`.
+
+## Authored market import
+
+`market_import.import_market_fixture(importer, store, bindings, transactions)`
+composes bounded local acquisition, immutable raw retention, full-capture market
+normalization and atomic acceptance. Use `LocalFileImporter` with the market
+profile's `MAX_BYTES`, `S3RawPayloadStore`, explicit `MarketFixtureBinding` values
+and a transaction factory yielding `PostgresMarketAcceptanceRepository`. Existing
+source/venue/soccer event context must already match those bindings. The factory
+must commit on clean exit and roll back on exceptions; use READ COMMITTED with
+bounded statement/lock timeouts. No references are created implicitly.
+
+The result contains the raw reference, accepted receipt IDs and newly inserted
+receipt count (zero on exact retry). Every receipt is read back and compared before
+commit; no success is returned if commit fails. Storage and complete normalization
+precede the write transaction. Failure can leave reusable raw evidence without
+canonical rows. There is no distributed S3/PostgreSQL transaction, publication,
+automatic repair, production provider validation or research eligibility claim.
+
+Read retained receipts through the repository, then call
+`synthetic_markets.replay_market_fixture(store, candidates)` outside the database
+transaction to verify complete retained raw/context reproduction. Missing/corrupt
+raw fails replay; ordinary quote API reads do not imply fresh raw verification.
+All observations stay `SYNTHETIC_ONLY`, with unknown availability preserved.
+
+`scripts/test-integration -k market_fixture_raw_to_api` runs the complete authored
+fixture workflow against disposable Floci/PostgreSQL resources and the real local
+API composition. It verifies raw bytes, all three prices/provenance, concurrent
+duplicate-free retries, retained-context replay and raw-loss/corruption failures.
+`scripts/test-integration -k market_import_bad` checks that an invalid final outcome
+is retained as raw but causes no write transaction or partial canonical effects.
+See [ADR-034](../../../docs/adr/ADR-034-synthetic-market-quotes.md).

@@ -72,6 +72,15 @@ strict expected-failure probe; no production permission enforcement is claimed. 
 [ADR-021](docs/adr/ADR-021-outbox-dispatch-boundary.md),
 [ADR-019](docs/adr/ADR-019-event-outbox.md) and
 [ADR-020](docs/adr/ADR-020-outbox-delivery-leases.md).
+The authored soccer market path now retains raw captures, normalizes three-way
+selections/quotes and accepts immutable observations in caller-owned transactions.
+Migration `0011_market_quotes` adds its tables; bounded read-only market/quote APIs
+use explicit local PostgreSQL composition. See
+[ADR-034](docs/adr/ADR-034-synthetic-market-quotes.md) and
+[market import](libs/python/ingestion/README.md#authored-market-import).
+`scripts/test-integration -k market_fixture_raw_to_api` verifies the complete
+authored local-file/Floci/PostgreSQL/API path. This is synthetic-only, not live
+provider validation, executable pricing or backtest-eligible history.
 The API now exposes current-state event list/detail contracts, with explicit local
 PostgreSQL composition, bounded ID pagination, and read-only request transactions.
 The default credential-free app returns 503 for unconfigured event reads; see

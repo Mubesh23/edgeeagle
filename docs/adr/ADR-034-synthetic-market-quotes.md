@@ -1,6 +1,6 @@
 # ADR-034 — Retained synthetic market and quote ingestion
 
-**Status:** Accepted; persistence and read-only API implemented; end-to-end composition pending  
+**Status:** Accepted; end-to-end authored fixture goal implemented and locally validated  
 **Date:** 2026-09-23
 
 ## Goal and scope
@@ -238,3 +238,34 @@ cover boundary validation, 404/503/500 behavior, read-only methods and exact dec
 serialization; disposable PostgreSQL-to-HTTP tests cover committed visibility,
 pagination, provenance and unchanged results after an exact acceptance retry.
 Complete local-file/Floci-to-API composition and full validation remain pending.
+
+`market_import.import_market_fixture` now composes local acquisition/raw retention,
+full-capture normalization and canonicalization before entering a caller-provided
+acceptance transaction. It verifies retained readback before commit and returns
+raw identity, receipt IDs and insertion count only after successful context exit.
+The caller supplies matching pre-existing references and a commit/rollback context;
+no storage I/O spans canonical writes. Unit tests verify ordering, mismatched
+readback and commit failures. End-to-end `market_fixture_raw_to_api` tests use the
+authored fixture, disposable Floci bucket/PostgreSQL database and actual HTTP
+composition to prove exact raw retention, all three prices/provenance, exact and
+concurrent retries, retained replay after reference edits and fail-closed replay
+for missing/corrupt raw. `market_import_bad` proves invalid final outcomes retain
+raw without partial canonical effects or opening a write transaction.
+Ordinary quote reads remain available after raw loss: they expose retained
+observations, not a fresh raw-verification or backtest-eligibility claim.
+Full `scripts/validate` remains the completion gate.
+
+Completion evidence (2026-09-23): `scripts/validate` passed with 983 Python unit
+tests, 160 integration tests and the existing strict expected failure for Floci
+EventBridge delivery-DLQ forwarding. Generated drift/compatibility, formatting,
+lint, typechecks, lock consistency, Node/application tests, credential-free CDK
+synthesis, dependency advisory scans and builds passed. Scoped workflow and HTTP
+tests report 100% branch coverage; the query adapter reports 91%, not complete
+coverage of defensive corruption paths. Existing Starlette deprecations and the
+resource-free CDK template warning remain. Some unchanged Turbo tasks used local
+cache. Hosted CI/fresh-checkout and browser verification were not run for this
+backend-only goal; no push or production deployment was performed.
+
+This completes only the bounded authored market fixture goal. Live provider
+adapters, supported production mapping review, market-driven outbox workflows,
+executable-price selection, modeling and backtest eligibility remain separate.

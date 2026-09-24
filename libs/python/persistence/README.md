@@ -426,3 +426,20 @@ and `get` do not resolve current mappings. They do not certify current suitabili
 licensing, executability or historical availability. No S3 I/O occurs here.
 Run `scripts/test-integration -k odds_acceptance` for transaction, rollback,
 empty-capture, conflicting-retry and first-writer-race coverage.
+
+## Sportmonks read-only reference snapshots
+
+`sportmonks_references.sportmonks_reference_reads(engine)` supplies ingestion's
+`SportmonksReferenceReads` context for six source-scoped mappings and selected
+canonical records. All repositories share one REPEATABLE READ/read-only connection;
+`PostgresSportmonksReferenceResolver` verifies active transaction, isolation and
+read-only mode on every call. The factory sets 5-second statement and idle timeouts
+and closes on success or failure. Caller owns engine lifecycle and pool/connect
+timeouts. There are no migrations, retries or reference writes.
+
+Raw retention and verification precede this context. The returned canonical-linked
+candidate is not a persisted receipt, model-ready history or an input to initial-only
+event acceptance. Open snapshots ignore concurrent committed mapping/name changes;
+fresh ones see them. See [ADR-037](../../../docs/adr/ADR-037-sportmonks-fixture-adapter.md).
+Run `scripts/test-integration -k sportmonks` for snapshot guards, actual write
+rejection, corrections/revocations, cleanup and the authored Floci-to-candidate path.

@@ -25,4 +25,7 @@ construct manifests explicitly; the sidecar is documentation, not an automatic
 loader. Provider-origin manifest tests also use invented bytes and rights digests.
 
 The existing HTTP mock does not serve this fixture yet. No live provider contract
-test, acquisition, canonical mapping, durable receipt or model feature is implemented.
+test, acquisition, durable receipt or model feature is implemented. Authored explicit
+canonical mappings are exercised by `scripts/test-integration -k sportmonks`; they
+are invented review evidence, not approved real-provider mappings. That path returns
+read-only staging candidates and performs no canonical writes.

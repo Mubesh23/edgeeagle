@@ -126,9 +126,13 @@ The mapping cutoff may differ from the capture clock; selected current records a
 not historically available context. Existing unknown availability/usage limits hold.
 
 All repositories must share a pinned read-only snapshot. The port cannot prove
-transaction isolation or complete supplied history; concrete PostgreSQL composition
-must enforce REPEATABLE READ/read-only before this is used against stored mappings.
-It must close before returning the candidate; raw-store I/O never spans that
+transaction isolation or complete supplied history. The implemented persistence
+factory `sportmonks_reference_reads(engine)` opens one REPEATABLE READ/read-only
+transaction with 5-second SQL and idle-in-transaction timeouts. Its resolver checks
+active transaction, isolation and read-only mode on each call, using the same
+connection for source, sports and mapping repositories. Caller owns engine/pool
+lifecycle and connection timeouts. The context closes on success or exception
+before returning the candidate; raw-store I/O never spans that
 transaction. No retries, mapping registration, canonical creation/update, outbox,
 API change or reuse of Odds API receipt serialization is introduced.
 
@@ -159,14 +163,20 @@ with 34 additional offline tests and 100% manifest statement coverage. A local
 Floci test composes authored-file retention, repeat reads, idempotent raw storage
 and rejection of missing/corrupt objects. Even provider-origin test declarations
 use invented data and evidence hashes; no actual capture approval is claimed.
-Port-level source-scoped reference resolution and retained-capture normalization
-are implemented with offline failure-path tests. Concrete pinned PostgreSQL
-composition, durable receipts and downstream integration remain deferred;
+Source-scoped reference resolution and retained-capture normalization are implemented
+with 49 offline tests and 100% statement coverage of both new ingestion modules.
+Pinned PostgreSQL composition has local integration coverage and 100% statement
+coverage: guards, connection cleanup, actual write rejection, concurrent canonical
+name edits and mapping corrections/revocations. Open snapshots retain the earlier
+view; fresh snapshots see changes, even at the same mapping cutoff. The authored
+Floci/PostgreSQL candidate path verifies retained raw evidence without acceptance,
+mapping writes or outbox entries. Run `scripts/test-integration -k sportmonks`.
+Durable receipts, acceptance and downstream consumers remain deferred;
 this is not completion of the Sportmonks adapter.
 
-Full `scripts/validate` passed locally on 2026-09-24 after the retained-reader
-increment: 1,265 Python unit tests, 179 integration tests plus the documented strict
-Floci delivery-DLQ expected
-failure, generated-artifact checks, formatting/lint/types, package tests, contract
+Full `scripts/validate` passed locally on 2026-09-24 after the canonical-reference
+increments: 1,314 Python unit tests, 183 integration tests plus the documented strict
+Floci delivery-DLQ expected failure, generated-artifact checks, formatting/lint/types,
+package tests, contract
 compatibility, credential-free synthesis, advisory scans and builds. Hosted CI,
 fresh-checkout and live provider validation were not run for this increment.

@@ -546,7 +546,11 @@ not a durable receipt or an input for legacy initial-event acceptance. Retained
 objects do not change when mappings change; a fresh lookup can differ even at the
 same cutoff. The cutoff is not proof of historical context availability.
 
-The caller must supply all repositories from one pinned read-only snapshot;
-concrete PostgreSQL composition is the next increment. No raw I/O belongs inside
-that snapshot. Run the offline tests with
+For stored mappings, pass `edgeeagle_persistence.sportmonks_references.sportmonks_reference_reads(engine)`
+as `reads`. It supplies all repositories from one REPEATABLE READ/read-only
+snapshot with 5-second SQL/idle timeouts, closing on success or failure. The caller
+owns engine lifecycle and connection/pool timeouts. No raw I/O belongs inside
+that snapshot. Run `scripts/test-integration -k sportmonks` for the authored local
+Floci/PostgreSQL candidate path and snapshot/correction/revocation checks.
+Run the offline tests with
 `uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_references.py tests/unit/test_sportmonks_normalization.py`.

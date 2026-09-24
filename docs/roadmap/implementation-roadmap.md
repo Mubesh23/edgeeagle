@@ -105,9 +105,11 @@ This is a private data-foundation view, not completion of the Phase 8 terminal.
 Next bounded provider increment: [ADR-037](../adr/ADR-037-sportmonks-fixture-adapter.md)
 defines authored Sportmonks v3 scheduled-fixture parsing: explicit native IDs,
 participant roles and cross-checked UTC kickoff. The pure parser and authored
-fixtures are implemented and covered by offline tests. Capture manifests, mappings,
-multi-source event observations and replay follow separately. Existing initial-only
-event acceptance remains unchanged; no live acquisition or model-ready data is implied.
+fixtures, capture manifests and integrity-checked retained reads are implemented,
+with offline and local Floci coverage. Canonical mappings, durable receipts,
+multi-source event observations and canonical replay follow separately. Existing
+initial-only event acceptance remains unchanged; no live acquisition or model-ready
+data is implied.
 
 Completed bounded provider goal: [ADR-035](../adr/ADR-035-odds-api-soccer-adapter.md) defines
 a fixture-first The Odds API pre-match soccer 1X2 adapter, retained mapping evidence,

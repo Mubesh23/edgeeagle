@@ -491,10 +491,36 @@ states/timezones and oversized inputs fail without side effects. Unknown additiv
 fields remain raw-only, including scores, xG, physical stadium IDs and processing
 or subscription clocks. Native IDs never become canonical business IDs here.
 
-The parser reads no files, environment, network or wall clock. A future composition
-must retain/verify raw bytes first and pin capture origin and rights evidence;
+The parser reads no files, environment, network or wall clock. The retained reader
+below verifies raw bytes first and pins declared origin and rights evidence;
 successful parsing is not retention or historical availability. Canonical mappings,
 receipt/storage compatibility, event correction and read-only consumer integration
 remain subsequent increments. Existing synthetic/CSV/Odds API paths are unchanged.
 See [authored fixture provenance](../../../tests/fixtures/providers/sportmonks/README.md).
 Run `uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_parser.py`.
+
+### Sportmonks capture manifest and retained reader
+
+`sportmonks_manifest.SportmonksCaptureManifest` binds a raw reference to a native
+fixture ID and the fixed `participants;state`/UTC request profile. The resource is
+the exact credential-free `/v3/football/fixtures/{fixture_id}` path, bounded to
+1 MiB. `AUTHORED_FIXTURE` requires only a simulated snapshot clock and is
+`SYNTHETIC_ONLY`; `PROVIDER_CAPTURE` requires actual capture time no later than raw
+ingestion, no simulated time, and a rights-evidence SHA-256 reference. That branch
+is `REPLAY_ONLY`, not approval to acquire or retain provider data. Digests do not
+authenticate or retrieve rights documents. Both paths require unknown availability.
+
+After `ingest_raw(LocalFileImporter(...), store)` retains the approved bytes,
+`read_sportmonks_capture(store, manifest)` reads once, checks size/hash, and parses
+using the manifest's explicit snapshot clock and expected fixture ID. It returns
+only native staging values, performs no writes, and fails on missing/corrupt bytes
+or unsupported payloads. No current-clock fallback or canonical reference access.
+
+Manifests are currently constructed by callers in memory, not serialized or loaded
+automatically from fixture sidecars. Durable receipts and canonical mappings are
+subsequent increments. Source-kind verification belongs to that later boundary;
+raw source identity is preserved, not inferred from a provider-specific ID string.
+
+Run `uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_manifest.py`.
+The Floci retention/reader composition is covered by
+`scripts/test-integration -k sportmonks_capture` (local services only).

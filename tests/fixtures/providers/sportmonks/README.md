@@ -16,7 +16,13 @@ network-disabled tests from root:
 
 ```sh
 uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_parser.py
+uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_manifest.py
 ```
 
+`scripts/test-integration -k sportmonks_capture` retains these authored bytes in a
+disposable Floci bucket and verifies repeat reads and corruption rejection. Tests
+construct manifests explicitly; the sidecar is documentation, not an automatic
+loader. Provider-origin manifest tests also use invented bytes and rights digests.
+
 The existing HTTP mock does not serve this fixture yet. No live provider contract
-test, acquisition, canonical mapping, persistence or model feature is implemented.
+test, acquisition, canonical mapping, durable receipt or model feature is implemented.

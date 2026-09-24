@@ -1,6 +1,6 @@
 # ADR-037 — Fixture-first Sportmonks soccer fundamentals
 
-**Status:** Accepted for bounded offline native parsing; downstream integration deferred  
+**Status:** Accepted for bounded offline parsing and retained reads; canonical integration deferred  
 **Date:** 2026-09-24
 
 ## Context
@@ -55,7 +55,7 @@ No downloaded provider response, token or real subscription metadata is committe
 Provider schema references and verification dates live in the
 [provider evaluation](../data/provider-evaluation.md#sportmonks-adapter-contract-review).
 
-Production composition must retain and verify raw bytes before parsing, using the
+Retained-read composition must retain and verify raw bytes before parsing, using the
 existing raw-store/offline boundaries. Parsing alone neither stores evidence nor
 establishes provider rights, actual observation time or historical availability.
 Kickoff, provider processing time, request time and subscription clocks must not be
@@ -67,14 +67,42 @@ fixture identities. No odds, market Venue, pricing, risk or execution is introdu
 Real acquisition/capture retention requires separate human rights review; no free
 plan or Football-Data-specific approval is generalized to Sportmonks.
 
+## Capture manifest and retained-read boundary
+
+`SportmonksCaptureManifest` binds an exact `RawPayloadReference` to the positive
+native fixture ID and fixed `include=participants;state`, `timezone=UTC` request.
+Its resource must equal `/v3/football/fixtures/{fixture_id}` without query strings
+or credentials, and its declared byte size must fit the parser's 1 MiB limit.
+
+- `AUTHORED_FIXTURE` requires an aware `simulated_snapshot_at`, null `captured_at`
+  and no rights claim; usage is `SYNTHETIC_ONLY`.
+- `PROVIDER_CAPTURE` requires aware actual `captured_at <= ingested_at`, no
+  simulated clock, and a lowercase SHA-256 reference to separately reviewed rights
+  evidence; usage is `REPLAY_ONLY`. A digest neither grants rights nor proves the
+  evidence document exists or is authentic. Actual use still requires human review.
+- Clocks normalize to UTC. Historical `available_at` must remain unknown in this
+  bounded path; neither origin can produce model/backtest-eligible data.
+
+`read_sportmonks_capture` reads the exact reference once and checks size and SHA-256
+before invoking the parser with the declared fixture ID and snapshot instant.
+Missing/corrupt bytes and unsupported payloads fail closed. It performs no raw
+writes, acquisition, reference lookup or canonical transaction. Callers compose
+existing `LocalFileImporter`, `ingest_raw` and `S3RawPayloadStore` for retention.
+Provider identity stays in the raw reference; verifying its registered source kind
+belongs to the later source-scoped mapping boundary, not a hard-coded source ID.
+
+This manifest is an in-memory declaration, not a persisted/versioned receipt or
+automatic sidecar loader. The caller must retain its evidence; native parser output
+alone is not durable replay provenance. No existing receipt format is changed.
+
 ## Delivery and validation
 
 1. Record this subset and provider references before code.
 2. Add authored single-fixture data and a pure parser with network-disabled tests:
    roles/order, IDs, kickoff agreement, malformed inputs, unsupported state and bounds.
-3. Later: explicit capture manifest/retained-read boundary, then source-scoped
-   mapping resolution. League, season, participant and event references must be
-   verified; no auto-creation or fuzzy mapping.
+3. Add an explicit capture manifest/retained-read boundary; then, separately,
+   source-scoped mapping resolution. League, season, participant and event references
+   must be verified; no auto-creation or fuzzy mapping.
 4. Later: review receipt/storage/correction compatibility before canonical writes,
    then deterministic retained replay and read-only consumers. Reuse infrastructure,
    not the provider-specific Odds API receipt format.
@@ -89,11 +117,17 @@ The pure scheduled-fixture parser and authored fixture are implemented with
 67 network-disabled tests and 100% parser statement coverage. Tests cover native
 identity bounds, exact roles independent of ordering, UTC/Unix agreement,
 snapshot cutoffs, missing/unsupported data, error envelopes and malformed JSON.
-Capture manifests, retained-read composition, canonical mappings and downstream
-integration remain unimplemented; this is not completion of the Sportmonks adapter.
+The capture manifest and integrity-checked retained reader are also implemented,
+with 34 additional offline tests and 100% manifest statement coverage. A local
+Floci test composes authored-file retention, repeat reads, idempotent raw storage
+and rejection of missing/corrupt objects. Even provider-origin test declarations
+use invented data and evidence hashes; no actual capture approval is claimed.
+Canonical mappings, durable receipts and downstream integration remain deferred;
+this is not completion of the Sportmonks adapter.
 
-Full `scripts/validate` passed locally on 2026-09-24: 1,231 Python unit tests,
-178 integration tests plus the documented strict Floci delivery-DLQ expected
+Full `scripts/validate` passed locally on 2026-09-24 after the retained-reader
+increment: 1,265 Python unit tests, 179 integration tests plus the documented strict
+Floci delivery-DLQ expected
 failure, generated-artifact checks, formatting/lint/types, package tests, contract
 compatibility, credential-free synthesis, advisory scans and builds. Hosted CI,
 fresh-checkout and live provider validation were not run for this increment.

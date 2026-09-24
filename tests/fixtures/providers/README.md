@@ -25,3 +25,9 @@ The fixture-only event projection validates retained bytes and uses explicit
 canonical bindings; it does not normalize bookmakers, markets, or prices.
 
 See [mock server usage](../../mock_providers/README.md).
+
+The separate [pre-match parser fixture](the_odds_api/pre-match-v1/metadata.json)
+uses the standard bookmaker-level update timestamp (no market timestamp required)
+and exact long decimal odds. It remains authored data with no real capture time;
+its explicit simulated snapshot instant is only a test clock. This new fixture
+does not replace the legacy synthetic payload or imply live provider validation.

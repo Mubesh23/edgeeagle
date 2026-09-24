@@ -108,3 +108,31 @@ licensing follows from this API approval. Those decisions remain separate.
 
 The goal is incomplete until the entire adapter-to-API path passes. A parser,
 mock HTTP response or synthetic-adapter rename alone does not satisfy it.
+
+## Implementation evidence
+
+The provider-native parser `edgeeagle_ingestion.odds_api_parser` now implements
+version `the-odds-api-soccer-h2h-json-v1`. It accepts UTF-8 JSON up to 1 MiB,
+0..100 events and 0..20 bookmakers per event, with at most one h2h market per
+bookmaker. Empty event/bookmaker/market collections are valid no-quote results;
+a present market must have exactly the three expected distinct outcomes. Native
+IDs/labels are bounded nonblank unpadded text. Duplicate JSON keys/identities,
+line-bearing or unsupported markets, nonfinite/nondecimal/invalid prices,
+malformed timestamps and mismatched competition keys fail the whole parse.
+
+The caller supplies an explicit aware snapshot instant; every kickoff must be
+strictly later. Known bookmaker and market update times are retained separately,
+normalized to UTC and rejected if later than that instant; neither is promoted
+to availability. Both may remain unknown. These checks do not authenticate capture
+evidence or approve bookmaker settlement rules: provenance and canonical mapping
+remain subsequent stages. Parsing sorts native results deterministically and has
+no storage, database, HTTP or credential access. Legacy synthetic parsing is unchanged.
+
+The new authored fixture at `tests/fixtures/providers/the_odds_api/pre-match-v1/`
+uses the standard bookmaker-level timestamp shape; its metadata explicitly sets
+`captured_at: null` and a separate simulated snapshot time. It is not a downloaded
+provider response. Offline tests cover exact long decimals, empty results,
+pre-match boundaries, malformed/duplicate data, size/text limits and ordering.
+The parser's 49 tests report 100% branch coverage. Mapping evidence, versioned
+receipts, database rollout, API extension and end-to-end goal validation remain
+unimplemented; parser success alone does not certify live provider compatibility.

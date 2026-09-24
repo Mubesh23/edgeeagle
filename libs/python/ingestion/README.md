@@ -339,3 +339,19 @@ duplicate-free retries, retained-context replay and raw-loss/corruption failures
 `scripts/test-integration -k market_import_bad` checks that an invalid final outcome
 is retained as raw but causes no write transaction or partial canonical effects.
 See [ADR-034](../../../docs/adr/ADR-034-synthetic-market-quotes.md).
+
+## The Odds API native parser
+
+`odds_api_parser.parse_soccer_h2h(body, sport_key=..., snapshot_at=...)` validates
+the complete bounded provider-shaped response before returning immutable native
+staging values. It supports only decimal/ISO pre-match soccer h2h; no network,
+canonical identity assignment, storage or mapping lookup occurs. Bookmaker and
+market update timestamps remain separate and unknown values remain unknown.
+Pass a documented capture instant (or explicitly simulated fixture instant), not
+the current wall clock during replay. Parser output alone does not prove capture
+origin, retention rights, regulation-time settlement or historical availability.
+
+Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_api_parser.py`
+for network-disabled coverage. Canonical mapping, retained provider receipts and
+API composition are follow-up increments under
+[ADR-035](../../../docs/adr/ADR-035-odds-api-soccer-adapter.md).

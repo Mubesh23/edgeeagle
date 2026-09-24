@@ -102,6 +102,12 @@ This is a private data-foundation view, not completion of the Phase 8 terminal.
 
 ## Phase 3 — V1 Provider Adapters
 
+Next provider goal: [ADR-035](../adr/ADR-035-odds-api-soccer-adapter.md) proposes
+a fixture-first The Odds API pre-match soccer 1X2 adapter, retained mapping evidence,
+idempotent persistence and read-only API results. Implementation awaits the
+documented protected API compatibility choice; no live calls or licensing changes
+are authorized by the proposal.
+
 Active market-foundation goal: [ADR-034](../adr/ADR-034-synthetic-market-quotes.md)
 defines authored soccer 1X2 ingestion through retained raw provenance, canonical
 markets/selections/quote observations, atomic idempotent persistence and bounded

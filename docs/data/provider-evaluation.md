@@ -93,6 +93,21 @@ Every provider evaluation should score:
 - Polymarket execution must be capability/jurisdiction gated separately from market-data ingestion.
 - SportsDataIO Discovery Lab is personal/non-commercial; a commercial product requires commercial terms.
 
+## Odds API adapter contract review
+
+Last verified: 2026-09-23 against the official
+[v4 guide](https://the-odds-api.com/liveapi/guides/v4/) and
+[market definitions](https://the-odds-api.com/sports-odds-data/betting-markets.html).
+
+The sport odds endpoint returns upcoming and live events. It supports explicit
+decimal odds, ISO dates, event/bookmaker selection and kickoff filters. Its
+standard example places `last_update` on bookmakers, not each h2h market. Soccer
+`h2h` includes a draw; exchange lay offers have a separate `h2h_lay` key. Usage
+headers report remaining, used and last-request credits. These contract facts do
+not establish capture licensing, executable freshness or historical availability.
+The bounded adapter proposal and compatibility decision are in
+[ADR-035](../adr/ADR-035-odds-api-soccer-adapter.md).
+
 ## Sources
 
 ### Football-Data results importer subset

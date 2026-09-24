@@ -14,6 +14,18 @@ only PostgreSQL, Floci, and the synthetic provider mock. Cleanup runs even after
 failure and does not delete volumes. A 30-minute timeout and concurrency
 cancellation limit redundant runs.
 
+After foundation validation, the job explicitly installs the lockfile-pinned
+Playwright Chromium browser and Linux dependencies with
+`corepack pnpm --filter @edgeeagle/web exec playwright install --with-deps chromium`,
+then runs `scripts/test-browser` before the tracked-file cleanliness check.
+Both browser steps are required: installation or test failure fails the job.
+The browser tier remains separate from `scripts/validate` and bootstrap locally.
+It exercises desktop/narrow Chromium against built static assets on a proxy-free
+loopback preview using authored API fixtures, never private retained datasets or
+a real backend. No deployment, private catalog configuration, or artifact upload
+is added. Ignored browser reports remain on the ephemeral runner only.
+See [browser coverage and local setup](../../apps/web/README.md).
+
 Registry/image downloads require public network access. GitHub-hosted runner
 minutes may count toward the repository owner's plan; no workflow is triggered
 or pushed by local development. Repository branch protection is not configured

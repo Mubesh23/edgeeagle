@@ -105,8 +105,9 @@ All standard commands run from repository root.
 `scripts/test-browser` is a separate explicit Chromium tier for the private web
 catalog, using authored API fixtures and a proxy-free loopback preview. It requires
 the pinned Playwright browser installation; see [browser setup](apps/web/README.md).
-It is not included in `scripts/validate` or hosted CI yet. Run both commands for
-web-browser changes. Generated screenshots/traces and HTML reports live in ignored
+It is not included in `scripts/validate`; hosted CI installs Chromium and runs it
+as a separate required step. Run both commands for web-browser changes.
+Generated screenshots/traces and HTML reports live in ignored
 `apps/web/test-results/` and `apps/web/playwright-report/`, sourced from the built
 web app and `apps/web/browser-tests`; regenerate with `scripts/test-browser`.
 

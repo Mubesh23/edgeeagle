@@ -116,8 +116,9 @@ Each provider adapter must have:
 The web also has a separate explicit `scripts/test-browser` tier: real Chromium
 against built static assets and authored, intercepted API fixtures, with no real
 backend/provider access. See [setup and scope](../../apps/web/README.md).
-It requires an explicit browser install and is not currently part of
-`scripts/validate` or hosted CI; run both for changes to the browser flow.
+It requires an explicit browser install and is not part of `scripts/validate`;
+hosted CI installs Chromium and runs the browser tier as a separate required step.
+Run both commands locally for changes to the browser flow.
 
 ### Tier 1 — Unit
 

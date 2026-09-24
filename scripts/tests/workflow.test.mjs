@@ -28,6 +28,27 @@ test("foundation CI uses pinned actions and the credential-free root workflow", 
       commands.indexOf("scripts/validate"),
   );
   assert.ok(commands.includes("git diff --exit-code"));
+  const browserInstall =
+    "corepack pnpm --filter @edgeeagle/web exec playwright install --with-deps chromium";
+  const orderedCommands = [
+    "scripts/bootstrap",
+    "scripts/validate",
+    browserInstall,
+    "scripts/test-browser",
+    "git diff --exit-code",
+  ];
+  for (const [index, command] of orderedCommands.entries()) {
+    assert.equal(commands.filter((value) => value === command).length, 1);
+    if (index > 0) {
+      assert.ok(
+        commands.indexOf(orderedCommands[index - 1]) <
+          commands.indexOf(command),
+      );
+    }
+    const step = job.steps.find((value) => value.run === command);
+    assert.equal(step.if, undefined);
+    assert.equal(step["continue-on-error"], undefined);
+  }
   assert.deepEqual(job.steps.at(-1), {
     name: "Stop local services without deleting volumes",
     if: "always()",

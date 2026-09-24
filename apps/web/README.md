@@ -85,8 +85,9 @@ scripts/test-browser
 On Linux, browser OS dependencies may require Playwright's
 `install --with-deps chromium` setup. Browser installation is explicit, not part
 of bootstrap, unit tests or `scripts/validate`. Run both `scripts/validate` and
-`scripts/test-browser` for browser-flow changes. Hosted CI is not yet wired to
-install/run this additional tier.
+`scripts/test-browser` for browser-flow changes. Hosted CI installs Chromium with
+Linux dependencies and runs this additional tier after foundation validation;
+either step failing fails the job. See [CI policy](../../docs/development/ci.md).
 
 The command builds the client/web and starts a dedicated static preview on
 127.0.0.1:4173 without an API proxy. It refuses to reuse an occupied port.

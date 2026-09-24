@@ -427,11 +427,86 @@
         "title": "QuoteListResponse",
         "type": "object"
       },
+      "QuoteMappingResponse": {
+        "properties": {
+          "available_at": {
+            "format": "date-time",
+            "title": "Available At",
+            "type": "string"
+          },
+          "canonical_entity_id": {
+            "title": "Canonical Entity Id",
+            "type": "string"
+          },
+          "canonical_entity_type": {
+            "title": "Canonical Entity Type",
+            "type": "string"
+          },
+          "provider_entity_id": {
+            "title": "Provider Entity Id",
+            "type": "string"
+          },
+          "provider_entity_type": {
+            "title": "Provider Entity Type",
+            "type": "string"
+          },
+          "revision": { "title": "Revision", "type": "integer" }
+        },
+        "required": [
+          "provider_entity_type",
+          "provider_entity_id",
+          "revision",
+          "canonical_entity_type",
+          "canonical_entity_id",
+          "available_at"
+        ],
+        "title": "QuoteMappingResponse",
+        "type": "object"
+      },
       "QuoteProvenanceResponse": {
         "properties": {
+          "bookmaker_updated_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Bookmaker Updated At"
+          },
+          "captured_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Captured At"
+          },
           "context_version": { "title": "Context Version", "type": "string" },
+          "mapping_as_of": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Mapping As Of"
+          },
+          "mapping_revisions": {
+            "items": { "$ref": "#/components/schemas/QuoteMappingResponse" },
+            "title": "Mapping Revisions",
+            "type": "array"
+          },
+          "market_updated_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Market Updated At"
+          },
           "normalizer_version": {
             "title": "Normalizer Version",
+            "type": "string"
+          },
+          "origin": {
+            "default": "AUTHORED_FIXTURE",
+            "enum": ["AUTHORED_FIXTURE", "PROVIDER_CAPTURE"],
+            "title": "Origin",
             "type": "string"
           },
           "parser_version": { "title": "Parser Version", "type": "string" },
@@ -453,8 +528,19 @@
           },
           "raw": { "$ref": "#/components/schemas/QuoteRawReferenceResponse" },
           "receipt_id": { "title": "Receipt Id", "type": "string" },
+          "settlement_profile_version": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Settlement Profile Version"
+          },
+          "simulated_snapshot_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Simulated Snapshot At"
+          },
           "usage": {
-            "const": "SYNTHETIC_ONLY",
+            "enum": ["SYNTHETIC_ONLY", "REPLAY_ONLY"],
             "title": "Usage",
             "type": "string"
           }
@@ -917,7 +1003,7 @@
     },
     "/v1/markets/{marketId}/quotes": {
       "get": {
-        "description": "Synthetic retained observations in ID order, not latest prices or historical as-of data.",
+        "description": "Retained observations in ID order, not executable prices or historical as-of data.",
         "operationId": "list_market_quotes",
         "parameters": [
           {

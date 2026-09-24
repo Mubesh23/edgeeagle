@@ -22,6 +22,8 @@ from edgeeagle_domain.markets import (
 )
 from edgeeagle_domain.sports import EventId, EventParticipant, ParticipantId
 from edgeeagle_ingestion.market_acceptance import MarketAcceptanceConflict
+from edgeeagle_ingestion.odds_manifest import OddsCaptureOrigin
+from edgeeagle_ingestion.odds_normalization import NormalizedOddsCapture
 from edgeeagle_ingestion.synthetic_markets import (
     NORMALIZER_VERSION,
     PARSER_VERSION,
@@ -29,6 +31,7 @@ from edgeeagle_ingestion.synthetic_markets import (
 )
 from edgeeagle_persistence._transactions import require_transaction
 from edgeeagle_persistence.markets import PostgresMarketAcceptanceRepository
+from edgeeagle_persistence.odds_captures import PostgresOddsCaptureReader
 
 
 class PostgresMarketReader:
@@ -128,7 +131,10 @@ class PostgresMarketReader:
         rows = (
             self._connection.execute(
                 text(
-                    "SELECT quote_id, receipt_id FROM market_quotes WHERE market_id = :id "
+                    "SELECT quote_id, receipt_id, origin_format FROM ("
+                    "SELECT quote_id, receipt_id, 1 AS origin_format, market_id FROM market_quotes "
+                    "UNION ALL SELECT quote_id, capture_id AS receipt_id, 2 AS origin_format, "
+                    "market_id FROM odds_capture_quotes) AS observations WHERE market_id = :id "
                     + ("AND quote_id > :after " if query.after_quote_id else "")
                     + "ORDER BY quote_id LIMIT :count"
                 ),
@@ -142,19 +148,88 @@ class PostgresMarketReader:
             .all()
         )
         receipts: dict[str, MarketCandidate] = {}
+        captures: dict[str, NormalizedOddsCapture] = {}
+        capture_reader = PostgresOddsCaptureReader(self._connection)
         repository = PostgresMarketAcceptanceRepository(self._connection)
         items = []
         for row in rows[: query.limit]:
             identity = row["receipt_id"]
+            if row["origin_format"] == 2:
+                if identity not in captures:
+                    capture = capture_reader.get(identity)
+                    if capture is None:
+                        raise MarketAcceptanceConflict("Quote capture is missing")
+                    captures[identity] = capture
+                capture = captures[identity]
+                observation = next(
+                    (
+                        o
+                        for o in capture.observations
+                        if o.market.market_id == market_id
+                        and any(q.quote_id.value == row["quote_id"] for q in o.quotes)
+                    ),
+                    None,
+                )
+                if observation is None:
+                    raise MarketAcceptanceConflict("Quote is absent from capture")
+                quote = next(q for q in observation.quotes if q.quote_id.value == row["quote_id"])
+                selection = next(
+                    s for s in observation.selections if s.selection_id == quote.selection_id
+                )
+                evidence = next(
+                    e
+                    for e in capture.evidence
+                    if e.guard.event_key.provider_entity_id == observation.provider_event_id
+                )
+                labels = {
+                    Outcome.HOME: evidence.guard.home_label,
+                    Outcome.AWAY: evidence.guard.away_label,
+                    Outcome.DRAW: "Draw",
+                }
+                profile = next(
+                    p
+                    for p in capture.manifest.settlement_profiles
+                    if p.bookmaker_key == observation.bookmaker_key
+                )
+                items.append(
+                    QuoteObservation(
+                        quote=quote,
+                        market_id=market_id,
+                        receipt_id=identity,
+                        raw=capture.manifest.raw,
+                        provider_event_id=observation.provider_event_id,
+                        provider_bookmaker_key=observation.bookmaker_key,
+                        provider_market_key="h2h",
+                        provider_outcome_label=labels[selection.outcome],
+                        parser_version=capture.parser_version,
+                        normalizer_version=capture.normalizer_version,
+                        context_version="odds-reference-snapshot-v1",
+                        usage=capture.manifest.usage,
+                        origin="AUTHORED_FIXTURE"
+                        if capture.manifest.origin is OddsCaptureOrigin.AUTHORED_FIXTURE
+                        else "PROVIDER_CAPTURE",
+                        mapping_as_of=evidence.references.as_of,
+                        mapping_revisions=evidence.references.revisions,
+                        bookmaker_updated_at=observation.bookmaker_updated_at,
+                        market_updated_at=observation.market_updated_at,
+                        captured_at=capture.manifest.captured_at,
+                        simulated_snapshot_at=capture.manifest.simulated_snapshot_at,
+                        settlement_profile_version=profile.version,
+                    )
+                )
+                continue
             if identity not in receipts:
                 candidate = repository.get(identity)
                 if candidate is None or candidate.market.market_id != market_id:
                     raise MarketAcceptanceConflict("Quote receipt is missing or mismatched")
                 receipts[identity] = candidate
             retained = receipts[identity]
-            quote = next((q for q in retained.quotes if q.quote_id.value == row["quote_id"]), None)
-            if quote is None:
+            retained_quote = next(
+                (q for q in retained.quotes if q.quote_id.value == row["quote_id"]), None
+            )
+            if retained_quote is None:
                 raise MarketAcceptanceConflict("Quote is absent from retained receipt")
+            quote = retained_quote
             selection = next(s for s in retained.selections if s.selection_id == quote.selection_id)
             labels = {
                 Outcome.HOME: retained.binding.event.home_label,

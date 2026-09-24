@@ -210,5 +210,10 @@ selection/market and venue. Both tables are immutable; downgrade locks them and
 refuses if retained captures exist. Readers must query both quote paths before
 new application writes are enabled. The local schema tests use disposable databases.
 
-Reader/API rollout, acceptance and end-to-end goal validation remain pending.
+The read-only quote API now unions both storage paths in one repeatable snapshot,
+checking full receipt/projection integrity. Additive provenance includes origin,
+mapping revision identities/cutoff, separate update scopes, capture/simulation
+time and settlement-profile version. Usage follows the approved enum extension;
+legacy authored observations remain SYNTHETIC_ONLY. No current mappings or raw S3
+reads enter API reads. Acceptance and end-to-end goal validation remain pending.
 Legacy synthetic receipts and quote identities are unchanged.

@@ -1,9 +1,11 @@
 """Bounded observation reads, not executable prices or historical research snapshots."""
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Literal, Protocol
 
 from edgeeagle_domain._validation import instance
+from edgeeagle_domain.mappings import ProviderMappingRevision
 from edgeeagle_domain.markets import Market, MarketId, Quote, QuoteId, Selection
 from edgeeagle_domain.raw import RawPayloadReference
 from edgeeagle_domain.sports import EventId
@@ -55,7 +57,15 @@ class QuoteObservation:
     parser_version: str
     normalizer_version: str
     context_version: str
-    usage: Literal["SYNTHETIC_ONLY"]
+    usage: Literal["SYNTHETIC_ONLY", "REPLAY_ONLY"]
+    origin: Literal["AUTHORED_FIXTURE", "PROVIDER_CAPTURE"] = "AUTHORED_FIXTURE"
+    mapping_as_of: datetime | None = None
+    mapping_revisions: tuple[ProviderMappingRevision, ...] = ()
+    bookmaker_updated_at: datetime | None = None
+    market_updated_at: datetime | None = None
+    captured_at: datetime | None = None
+    simulated_snapshot_at: datetime | None = None
+    settlement_profile_version: str | None = None
 
 
 @dataclass(frozen=True)

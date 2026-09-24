@@ -91,7 +91,7 @@ baseline. It does not add domain tables or database access to the health endpoin
 
 The same local PostgreSQL factory now enables `GET /v1/events/{eventId}/markets`
 and `GET /v1/markets/{marketId}/quotes`; the default app leaves these unconfigured
-and returns 503. Apply reviewed migration `0011_market_quotes` explicitly before
+and returns 503. Apply reviewed migration `0012_odds_captures` explicitly before
 using them. Startup never migrates or seeds. No provider calls or S3 reads occur.
 
 Both endpoints accept `limit` (1–100, default 50) and exclusive canonical-ID
@@ -100,7 +100,15 @@ cursors (`after_market_id` or `after_quote_id`). Responses contain `items` and
 Quote results expose exact `odds_decimal` strings, separate source/venue IDs,
 nullable unknown timestamps and retained normalization provenance. Raw capture
 checksums/metadata are included, but raw bodies, storage configuration and complete
-binding receipts are not. Usage is explicitly `SYNTHETIC_ONLY`.
+binding receipts are not. Legacy authored usage remains `SYNTHETIC_ONLY`.
+Odds API whole-capture observations also expose origin, selected mapping revisions
+and cutoff, separate bookmaker/market updates, actual or simulated capture time,
+and settlement-profile version. Their usage is derived as `SYNTHETIC_ONLY` for
+authored fixtures or `REPLAY_ONLY` for declared provider captures. These metadata
+do not verify licensing evidence or confer historical availability. Both storage
+paths participate in the same ID pagination; receipt/projection integrity is
+checked without consulting current mappings. See
+[ADR-035](../../docs/adr/ADR-035-odds-api-soccer-adapter.md).
 
 These are immutable observations, not latest/best/executable prices, fair prices
 or backtest-eligible records. Ordering is by canonical ID, not time; independent

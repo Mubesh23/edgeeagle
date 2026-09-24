@@ -74,6 +74,15 @@ class QuoteRawReferenceResponse(BaseModel):
     size_bytes: int
 
 
+class QuoteMappingResponse(BaseModel):
+    provider_entity_type: str
+    provider_entity_id: str
+    revision: int
+    canonical_entity_type: str
+    canonical_entity_id: str
+    available_at: datetime
+
+
 class QuoteProvenanceResponse(BaseModel):
     receipt_id: str
     raw: QuoteRawReferenceResponse
@@ -84,7 +93,15 @@ class QuoteProvenanceResponse(BaseModel):
     parser_version: str
     normalizer_version: str
     context_version: str
-    usage: Literal["SYNTHETIC_ONLY"]
+    usage: Literal["SYNTHETIC_ONLY", "REPLAY_ONLY"]
+    origin: Literal["AUTHORED_FIXTURE", "PROVIDER_CAPTURE"] = "AUTHORED_FIXTURE"
+    mapping_as_of: datetime | None = None
+    mapping_revisions: list[QuoteMappingResponse] = Field(default_factory=list)
+    bookmaker_updated_at: datetime | None = None
+    market_updated_at: datetime | None = None
+    captured_at: datetime | None = None
+    simulated_snapshot_at: datetime | None = None
+    settlement_profile_version: str | None = None
 
 
 class QuoteResponse(BaseModel):
@@ -140,6 +157,24 @@ class QuoteResponse(BaseModel):
                 normalizer_version=value.normalizer_version,
                 context_version=value.context_version,
                 usage=value.usage,
+                origin=value.origin,
+                mapping_as_of=value.mapping_as_of,
+                mapping_revisions=[
+                    QuoteMappingResponse(
+                        provider_entity_type=r.key.provider_entity_type,
+                        provider_entity_id=r.key.provider_entity_id,
+                        revision=r.revision,
+                        canonical_entity_type=type(r.canonical_entity_id).__name__,
+                        canonical_entity_id=r.canonical_entity_id.value,
+                        available_at=r.available_at,
+                    )
+                    for r in value.mapping_revisions
+                ],
+                bookmaker_updated_at=value.bookmaker_updated_at,
+                market_updated_at=value.market_updated_at,
+                captured_at=value.captured_at,
+                simulated_snapshot_at=value.simulated_snapshot_at,
+                settlement_profile_version=value.settlement_profile_version,
             ),
         )
 
@@ -209,7 +244,7 @@ def list_market_quotes(
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
     after_quote_id: Annotated[CanonicalText | None, Query()] = None,
 ) -> QuoteListResponse:
-    """Synthetic retained observations in ID order, not latest prices or historical as-of data."""
+    """Retained observations in ID order, not executable prices or historical as-of data."""
     query = QuoteQuery(
         limit=limit, after_quote_id=QuoteId(after_quote_id) if after_quote_id is not None else None
     )

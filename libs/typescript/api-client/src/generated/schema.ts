@@ -120,7 +120,7 @@ export interface paths {
     };
     /**
      * List Market Quotes
-     * @description Synthetic retained observations in ID order, not latest prices or historical as-of data.
+     * @description Retained observations in ID order, not executable prices or historical as-of data.
      */
     get: operations["list_market_quotes"];
     put?: never;
@@ -409,12 +409,46 @@ export interface components {
       /** Next After Quote Id */
       next_after_quote_id: string | null;
     };
+    /** QuoteMappingResponse */
+    QuoteMappingResponse: {
+      /**
+       * Available At
+       * Format: date-time
+       */
+      available_at: string;
+      /** Canonical Entity Id */
+      canonical_entity_id: string;
+      /** Canonical Entity Type */
+      canonical_entity_type: string;
+      /** Provider Entity Id */
+      provider_entity_id: string;
+      /** Provider Entity Type */
+      provider_entity_type: string;
+      /** Revision */
+      revision: number;
+    };
     /** QuoteProvenanceResponse */
     QuoteProvenanceResponse: {
+      /** Bookmaker Updated At */
+      bookmaker_updated_at?: string | null;
+      /** Captured At */
+      captured_at?: string | null;
       /** Context Version */
       context_version: string;
+      /** Mapping As Of */
+      mapping_as_of?: string | null;
+      /** Mapping Revisions */
+      mapping_revisions?: components["schemas"]["QuoteMappingResponse"][];
+      /** Market Updated At */
+      market_updated_at?: string | null;
       /** Normalizer Version */
       normalizer_version: string;
+      /**
+       * Origin
+       * @default AUTHORED_FIXTURE
+       * @enum {string}
+       */
+      origin: "AUTHORED_FIXTURE" | "PROVIDER_CAPTURE";
       /** Parser Version */
       parser_version: string;
       /** Provider Bookmaker Key */
@@ -428,11 +462,15 @@ export interface components {
       raw: components["schemas"]["QuoteRawReferenceResponse"];
       /** Receipt Id */
       receipt_id: string;
+      /** Settlement Profile Version */
+      settlement_profile_version?: string | null;
+      /** Simulated Snapshot At */
+      simulated_snapshot_at?: string | null;
       /**
        * Usage
-       * @constant
+       * @enum {string}
        */
-      usage: "SYNTHETIC_ONLY";
+      usage: "SYNTHETIC_ONLY" | "REPLAY_ONLY";
     };
     /** QuoteRawReferenceResponse */
     QuoteRawReferenceResponse: {

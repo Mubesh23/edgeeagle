@@ -102,6 +102,13 @@ This is a private data-foundation view, not completion of the Phase 8 terminal.
 
 ## Phase 3 — V1 Provider Adapters
 
+Active market-foundation goal: [ADR-034](../adr/ADR-034-synthetic-market-quotes.md)
+defines authored soccer 1X2 ingestion through retained raw provenance, canonical
+markets/selections/quote observations, atomic idempotent persistence and bounded
+read-only API results. The decision is recorded; implementation is pending.
+This fills a missing Phase 2 market slice before real-provider adapters, not model
+pricing, executable-price selection or historical backtest eligibility.
+
 First bounded goal: [ADR-028](../adr/ADR-028-football-data-results-import.md) defines
 a local Football-Data results CSV import with retained raw bytes, additive score
 receipts, stored replay snapshots, and authored offline fixtures. This bounded

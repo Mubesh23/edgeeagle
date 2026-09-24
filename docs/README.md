@@ -46,6 +46,7 @@ Local catalog: [ADR-031 — read-only retained dataset discovery](adr/ADR-031-lo
 Run it locally: [Dataset catalog operator guide](development/dataset-catalog.md).
 Local catalog API: [ADR-032 — private read-only HTTP consumer](adr/ADR-032-local-dataset-api.md).
 Local catalog UI: [ADR-033 — private read-only dataset browser](adr/ADR-033-private-dataset-browser.md).
+Synthetic markets: [ADR-034 — retained market and quote ingestion](adr/ADR-034-synthetic-market-quotes.md).
 
 - **PRD** owns product requirements and product-level non-functional requirements.
 - **TDD** owns architecture and technical implementation decisions.

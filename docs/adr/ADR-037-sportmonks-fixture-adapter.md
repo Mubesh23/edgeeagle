@@ -171,7 +171,9 @@ name edits and mapping corrections/revocations. Open snapshots retain the earlie
 view; fresh snapshots see changes, even at the same mapping cutoff. The authored
 Floci/PostgreSQL candidate path verifies retained raw evidence without acceptance,
 mapping writes or outbox entries. Run `scripts/test-integration -k sportmonks`.
-Durable receipts, acceptance and downstream consumers remain deferred;
+The separate receipt/atomic acceptance design is now recorded in
+[ADR-038](ADR-038-sportmonks-observation-receipts.md). Durable receipt and acceptance
+implementation and downstream consumers remain deferred;
 this is not completion of the Sportmonks adapter.
 
 Full `scripts/validate` passed locally on 2026-09-24 after the canonical-reference

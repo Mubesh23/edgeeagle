@@ -20,3 +20,5 @@ cdk.out/
 !.env.example
 .data/
 *.log
+apps/web/test-results/
+apps/web/playwright-report/

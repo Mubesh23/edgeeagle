@@ -72,6 +72,42 @@ identity mismatch, prior-success invalidation, refresh, empty states, cancellati
 and safe text rendering. All test data is authored synthetic data.
 These are component/transport tests, not real-browser E2E tests.
 
+## Real Chromium checks from the CLI
+
+Install the pinned browser once after bootstrap (public browser binaries, not
+provider data), then run the separate browser tier:
+
+```sh
+corepack pnpm --filter @edgeeagle/web exec playwright install chromium
+scripts/test-browser
+```
+
+On Linux, browser OS dependencies may require Playwright's
+`install --with-deps chromium` setup. Browser installation is explicit, not part
+of bootstrap, unit tests or `scripts/validate`. Run both `scripts/validate` and
+`scripts/test-browser` for browser-flow changes. Hosted CI is not yet wired to
+install/run this additional tier.
+
+The command builds the client/web and starts a dedicated static preview on
+127.0.0.1:4173 without an API proxy. It refuses to reuse an occupied port.
+Tests intercept API requests with authored fixtures, reject unexpected page
+requests, block service workers and use isolated Chromium contexts. No API,
+database, Floci, private catalog, desktop bridge or paid provider is required.
+Playwright shuts down its owned preview server after the run.
+
+Desktop (1280×900) and narrow (390×844) checks cover provenance, explicit replay,
+success followed by failure, unavailable/empty states, invalid eligibility and
+horizontal overflow. Success screenshots and failure artifacts are generated
+under ignored `apps/web/test-results/`; the ignored HTML report is under
+`apps/web/playwright-report/`. Regenerate with `scripts/test-browser`. Screenshots
+are inspection evidence, not committed pixel-diff baselines or a full accessibility
+audit. Narrow Chromium is not a native mobile or Safari test.
+
+References: [Playwright server lifecycle](https://playwright.dev/docs/test-webserver)
+and [request interception](https://playwright.dev/docs/network).
+
+## Earlier local validation evidence
+
 Local validation evidence (2026-09-23): all 24 web tests, lint, typing and build
 passed. A temporary loopback Vite/API smoke test served the app and exercised the
 generated client's catalog list/inspection through `/api`, returning 380 receipts

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+corepack pnpm --filter @edgeeagle/api-client build
+corepack pnpm --filter @edgeeagle/web build
+corepack pnpm --filter @edgeeagle/web test-browser "$@"

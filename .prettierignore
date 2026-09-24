@@ -12,6 +12,8 @@ node_modules/
 dist/
 build/
 cdk.out/
+apps/web/test-results/
+apps/web/playwright-report/
 # Generated output is formatted only by its generator.
 contracts/openapi/edgeeagle.json
 contracts/baselines/*.json

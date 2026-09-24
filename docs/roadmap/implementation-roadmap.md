@@ -107,7 +107,8 @@ defines authored soccer 1X2 ingestion through retained raw provenance, canonical
 markets/selections/quote observations, atomic idempotent persistence and bounded
 read-only API results. Pure domain values and market/selection identities are
 implemented, alongside retained fixture normalization, replay and strict versioned
-receipt serialization. Transactional persistence and API integration remain pending.
+receipt serialization and an additive PostgreSQL schema. Transactional acceptance
+and API integration remain pending.
 This fills a missing Phase 2 market slice before real-provider adapters, not model
 pricing, executable-price selection or historical backtest eligibility.
 

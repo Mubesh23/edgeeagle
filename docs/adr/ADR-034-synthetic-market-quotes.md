@@ -1,6 +1,6 @@
 # ADR-034 — Retained synthetic market and quote ingestion
 
-**Status:** Accepted; domain, fixture normalization and receipt codec implemented; storage/API pending  
+**Status:** Accepted; domain, normalization, codec and schema implemented; acceptance/API pending  
 **Date:** 2026-09-23
 
 ## Goal and scope
@@ -176,3 +176,17 @@ round trips remain replayable without current-state reads. This is a structural
 receipt codec, not evidence of database acceptance, complete capture coverage,
 artifact retention, live data authenticity or research eligibility. PostgreSQL
 acceptance and API integration remain pending.
+
+Migration `0011_market_quotes` adds four immutable tables with restrictive
+references and exact numeric quote observations. Composite FKs prevent a quote
+from disagreeing with its receipt's market/source/venue or its selection's market.
+Canonical receipt bytes are stored as text (not JSONB reserialization), with a
+1 MiB bound and envelope/source checks. Full canonical decoding, event-role
+consistency, three-outcome completeness and idempotent batch comparison belong to
+the upcoming repository; SQL constraints alone do not establish these guarantees.
+Quote native IDs are null for this initial synthetic profile. New provider/codec
+versions require an explicit additive rollout rather than silently accepting them.
+Downgrade removes only the new tables/function and requires review for populated
+non-test databases. Tests cover offline SQL, exact numeric storage, cross-reference
+rejection, immutability and disposable upgrade/downgrade/reapply with prior data
+preserved. No application database is automatically migrated.

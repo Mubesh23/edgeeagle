@@ -1,5 +1,18 @@
 # Database migrations
 
+Revision `0011_market_quotes` adds ADR-034's immutable `markets`,
+`market_selections`, `market_receipts` and `market_quotes`. Quote composite foreign
+keys bind observations to their receipt's market/source/venue and their selection's
+market. Prices use unconstrained exact numeric, rejecting nonfinite values and
+values <= 1; known timestamps must be finite and availability cannot exceed
+ingestion. Receipts retain exact canonical text up to 1 MiB; SQL checks envelope
+and source identity, while the codec/repository must verify all retained semantics.
+Cursor-read and reference indexes are included. No existing records are rewritten.
+Downgrade drops only these four new tables and their trigger function; it loses
+their observations and requires human review outside disposable tests. This
+revision adds schema only; transactional acceptance and market API wiring follow.
+No developer/private research database is automatically migrated.
+
 Revision `0010_soccer_receipts` permits additive format-3 score-bearing mapped
 receipts under ADR-028, preserving format-1/2 rows. Downgrade refuses while format-3
 receipts exist. Full evidence validation stays in the strict receipt codec.

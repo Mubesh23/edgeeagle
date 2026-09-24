@@ -398,3 +398,12 @@ Retained `get` validates persisted projections against the receipt without using
 current reference names. Raw replay/retention belongs before the write transaction,
 not inside this adapter. Run `scripts/test-integration -k market_acceptance` for
 disposable PostgreSQL concurrency, rollback, retry and reference-drift tests.
+
+`PostgresMarketReader` implements domain `MarketReader` for bounded event-market
+and market-quote pages. Supply an active REPEATABLE READ, READ ONLY transaction.
+Absent parents return `None`; existing empty parents return empty pages. Results
+sort by canonical ID with exclusive cursors, not time. Quote reads validate the
+retained receipt/projection and expose exact Decimal prices and provenance without
+S3 access or mutable reference-name lookups. Run
+`scripts/test-integration -k market_query` for pagination, snapshot, precision and
+corruption checks. This adapter does not yet expose HTTP endpoints.

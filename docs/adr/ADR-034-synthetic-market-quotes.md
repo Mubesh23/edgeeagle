@@ -211,3 +211,20 @@ Offline identity tests and disposable PostgreSQL tests exercise exact/concurrent
 retries, conflicting writers, new captures, commit visibility, outer rollback,
 reference drift and injected late failures across one and two bookmaker receipts.
 Read-only API and complete raw-to-API composition remain pending.
+
+Domain `market_query` now defines bounded market/quote queries, immutable read
+results and the `MarketReader` port. Persistence `PostgresMarketReader` requires
+an active REPEATABLE READ, READ ONLY transaction. Parent checks and page reads
+share that snapshot; missing parents return `None`, existing empty parents return
+empty pages. Parameterized exclusive-ID reads fetch at most limit plus one rows;
+the schema's C-collated ID indexes determine order, not observation time.
+
+Market pages include validated canonical selections. Quote pages validate retained
+receipts and their relational projections, caching each receipt within the page,
+then expose exact Decimal observations with raw capture identity and native
+locators/parser/normalizer/context versions. They perform no S3 access and do not
+consult current reference names. Corrupt quote projections fail closed, not as
+empty results. Tests cover paging, absent/empty parents, source provenance, exact
+long decimals, reference-name drift and snapshots excluding later commits.
+HTTP serialization, local API composition and end-to-end raw-to-API tests remain
+pending; these read ports alone do not complete the goal.

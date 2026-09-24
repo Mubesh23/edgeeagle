@@ -108,7 +108,8 @@ markets/selections/quote observations, atomic idempotent persistence and bounded
 read-only API results. Pure domain values and market/selection identities are
 implemented, alongside retained fixture normalization, replay and strict versioned
 receipt serialization, an additive PostgreSQL schema and transactional acceptance.
-Read-only API and complete raw-to-API composition remain pending.
+Bounded domain read ports and snapshot-consistent PostgreSQL market/quote queries
+are implemented. HTTP endpoints and complete raw-to-API composition remain pending.
 This fills a missing Phase 2 market slice before real-provider adapters, not model
 pricing, executable-price selection or historical backtest eligibility.
 

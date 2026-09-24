@@ -24,8 +24,9 @@ Bootstrap installs dependencies but does not regenerate contracts, ensuring stal
 artifacts remain detectable. Generator tests cover repeated identical output,
 missing artifacts, stale OpenAPI, stale TypeScript, and non-mutating checks.
 
-Only `/health` is implemented. Future domain routes and MCP tools in the design
-are not exported until their backend capabilities exist. See the
+Implemented contracts include liveness, event reads, private dataset inspection,
+and retained market/quote observations. Future domain routes and MCP tools in the
+design are not exported until their backend capabilities exist. See the
 [client package](../libs/typescript/api-client/README.md) for usage.
 
 Generated drift is separate from API compatibility. `scripts/check-contracts`

@@ -2,6 +2,40 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createApiClient } from "@edgeeagle/api-client";
 
+test("market reads preserve quote strings and exclusive cursors", async () => {
+  const requests = [];
+  const price = "2.123456789012345678901234567890123456789";
+  const client = createApiClient({
+    baseUrl: "http://127.0.0.1:8000",
+    fetch: async (request) => {
+      requests.push(request);
+      return Response.json({
+        items: [{ odds_decimal: price, available_at: null }],
+        next_after_quote_id: "next-quote",
+      });
+    },
+  });
+  const result = await client.GET("/v1/markets/{marketId}/quotes", {
+    params: {
+      path: { marketId: "market-a" },
+      query: { limit: 2, after_quote_id: "quote-a" },
+    },
+  });
+  assert.equal(result.data.items[0].odds_decimal, price);
+  assert.equal(result.data.items[0].available_at, null);
+  assert.equal(result.data.next_after_quote_id, "next-quote");
+  const quoteUrl = new URL(requests[0].url);
+  assert.equal(quoteUrl.pathname, "/v1/markets/market-a/quotes");
+  assert.equal(quoteUrl.searchParams.get("after_quote_id"), "quote-a");
+  assert.equal(quoteUrl.searchParams.get("limit"), "2");
+  await client.GET("/v1/events/{eventId}/markets", {
+    params: { path: { eventId: "event-a" }, query: { after_market_id: "market-a" } },
+  });
+  const marketUrl = new URL(requests[1].url);
+  assert.equal(marketUrl.pathname, "/v1/events/event-a/markets");
+  assert.equal(marketUrl.searchParams.get("after_market_id"), "market-a");
+});
+
 test("catalog inspection preserves the pinned identity and verification failures", async () => {
   const requests = [];
   const client = createApiClient({

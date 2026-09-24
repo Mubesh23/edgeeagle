@@ -109,7 +109,8 @@ read-only API results. Pure domain values and market/selection identities are
 implemented, alongside retained fixture normalization, replay and strict versioned
 receipt serialization, an additive PostgreSQL schema and transactional acceptance.
 Bounded domain read ports and snapshot-consistent PostgreSQL market/quote queries
-are implemented. HTTP endpoints and complete raw-to-API composition remain pending.
+and HTTP endpoints with generated contracts are implemented. Complete raw-to-API
+composition and full goal validation remain pending.
 This fills a missing Phase 2 market slice before real-provider adapters, not model
 pricing, executable-price selection or historical backtest eligibility.
 

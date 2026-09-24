@@ -45,7 +45,7 @@ Use the [catalog configuration guide](../../docs/development/dataset-catalog.md)
 Configuration is loaded once; restart to change pins. Storage clients are scoped
 to requests and always closed. No PostgreSQL connection, migration, bucket creation
 or provider request occurs. Event reads remain unconfigured in this factory;
-the existing event factory remains separate and unchanged. This development
+the existing event/market factory remains separate. This development
 interface has no authentication: keep both API and development proxy bound to
 127.0.0.1. The existing loopback-only Vite `/api/*` proxy is permitted; LAN/internet
 exposure, externally reachable proxies or tunnels, and hosted deployment are not.
@@ -86,3 +86,28 @@ event loop. Builds use the locked Hatchling installation without network access.
 
 The [migration framework](migrations/README.md) establishes the local Alembic
 baseline. It does not add domain tables or database access to the health endpoint.
+
+## Local market observations
+
+The same local PostgreSQL factory now enables `GET /v1/events/{eventId}/markets`
+and `GET /v1/markets/{marketId}/quotes`; the default app leaves these unconfigured
+and returns 503. Apply reviewed migration `0011_market_quotes` explicitly before
+using them. Startup never migrates or seeds. No provider calls or S3 reads occur.
+
+Both endpoints accept `limit` (1–100, default 50) and exclusive canonical-ID
+cursors (`after_market_id` or `after_quote_id`). Responses contain `items` and
+`next_after_market_id` / `next_after_quote_id`. Market results include selections.
+Quote results expose exact `odds_decimal` strings, separate source/venue IDs,
+nullable unknown timestamps and retained normalization provenance. Raw capture
+checksums/metadata are included, but raw bodies, storage configuration and complete
+binding receipts are not. Usage is explicitly `SYNTHETIC_ONLY`.
+
+These are immutable observations, not latest/best/executable prices, fair prices
+or backtest-eligible records. Ordering is by canonical ID, not time; independent
+requests do not constitute a frozen historical dataset. Parent existence and each
+page use one read-only repeatable-read snapshot. Missing parents return 404;
+existing parents with no results return empty pages. Invalid input returns 422,
+database unavailability returns sanitized 503, and integrity/programming failures
+remain server errors. No mutation endpoint, auth/CORS or exposure policy is added.
+See [ADR-034](../../docs/adr/ADR-034-synthetic-market-quotes.md); verify the database
+composition with `scripts/test-integration -k market_api`.

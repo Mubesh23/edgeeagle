@@ -36,3 +36,4 @@ def test_local_lifecycle_is_lazy_and_disposes(monkeypatch: pytest.MonkeyPatch) -
         assert constructor.call_args.kwargs["connect_args"]["hostaddr"] == "127.0.0.1"
     engine.dispose.assert_called_once()
     assert app.state.event_reads is None
+    assert app.state.market_reads is None

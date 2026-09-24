@@ -406,4 +406,5 @@ sort by canonical ID with exclusive cursors, not time. Quote reads validate the
 retained receipt/projection and expose exact Decimal prices and provenance without
 S3 access or mutable reference-name lookups. Run
 `scripts/test-integration -k market_query` for pagination, snapshot, precision and
-corruption checks. This adapter does not yet expose HTTP endpoints.
+corruption checks. The explicit local API factory exposes these reads through
+[market endpoints](../../../apps/api/README.md#local-market-observations).

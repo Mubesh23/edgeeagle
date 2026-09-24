@@ -297,6 +297,256 @@
         "title": "HealthResponse",
         "type": "object"
       },
+      "MarketErrorResponse": {
+        "properties": { "detail": { "title": "Detail", "type": "string" } },
+        "required": ["detail"],
+        "title": "MarketErrorResponse",
+        "type": "object"
+      },
+      "MarketListResponse": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/MarketResponse" },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_after_market_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Next After Market Id"
+          }
+        },
+        "required": ["items", "next_after_market_id"],
+        "title": "MarketListResponse",
+        "type": "object"
+      },
+      "MarketPeriod": {
+        "enum": ["REGULATION_TIME"],
+        "title": "MarketPeriod",
+        "type": "string"
+      },
+      "MarketResponse": {
+        "properties": {
+          "event_id": { "title": "Event Id", "type": "string" },
+          "market_id": { "title": "Market Id", "type": "string" },
+          "market_type": { "$ref": "#/components/schemas/MarketType" },
+          "period": { "$ref": "#/components/schemas/MarketPeriod" },
+          "selections": {
+            "items": { "$ref": "#/components/schemas/MarketSelectionResponse" },
+            "title": "Selections",
+            "type": "array"
+          }
+        },
+        "required": [
+          "market_id",
+          "event_id",
+          "market_type",
+          "period",
+          "selections"
+        ],
+        "title": "MarketResponse",
+        "type": "object"
+      },
+      "MarketSelectionResponse": {
+        "properties": {
+          "outcome": { "$ref": "#/components/schemas/Outcome" },
+          "participant_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Participant Id"
+          },
+          "selection_id": { "title": "Selection Id", "type": "string" }
+        },
+        "required": ["selection_id", "outcome", "participant_id"],
+        "title": "MarketSelectionResponse",
+        "type": "object"
+      },
+      "MarketType": {
+        "enum": ["RESULT_3WAY"],
+        "title": "MarketType",
+        "type": "string"
+      },
+      "Outcome": {
+        "enum": ["HOME", "DRAW", "AWAY"],
+        "title": "Outcome",
+        "type": "string"
+      },
+      "QuoteCaptureResponse": {
+        "properties": {
+          "available_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Available At"
+          },
+          "data_source_id": { "title": "Data Source Id", "type": "string" },
+          "effective_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Effective At"
+          },
+          "ingested_at": {
+            "format": "date-time",
+            "title": "Ingested At",
+            "type": "string"
+          },
+          "observed_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Observed At"
+          },
+          "resource": { "title": "Resource", "type": "string" }
+        },
+        "required": [
+          "data_source_id",
+          "resource",
+          "ingested_at",
+          "effective_at",
+          "observed_at",
+          "available_at"
+        ],
+        "title": "QuoteCaptureResponse",
+        "type": "object"
+      },
+      "QuoteListResponse": {
+        "properties": {
+          "items": {
+            "items": { "$ref": "#/components/schemas/QuoteResponse" },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_after_quote_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Next After Quote Id"
+          }
+        },
+        "required": ["items", "next_after_quote_id"],
+        "title": "QuoteListResponse",
+        "type": "object"
+      },
+      "QuoteProvenanceResponse": {
+        "properties": {
+          "context_version": { "title": "Context Version", "type": "string" },
+          "normalizer_version": {
+            "title": "Normalizer Version",
+            "type": "string"
+          },
+          "parser_version": { "title": "Parser Version", "type": "string" },
+          "provider_bookmaker_key": {
+            "title": "Provider Bookmaker Key",
+            "type": "string"
+          },
+          "provider_event_id": {
+            "title": "Provider Event Id",
+            "type": "string"
+          },
+          "provider_market_key": {
+            "title": "Provider Market Key",
+            "type": "string"
+          },
+          "provider_outcome_label": {
+            "title": "Provider Outcome Label",
+            "type": "string"
+          },
+          "raw": { "$ref": "#/components/schemas/QuoteRawReferenceResponse" },
+          "receipt_id": { "title": "Receipt Id", "type": "string" },
+          "usage": {
+            "const": "SYNTHETIC_ONLY",
+            "title": "Usage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "receipt_id",
+          "raw",
+          "provider_event_id",
+          "provider_bookmaker_key",
+          "provider_market_key",
+          "provider_outcome_label",
+          "parser_version",
+          "normalizer_version",
+          "context_version",
+          "usage"
+        ],
+        "title": "QuoteProvenanceResponse",
+        "type": "object"
+      },
+      "QuoteRawReferenceResponse": {
+        "properties": {
+          "capture": { "$ref": "#/components/schemas/QuoteCaptureResponse" },
+          "sha256": { "title": "Sha256", "type": "string" },
+          "size_bytes": { "title": "Size Bytes", "type": "integer" }
+        },
+        "required": ["capture", "sha256", "size_bytes"],
+        "title": "QuoteRawReferenceResponse",
+        "type": "object"
+      },
+      "QuoteResponse": {
+        "properties": {
+          "available_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Available At"
+          },
+          "data_source_id": { "title": "Data Source Id", "type": "string" },
+          "effective_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Effective At"
+          },
+          "ingested_at": {
+            "format": "date-time",
+            "title": "Ingested At",
+            "type": "string"
+          },
+          "market_id": { "title": "Market Id", "type": "string" },
+          "observed_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Observed At"
+          },
+          "odds_decimal": {
+            "description": "Exact decimal observation, encoded as a string; not an executable price.",
+            "title": "Odds Decimal",
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/QuoteProvenanceResponse"
+          },
+          "provider_quote_id": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "title": "Provider Quote Id"
+          },
+          "quote_id": { "title": "Quote Id", "type": "string" },
+          "selection_id": { "title": "Selection Id", "type": "string" },
+          "venue_id": { "title": "Venue Id", "type": "string" }
+        },
+        "required": [
+          "quote_id",
+          "market_id",
+          "selection_id",
+          "data_source_id",
+          "venue_id",
+          "odds_decimal",
+          "ingested_at",
+          "observed_at",
+          "available_at",
+          "effective_at",
+          "provider_quote_id",
+          "provenance"
+        ],
+        "title": "QuoteResponse",
+        "type": "object"
+      },
       "RawCapture": {
         "properties": {
           "available_at": {
@@ -593,6 +843,146 @@
           }
         },
         "summary": "Get Event"
+      }
+    },
+    "/v1/events/{eventId}/markets": {
+      "get": {
+        "description": "Canonical-ID pages; independent requests do not form a frozen dataset.",
+        "operationId": "list_event_markets",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eventId",
+            "required": true,
+            "schema": { "title": "Eventid", "type": "string" }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after_market_id",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "After Market Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MarketListResponse" }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MarketErrorResponse" }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MarketErrorResponse" }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "List Event Markets"
+      }
+    },
+    "/v1/markets/{marketId}/quotes": {
+      "get": {
+        "description": "Synthetic retained observations in ID order, not latest prices or historical as-of data.",
+        "operationId": "list_market_quotes",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "marketId",
+            "required": true,
+            "schema": { "title": "Marketid", "type": "string" }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after_quote_id",
+            "required": false,
+            "schema": {
+              "anyOf": [{ "type": "string" }, { "type": "null" }],
+              "title": "After Quote Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/QuoteListResponse" }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MarketErrorResponse" }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MarketErrorResponse" }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "List Market Quotes"
       }
     }
   }

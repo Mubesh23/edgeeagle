@@ -1,6 +1,6 @@
 # ADR-034 — Retained synthetic market and quote ingestion
 
-**Status:** Accepted; normalization and transactional acceptance implemented; API/composition pending  
+**Status:** Accepted; persistence and read-only API implemented; end-to-end composition pending  
 **Date:** 2026-09-23
 
 ## Goal and scope
@@ -228,3 +228,13 @@ empty results. Tests cover paging, absent/empty parents, source provenance, exac
 long decimals, reference-name drift and snapshots excluding later commits.
 HTTP serialization, local API composition and end-to-end raw-to-API tests remain
 pending; these read ports alone do not complete the goal.
+
+The two GET endpoints now serialize these read ports through the existing explicit
+loopback PostgreSQL factory. The default app remains unconfigured. Generated
+OpenAPI and TypeScript artifacts include market selections, decimal-string quote
+prices and nested provenance (raw capture/checksum/size, native locators and
+normalization versions), without raw bodies or storage configuration. Unit tests
+cover boundary validation, 404/503/500 behavior, read-only methods and exact decimal
+serialization; disposable PostgreSQL-to-HTTP tests cover committed visibility,
+pagination, provenance and unchanged results after an exact acceptance retry.
+Complete local-file/Floci-to-API composition and full validation remain pending.

@@ -91,6 +91,46 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/events/{eventId}/markets": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Event Markets
+     * @description Canonical-ID pages; independent requests do not form a frozen dataset.
+     */
+    get: operations["list_event_markets"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/markets/{marketId}/quotes": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Market Quotes
+     * @description Synthetic retained observations in ID order, not latest prices or historical as-of data.
+     */
+    get: operations["list_market_quotes"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -297,6 +337,142 @@ export interface components {
        * @constant
        */
       status: "ok";
+    };
+    /** MarketErrorResponse */
+    MarketErrorResponse: {
+      /** Detail */
+      detail: string;
+    };
+    /** MarketListResponse */
+    MarketListResponse: {
+      /** Items */
+      items: components["schemas"]["MarketResponse"][];
+      /** Next After Market Id */
+      next_after_market_id: string | null;
+    };
+    /**
+     * MarketPeriod
+     * @enum {string}
+     */
+    MarketPeriod: "REGULATION_TIME";
+    /** MarketResponse */
+    MarketResponse: {
+      /** Event Id */
+      event_id: string;
+      /** Market Id */
+      market_id: string;
+      market_type: components["schemas"]["MarketType"];
+      period: components["schemas"]["MarketPeriod"];
+      /** Selections */
+      selections: components["schemas"]["MarketSelectionResponse"][];
+    };
+    /** MarketSelectionResponse */
+    MarketSelectionResponse: {
+      outcome: components["schemas"]["Outcome"];
+      /** Participant Id */
+      participant_id: string | null;
+      /** Selection Id */
+      selection_id: string;
+    };
+    /**
+     * MarketType
+     * @enum {string}
+     */
+    MarketType: "RESULT_3WAY";
+    /**
+     * Outcome
+     * @enum {string}
+     */
+    Outcome: "HOME" | "DRAW" | "AWAY";
+    /** QuoteCaptureResponse */
+    QuoteCaptureResponse: {
+      /** Available At */
+      available_at: string | null;
+      /** Data Source Id */
+      data_source_id: string;
+      /** Effective At */
+      effective_at: string | null;
+      /**
+       * Ingested At
+       * Format: date-time
+       */
+      ingested_at: string;
+      /** Observed At */
+      observed_at: string | null;
+      /** Resource */
+      resource: string;
+    };
+    /** QuoteListResponse */
+    QuoteListResponse: {
+      /** Items */
+      items: components["schemas"]["QuoteResponse"][];
+      /** Next After Quote Id */
+      next_after_quote_id: string | null;
+    };
+    /** QuoteProvenanceResponse */
+    QuoteProvenanceResponse: {
+      /** Context Version */
+      context_version: string;
+      /** Normalizer Version */
+      normalizer_version: string;
+      /** Parser Version */
+      parser_version: string;
+      /** Provider Bookmaker Key */
+      provider_bookmaker_key: string;
+      /** Provider Event Id */
+      provider_event_id: string;
+      /** Provider Market Key */
+      provider_market_key: string;
+      /** Provider Outcome Label */
+      provider_outcome_label: string;
+      raw: components["schemas"]["QuoteRawReferenceResponse"];
+      /** Receipt Id */
+      receipt_id: string;
+      /**
+       * Usage
+       * @constant
+       */
+      usage: "SYNTHETIC_ONLY";
+    };
+    /** QuoteRawReferenceResponse */
+    QuoteRawReferenceResponse: {
+      capture: components["schemas"]["QuoteCaptureResponse"];
+      /** Sha256 */
+      sha256: string;
+      /** Size Bytes */
+      size_bytes: number;
+    };
+    /** QuoteResponse */
+    QuoteResponse: {
+      /** Available At */
+      available_at: string | null;
+      /** Data Source Id */
+      data_source_id: string;
+      /** Effective At */
+      effective_at: string | null;
+      /**
+       * Ingested At
+       * Format: date-time
+       */
+      ingested_at: string;
+      /** Market Id */
+      market_id: string;
+      /** Observed At */
+      observed_at: string | null;
+      /**
+       * Odds Decimal
+       * @description Exact decimal observation, encoded as a string; not an executable price.
+       */
+      odds_decimal: string;
+      provenance: components["schemas"]["QuoteProvenanceResponse"];
+      /** Provider Quote Id */
+      provider_quote_id: string | null;
+      /** Quote Id */
+      quote_id: string;
+      /** Selection Id */
+      selection_id: string;
+      /** Venue Id */
+      venue_id: string;
     };
     /** RawCapture */
     RawCapture: {
@@ -532,6 +708,110 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["EventErrorResponse"];
+        };
+      };
+    };
+  };
+  list_event_markets: {
+    parameters: {
+      query?: {
+        limit?: number;
+        after_market_id?: string | null;
+      };
+      header?: never;
+      path: {
+        eventId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MarketListResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MarketErrorResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Service Unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MarketErrorResponse"];
+        };
+      };
+    };
+  };
+  list_market_quotes: {
+    parameters: {
+      query?: {
+        limit?: number;
+        after_quote_id?: string | null;
+      };
+      header?: never;
+      path: {
+        marketId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuoteListResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MarketErrorResponse"];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HTTPValidationError"];
+        };
+      };
+      /** @description Service Unavailable */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MarketErrorResponse"];
         };
       };
     };

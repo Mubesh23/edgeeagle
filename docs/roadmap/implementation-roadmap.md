@@ -102,11 +102,19 @@ This is a private data-foundation view, not completion of the Phase 8 terminal.
 
 ## Phase 3 — V1 Provider Adapters
 
-Active provider goal: [ADR-035](../adr/ADR-035-odds-api-soccer-adapter.md) defines
+Completed bounded provider goal: [ADR-035](../adr/ADR-035-odds-api-soccer-adapter.md) defines
 a fixture-first The Odds API pre-match soccer 1X2 adapter, retained mapping evidence,
 idempotent persistence and read-only API results. The user approved extending the
 existing quote usage response to distinguish synthetic and replay-only captures;
-implementation is in progress. No live calls or licensing changes are authorized.
+the offline path is implemented through whole-capture receipts, immutable storage,
+atomic acceptance and snapshot-consistent API reads. Authored end-to-end tests
+cover replay after mapping correction/revocation and reject corrupt raw evidence.
+Full `scripts/validate` passed locally on 2026-09-24 (1,164 Python unit tests;
+178 integration tests plus the known strict Floci delivery-DLQ expected failure).
+This closes the fixture-first goal, not Phase 3's multi-provider exit. Real capture
+rights/settlement evidence, explicit provider contract tests and historically
+eligible datasets remain separate gates. No live calls or licensing changes are
+authorized by this completion.
 
 Active market-foundation goal: [ADR-034](../adr/ADR-034-synthetic-market-quotes.md)
 defines authored soccer 1X2 ingestion through retained raw provenance, canonical

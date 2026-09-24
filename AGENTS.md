@@ -81,6 +81,13 @@ use explicit local PostgreSQL composition. See
 `scripts/test-integration -k market_fixture_raw_to_api` verifies the complete
 authored local-file/Floci/PostgreSQL/API path. This is synthetic-only, not live
 provider validation, executable pricing or backtest-eligible history.
+The offline Odds API pre-match v4 path now retains whole-capture mapping evidence,
+stores immutable receipts/quotes under migration `0012_odds_captures`, and exposes
+them through the same read-only API. Authored Floci/PostgreSQL/API tests use
+`scripts/test-integration -k odds_fixture_raw_to_api`. Source/venue separation,
+exact prices and unknown historical availability remain intact; no live provider
+calls or actual rights/settlement approval are implied. See
+[ADR-035](docs/adr/ADR-035-odds-api-soccer-adapter.md).
 The API now exposes current-state event list/detail contracts, with explicit local
 PostgreSQL composition, bounded ID pagination, and read-only request transactions.
 The default credential-free app returns 503 for unconfigured event reads; see

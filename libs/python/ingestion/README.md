@@ -352,8 +352,7 @@ the current wall clock during replay. Parser output alone does not prove capture
 origin, retention rights, regulation-time settlement or historical availability.
 
 Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_api_parser.py`
-for network-disabled coverage. Retained provider receipts and API composition
-remain follow-up increments under
+for network-disabled coverage. Retained receipts and offline API composition follow
 [ADR-035](../../../docs/adr/ADR-035-odds-api-soccer-adapter.md).
 
 `odds_references.resolve_odds_references` resolves explicit source-scoped
@@ -367,9 +366,8 @@ Use persistence `odds_references.odds_reference_reads(engine)` for one REPEATABL
 READ, read-only snapshot across a capture, with bounded SQL/idle waits. Complete
 these reads before the acceptance transaction; do not perform raw storage I/O
 inside the snapshot. Caller owns engine lifecycle and connection/pool timeouts.
-Returned reference evidence is currently in-memory only. Capture normalization
-now composes these reads with the manifest; a retained codec and persistence
-rollout remain separate increments.
+Capture normalization composes these reads with the manifest. Whole-capture
+receipts preserve the selected evidence through persistence and replay.
 
 `odds_guards.OddsEventGuard` records explicit provider HOME/AWAY labels associated
 with canonical participant IDs, a source-scoped event key and the expected kickoff.
@@ -378,7 +376,7 @@ pinned references without repository reads. Labels must match exactly (not canon
 display names); participant roles, event/competition identity and all three kickoff
 values must agree. Kickoff must be strictly after the supplied capture/fixture instant.
 This pure guard does not establish rights, settlement semantics or historical
-availability. It is now used by normalization, but not yet persisted in receipts.
+availability. Normalization retains it in whole-capture receipts.
 Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_guards.py`
 for its offline tests.
 
@@ -424,7 +422,7 @@ Empty captures and no-quote events retain their evidence without invented prices
 Versioned observation IDs bind the complete manifest/raw identity and native
 event/bookmaker/outcome, not derived prices or canonical mappings. A mapping
 correction therefore changes the projection rather than silently allocating a
-second observation for the same capture. Future acceptance must compare the full
+second observation for the same capture. Acceptance compares the full
 projection on retry. Legacy synthetic identities/receipts are unchanged.
 `replay_odds_capture(store, result)` re-reads raw bytes and compares the full
 projection using only retained references, including after current mappings change
@@ -444,3 +442,36 @@ Run `uv run --locked --offline --all-packages pytest tests/unit/test_odds_receip
 
 Run `scripts/test-integration -k odds_reference` to check snapshot isolation,
 concurrent revocation and transaction guards against disposable PostgreSQL.
+
+### Offline Odds API import and retained replay
+
+`odds_import.import_odds_capture(importer, store, manifest, guards, reads,
+transactions, as_of=...)` composes the bounded offline path. Declare the expected
+raw reference and reviewed context explicitly; the importer cannot silently replace
+the manifest. Raw retention precedes parsing. One reference snapshot covers the
+capture; normalization, receipt validation and raw replay finish before entering
+the caller's write transaction. Acceptance/readback must match, and success returns
+only after the context commits. Failed imports can leave raw evidence, but no
+partially accepted quote prefix. Empty captures persist a receipt without prices.
+
+Use `odds_reference_reads(engine)` for the PostgreSQL read composition. Supply a
+write context yielding `PostgresOddsCaptureRepository` in READ COMMITTED with
+bounded lock/statement timeouts, commit on clean exit and rollback on failure.
+No public write endpoint, automatic migrations, live requests or event publication
+are introduced. The complete executable composition is exercised in
+`tests/integration/test_odds_import.py`.
+
+For replay, fetch `repository.get(capture_id)` in a short database transaction,
+close it, then call `replay_odds_capture(store, retained)` outside the transaction.
+`accept_retained_odds_capture(store, retained, transactions)` additionally performs
+an idempotent acceptance retry after verifying raw bytes, without current mapping
+resolution. Fresh normalization after a mapping correction conflicts with the
+original receipt; revoked mappings fail fresh resolution. Neither changes a
+retained historical observation. API reads report stored evidence without claiming
+fresh raw verification or current suitability.
+
+Run `scripts/test-integration -k 'odds_fixture_raw_to_api or odds_import_empty'`
+for authored Floci/PostgreSQL/API tests covering corrections, revocations, empty
+captures, malformed responses and raw corruption. All evidence is invented;
+provider capture rights/settlement review and historically eligible data remain
+outside this goal. The legacy synthetic import path is unchanged.

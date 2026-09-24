@@ -223,5 +223,18 @@ mapping evidence from the earlier snapshot; subsequent mappings are not substitu
 Sorted event locks and full projection comparisons reject conflicting retries;
 unique capture insertion also handles concurrent empty captures. Exact retained
 retries avoid current mapping resolution. No S3 I/O occurs inside acceptance.
-Import orchestration and end-to-end goal validation remain pending.
+Offline import orchestration now retains bytes, checks the declared manifest,
+normalizes with one reference snapshot, validates the receipt and verifies raw
+replay before entering acceptance. Readback must match and success waits for
+commit. Retained retry uses original context without current mapping lookup.
+Authored Floci/PostgreSQL/API tests cover exact prices, duplicate imports,
+mapping correction/revocation, empty/no-quote captures, malformed outcomes and
+raw corruption. Full `scripts/validate` passed locally on 2026-09-24: 1,164 Python
+unit tests, 178 integration tests and the one documented strict Floci delivery-DLQ
+expected failure, plus generated contracts, formatting/lint/types, package tests,
+contract checks, synthesis, advisory scans and builds. The first run exposed two
+stale API/migration assertions; both were corrected before the clean full rerun.
+The preceding-contract comparison against `6ca2968` reported only the approved
+usage constant removal and enum additions; the frozen foundation check passed.
+This closes the fixture-first goal, not live provider validation or Phase 3.
 Legacy synthetic receipts and quote identities are unchanged.

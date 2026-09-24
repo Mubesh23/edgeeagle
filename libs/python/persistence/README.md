@@ -384,3 +384,17 @@ No paid provider or AWS credentials are used.
 
 Root checks include this package; `scripts/build` regenerates its ignored sdist
 and wheel under root `dist/`.
+
+## Synthetic market acceptance
+
+`PostgresMarketAcceptanceRepository` implements ingestion's acceptance port under
+[ADR-034](../../../docs/adr/ADR-034-synthetic-market-quotes.md). Supply an active
+caller-owned READ COMMITTED transaction and a complete normalized capture. It
+checks existing canonical context, stores immutable markets/selections/quotes and
+receipts atomically, and returns the newly inserted receipt count (zero on exact
+retry). Conflicts fail without overwriting evidence; an operation savepoint removes
+partial writes even when the caller catches the error. The caller commits.
+Retained `get` validates persisted projections against the receipt without using
+current reference names. Raw replay/retention belongs before the write transaction,
+not inside this adapter. Run `scripts/test-integration -k market_acceptance` for
+disposable PostgreSQL concurrency, rollback, retry and reference-drift tests.

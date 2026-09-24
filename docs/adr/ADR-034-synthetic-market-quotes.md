@@ -1,6 +1,6 @@
 # ADR-034 — Retained synthetic market and quote ingestion
 
-**Status:** Accepted; domain, normalization, codec and schema implemented; acceptance/API pending  
+**Status:** Accepted; normalization and transactional acceptance implemented; API/composition pending  
 **Date:** 2026-09-23
 
 ## Goal and scope
@@ -190,3 +190,24 @@ Downgrade removes only the new tables/function and requires review for populated
 non-test databases. Tests cover offline SQL, exact numeric storage, cross-reference
 rejection, immutability and disposable upgrade/downgrade/reapply with prior data
 preserved. No application database is automatically migrated.
+
+The ingestion-owned `market_acceptance` port and PostgreSQL `markets` adapter now
+accept canonicalized batches in a caller-owned READ COMMITTED transaction. Receipt
+identity is SHA-256 of sorted compact ASCII JSON containing `identity_version: 1`
+and sorted `quote_ids`; prices are excluded from identity but included in full
+comparison. Exact retries return zero newly inserted receipts; changed output
+under the same identity conflicts. Sorted event locks serialize supported writers;
+an encompassing savepoint rolls back the entire batch on failure. Existing
+reference context is checked, never implicitly inserted or updated.
+
+Retained reads validate receipt identity and every relational projection without
+consulting current reference names; fresh acceptance rejects reference drift.
+Batch validation checks bounded size, shared capture and complete bookmaker
+bindings. It cannot establish that no event was omitted from raw input: application
+composition must normalize/replay the complete retained capture before opening the
+write transaction. No S3 I/O or commit occurs inside the repository.
+
+Offline identity tests and disposable PostgreSQL tests exercise exact/concurrent
+retries, conflicting writers, new captures, commit visibility, outer rollback,
+reference drift and injected late failures across one and two bookmaker receipts.
+Read-only API and complete raw-to-API composition remain pending.

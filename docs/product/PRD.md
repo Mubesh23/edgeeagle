@@ -261,7 +261,8 @@ Strategies are deterministic, versioned rules reusable across backtesting, paper
 
 Strategies qualify estimated edges using explicit reliability and execution
 assumptions, including abstention; models do not make betting decisions. Research
-fractional Kelly alongside simpler sizing benchmarks, not as an automatic default.
+fractional Kelly as the preferred staking research benchmark, alongside simpler
+sizing comparisons, not as an automatic production default.
 Full Kelly is not the default. Any eventual Kelly-style size is constrained by
 maximum position, event, participant and correlated exposure, bankroll-at-risk,
 daily/weekly loss controls and confidence/model quality. No real-money or current

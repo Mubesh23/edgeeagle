@@ -125,7 +125,7 @@ market measures incremental information, not independent fundamentals skill.
 An ensemble containing market-derived inputs is also market-aware. Models never
 output BET/NO_BET; strategy and pricing own actionability.
 
-Fractional Kelly is a sizing research benchmark only, not a production default;
+Fractional Kelly is the preferred sizing research benchmark, not a production default;
 full Kelly is not the default. Eventual sizing must obey maximum position, event,
 participant and correlated exposure, bankroll-at-risk, daily/weekly loss controls
 and model-quality/confidence constraints. No real-money or implemented risk change

@@ -361,7 +361,7 @@ conventions and keep closing observations out of earlier decision inputs.
 
 Use append-only ledger concepts for cash-affecting state. Risk checks are centralized and cannot be bypassed by the agent or execution adapters.
 
-Fractional Kelly is a future sizing research benchmark, not an automatic production
+Fractional Kelly is the preferred future sizing research benchmark, not an automatic production
 default; full Kelly is not the default. Any such sizing is constrained by position,
 event, participant and correlated exposure, bankroll-at-risk, daily/weekly loss
 limits and confidence/model quality. This design adds no implemented risk behavior.

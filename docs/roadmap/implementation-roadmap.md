@@ -193,7 +193,7 @@ Exit: model-vs-market results available through API.
 - log loss/Brier/calibration and paired simple/market baseline comparisons
 - CLV (diagnostic, not proof of profit), ROI/P&L, drawdown, volatility and sample count
 - horizon/league/season/market/odds/selection segments and confidence intervals
-- fractional Kelly sizing research under exposure/loss/model-quality constraints,
+- fractional Kelly as the preferred sizing research benchmark under exposure/loss/model-quality constraints,
   not full Kelly or an automatic production default
 
 Exit: leakage tests and deterministic regression fixtures pass.

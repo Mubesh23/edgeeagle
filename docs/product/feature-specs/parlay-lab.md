@@ -102,7 +102,33 @@ Where legs are correlated, the fair joint probability must use one of:
 
 The evaluation must expose which method was used.
 
-### 5.3 Unsupported correlation
+For score-derived soccer same-game combinations, prefer exact enumeration over the
+modeled joint home/away score matrix when every leg's settlement predicate can be
+represented by it. Sum the probability of score cells satisfying all legs; do not
+multiply marginal probabilities. Exact computation is conditional on the model,
+not certainty about the real outcome. Record matrix support, tail/truncation
+treatment, period/settlement semantics and model/pricing versions. A finite matrix
+must not silently discard residual probability mass. Player props, cards and
+half-time/full-time combinations are not covered merely by a full-time score matrix.
+
+### 5.3 Joint-model coverage
+
+Keep computational coverage separate from confidence. Conceptual categories:
+
+| Coverage               | Meaning                                                                                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EXACT`                | All legs representable by a validated joint distribution and evaluated by enumeration/analytic calculation; model uncertainty remains.                  |
+| `SIMULATED`            | Validated generative joint model covers all legs; retain algorithm/version, sample count, seed and Monte Carlo error separately from model uncertainty. |
+| `INDEPENDENCE_ASSUMED` | Multiplication only with documented justification for independence and explicit limitations; never a fallback for correlated legs.                      |
+| `UNSUPPORTED`          | Missing validated joint coverage or settlement semantics; authoritative joint probability, fair odds, EV and dependent risk are unavailable.            |
+
+These are future conceptual values, not a generated API enum. Retain coverage for
+the whole evaluation and its dependency groups; exact within-event coverage does
+not make a cross-event independence assumption exact. Mixed evaluations expose
+each component and must not hide weaker assumptions behind an EXACT label.
+Standalone leg values can remain available when the joint evaluation is unsupported.
+
+### 5.4 Unsupported correlation
 
 If EdgeEagle cannot model a material dependency reliably, it must return a warning or unsupported status rather than fabricate precision.
 
@@ -112,7 +138,12 @@ Examples:
 - `JOINT_MODEL_UNAVAILABLE`
 - `LOW_SAMPLE_SUPPORT`
 
-The UI should explain that fair parlay pricing is less reliable under those conditions.
+The UI must distinguish a supported but uncertain estimate from unavailable joint
+pricing. If a material dependency has no validated joint model, return UNSUPPORTED
+with reasons and no fabricated joint probability/EV or numerical correlation
+adjustment. Low-support estimates from a validated model may carry uncertainty
+warnings according to a versioned policy. The LLM/agent must never fill missing
+joint coverage numerically or turn an unsupported result into a recommendation.
 
 ## 6. Leg-Level Attribution
 
@@ -161,6 +192,10 @@ Example product explanation:
 > Removing Leg 4 reduces payout but increases estimated EV because Leg 4 is priced worse than the rest of the combination.
 
 Counterfactuals should be labeled as model-based comparisons, not recommendations or guarantees.
+
+Re-evaluate joint-model coverage for every counterfactual. Missing offered parlay
+or reduced-parlay prices must not be invented by multiplying straight prices;
+price-dependent EV comparisons remain unavailable or explicitly hypothetical.
 
 ## 8. Straight-Bet Comparison
 
@@ -324,6 +359,11 @@ ParlayEvaluation
   expected_value
   estimated_variance
   correlation_method
+  joint_model_coverage
+  dependency_group_coverage[]
+  joint_model_version
+  uncertainty_evidence
+  forecast_horizon
   confidence
   warnings[]
   straight_bet_comparison?
@@ -352,6 +392,11 @@ ParlayLegEvaluation
 
 Exact schemas, field types, endpoint shape, and versioning belong in the API/domain design and TDD.
 
+Unsupported joint evaluations make dependent numeric outputs unavailable with
+reasons, not zero. Preserve horizon/decision time, prediction/pricing versions,
+input provenance and simulation/tail policies for reproduction. Coverage does not
+establish historical eligibility or turn raw EV into actionable strategy approval.
+
 ## 15. Research and Validation Requirements
 
 Parlay pricing logic must be testable independently from UI/agent behavior.
@@ -366,7 +411,11 @@ Validation should include, as appropriate:
 - regression tests against historical parlay/market data when licensed and available;
 - calibration checks for joint probabilities;
 - sensitivity tests for price and model inputs;
-- explicit unsupported-correlation cases.
+- explicit unsupported-correlation cases;
+- exact score-cell enumeration against analytically known same-game examples;
+- matrix tail/normalization and incompatible settlement/period rejection;
+- mixed dependency-group coverage without overstating exactness;
+- unsupported joint outputs staying unavailable in backend, UI and agent responses.
 
 A correlation model should not be promoted to production merely because it improves historical ROI; probability calibration and leakage-safe validation matter.
 
@@ -375,10 +424,10 @@ A correlation model should not be promoted to production merely because it impro
 The initial Parlay Lab capability is complete when:
 
 1. A user can submit at least two supported selections for evaluation.
-2. EdgeEagle returns offered price, break-even probability, fair joint probability, fair odds, and EV.
-3. The system explicitly reports the correlation method/assumption.
+2. For supported combinations and supplied prices, EdgeEagle returns offered price, break-even probability, fair joint probability, fair odds, and EV; unavailable inputs/results remain explicit.
+3. The system explicitly reports the correlation method/assumption, joint-model coverage and model uncertainty separately.
 4. Same-event legs are never silently treated as independent.
-5. Unsupported material correlation produces a visible warning/status.
+5. Unsupported material correlation produces an UNSUPPORTED status with reasons, without invented joint probability, fair odds, EV or dependent risk.
 6. The system can expose leg-level standalone value and incremental impact where supported.
 7. Single-leg-removal counterfactuals can be generated deterministically.
 8. Equivalent straight-position comparison is available when source prices exist.

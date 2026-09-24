@@ -249,6 +249,16 @@ from EV/CLV/ROI/P&L/drawdown/volatility/sample counts and segmented robustness.
 Raw EV, reliability and strategy qualification/abstention are distinct outputs;
 none implies risk approval. Do not add these fields to existing replay manifests.
 
+### ParlayEvaluation (future backend output)
+
+Reuse the [Parlay Lab conceptual contract](../product/feature-specs/parlay-lab.md)
+for joint-model coverage, correlation method/version, ModelUncertainty, horizon,
+input lineage and supported per-leg/counterfactual analytics. Coverage categories
+EXACT, SIMULATED, INDEPENDENCE_ASSUMED and UNSUPPORTED describe computation/support,
+not confidence. Unsupported joint numeric outputs are unavailable, never zero or
+LLM-generated. Exact/simulated group coverage cannot conceal cross-group assumptions.
+No current API or receipt schema is extended by this conceptual output.
+
 ### Portfolio / Ledger / Position
 
 `Portfolio` owns configuration and references an append-only cash ledger.

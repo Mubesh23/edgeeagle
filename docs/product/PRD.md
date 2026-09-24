@@ -279,6 +279,12 @@ Track bankroll/cash ledger, positions, realized/unrealized P&L, event/sport/part
 
 Cross-event probabilities may be multiplied only where independence is justified. Same-event/correlated selections require a joint distribution, simulation, or validated correlation model.
 
+Prefer exact score-matrix enumeration for soccer same-game legs fully expressible
+by that joint distribution. Expose joint-model coverage (EXACT, SIMULATED,
+INDEPENDENCE_ASSUMED, UNSUPPORTED) separately from confidence; exact computation
+does not eliminate model uncertainty. Unsupported material dependencies yield no
+invented joint probability or EV, including from the agent.
+
 Parlay analysis must evaluate the **joint position**, not merely the apparent strength of individual legs. Supported evaluations should include offered price, break-even probability, fair joint probability, fair odds, EV, correlation treatment, uncertainty/confidence, and risk where available.
 
 Parlay Lab should also support leg-level attribution, incremental EV/risk analysis, single-leg-removal counterfactuals, straight-bet comparison, and price sensitivity as those capabilities become available. The detailed product behavior is defined in [`feature-specs/parlay-lab.md`](feature-specs/parlay-lab.md).

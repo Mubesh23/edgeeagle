@@ -378,6 +378,14 @@ Independent cross-event selections may use multiplication where justified. Same-
 
 Parlay evaluation is an authoritative deterministic backend domain capability. UI and agent layers consume a structured `ParlayEvaluation`; they do not independently calculate fair joint probability, EV, correlation-sensitive pricing, risk, or counterfactual results.
 
+For soccer score-derived same-game legs, prefer exact joint score-matrix
+enumeration when all settlement predicates are covered; retain support/tail policy.
+Expose EXACT, SIMULATED, INDEPENDENCE_ASSUMED or UNSUPPORTED joint-model coverage
+separately from ModelUncertainty, including mixed dependency-group assumptions.
+Simulation retains version/seed/count and sampling error. No validated joint model
+means unavailable authoritative joint probability/EV, not an invented adjustment
+by the backend or LLM. Direct marginal ML predictions cannot fill this gap.
+
 The domain capability should support, where available:
 
 - offered odds and break-even probability;

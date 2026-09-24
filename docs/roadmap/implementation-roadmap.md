@@ -235,7 +235,10 @@ Exit: cross-device state continuity demonstrated.
 
 - independent-event pricing
 - soccer same-event pricing from score distribution
-- correlation warnings
+- prefer exact score-matrix enumeration for fully covered soccer legs
+- joint-model coverage and uncertainty, including simulation and mixed-group assumptions
+- unsupported correlated pricing returns no invented joint probability/EV
+- correlation warnings, tail/settlement checks and deterministic coverage tests
 
 ## Phase 11 — Additional Sports
 

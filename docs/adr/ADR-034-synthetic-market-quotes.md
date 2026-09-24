@@ -1,6 +1,6 @@
 # ADR-034 — Retained synthetic market and quote ingestion
 
-**Status:** Accepted; pure domain values implemented, ingestion/storage/API pending  
+**Status:** Accepted; domain and fixture normalization implemented; durable receipts/storage/API pending  
 **Date:** 2026-09-23
 
 ## Goal and scope
@@ -144,3 +144,15 @@ Quote IDs remain caller-supplied typed values until ingestion allocates them.
 Run the domain tests for identity, immutable values, exact Decimal prices, unknown
 and UTC timestamps, wrong ID types and invalid/incomplete market membership.
 This is the domain prerequisite, not a functioning ingestion or API path.
+
+`edgeeagle_ingestion.synthetic_markets` now reads an integrity-checked retained
+capture, validates explicit `MarketFixtureBinding`/`VenueBinding` context and
+returns complete immutable candidates. Parser `synthetic-market-json-v1` and
+normalizer `synthetic-market-bindings-v1` allocate source/capture/locator/version
+quote identities, preserving Decimal values and unknown availability. Sources must
+explicitly declare the `SYNTHETIC_FIXTURE` capability; this is a caller assertion,
+not authentication or live-provider compatibility. Read-only replay uses retained
+bindings and compares complete projections without current-state reads.
+Network-disabled `tests/unit/test_market_normalization.py` covers retention,
+malformed/duplicate/incomplete data, context mismatches and replay drift. Durable
+receipt serialization/version dispatch, PostgreSQL acceptance and API remain pending.

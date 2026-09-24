@@ -106,7 +106,8 @@ Active market-foundation goal: [ADR-034](../adr/ADR-034-synthetic-market-quotes.
 defines authored soccer 1X2 ingestion through retained raw provenance, canonical
 markets/selections/quote observations, atomic idempotent persistence and bounded
 read-only API results. Pure domain values and market/selection identities are
-implemented; normalization, persistence and API integration remain pending.
+implemented, alongside retained fixture normalization and replay. Durable receipt
+serialization, persistence and API integration remain pending.
 This fills a missing Phase 2 market slice before real-provider adapters, not model
 pricing, executable-price selection or historical backtest eligibility.
 

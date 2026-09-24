@@ -1,6 +1,6 @@
 # ADR-034 — Retained synthetic market and quote ingestion
 
-**Status:** Accepted; domain and fixture normalization implemented; durable receipts/storage/API pending  
+**Status:** Accepted; domain, fixture normalization and receipt codec implemented; storage/API pending  
 **Date:** 2026-09-23
 
 ## Goal and scope
@@ -154,5 +154,25 @@ explicitly declare the `SYNTHETIC_FIXTURE` capability; this is a caller assertio
 not authentication or live-provider compatibility. Read-only replay uses retained
 bindings and compares complete projections without current-state reads.
 Network-disabled `tests/unit/test_market_normalization.py` covers retention,
-malformed/duplicate/incomplete data, context mismatches and replay drift. Durable
-receipt serialization/version dispatch, PostgreSQL acceptance and API remain pending.
+malformed/duplicate/incomplete data, context mismatches and replay drift. The
+receipt codec below builds on this path; PostgreSQL acceptance and API remain pending.
+
+The ingestion-owned `market_receipts` codec now serializes one complete bookmaker
+candidate with envelope `{format: 1, usage: SYNTHETIC_ONLY, parser_version,
+normalizer_version, candidate}`. The candidate contains full dataclass field
+names, typed-ID value objects, retained bindings/raw provenance, selections and
+quotes. Derived market/selection IDs are reconstructed from validated semantics.
+The maximum encoded receipt is 1 MiB; oversize reads fail before JSON parsing.
+Encoding uses sorted compact ASCII JSON, UTC ISO times, enum strings, sorted
+capabilities/venue bindings/selections/quotes and exact canonical Decimal strings.
+Decimal coefficient/exponent normalization is independent of ambient precision
+and avoids exponent-sized fixed-point allocation. No numeric rounding is allowed.
+
+Decode requires exact fields at every record, supported envelope versions, valid
+typed constructors and byte-for-byte canonical re-encoding. Duplicate keys,
+nonstandard/floating JSON numbers, malformed scalars and collections fail closed.
+The authored fixture's canonical receipt SHA-256 is pinned in offline tests;
+round trips remain replayable without current-state reads. This is a structural
+receipt codec, not evidence of database acceptance, complete capture coverage,
+artifact retention, live data authenticity or research eligibility. PostgreSQL
+acceptance and API integration remain pending.

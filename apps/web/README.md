@@ -106,6 +106,19 @@ audit. Narrow Chromium is not a native mobile or Safari test.
 References: [Playwright server lifecycle](https://playwright.dev/docs/test-webserver)
 and [request interception](https://playwright.dev/docs/network).
 
+CLI browser evidence (2026-09-23): `scripts/test-browser` passed all four Chromium
+checks (two scenarios at both widths). Both generated success screenshots were
+visually inspected: provenance and replay-only warnings are readable, narrow
+content wraps, and the replay observation is distinct from metadata. No horizontal
+overflow or page JavaScript errors were observed in the successful replay checks.
+This closes the earlier desktop-bridge visual-check gap for these synthetic
+Chromium scenarios, not for every browser or the live private-data workflow.
+Full `scripts/validate` passed after adding Playwright: 875 Python unit tests,
+141 integration tests plus the existing Floci expected failure, 24 web component
+tests, contract checks, lint/typing/formatting, builds, synthesis and advisory
+scans. Unchanged tasks reused local Turbo cache. No known advisories were reported.
+Hosted CI, a fresh checkout, Firefox and WebKit were not exercised in this session.
+
 ## Earlier local validation evidence
 
 Local validation evidence (2026-09-23): all 24 web tests, lint, typing and build

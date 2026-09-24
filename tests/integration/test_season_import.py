@@ -1,7 +1,8 @@
 """Whole authored seasons across local PostgreSQL/Floci; never real provider files."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from unittest.mock import Mock
@@ -12,12 +13,16 @@ from sqlalchemy import Engine, text
 
 from edgeeagle_domain.mappings import MappingStatus
 from edgeeagle_domain.raw import RawPayload
-from edgeeagle_ingestion.events import EventAcceptanceConflict
+from edgeeagle_ingestion.events import (
+    EventAcceptanceConflict,
+    EventAcceptanceRepository,
+)
 from edgeeagle_ingestion.football_data import (
     MAX_CSV_BYTES,
     FootballDataRequest,
     normalize_season_results,
 )
+from edgeeagle_ingestion.football_data_import import AcceptanceTransactions
 from edgeeagle_ingestion.football_data_season_import import import_season_dataset
 from edgeeagle_ingestion.offline import LocalFileImporter
 from edgeeagle_ingestion.season_bundle import decode_root, verify_bundle
@@ -26,13 +31,29 @@ from edgeeagle_persistence.fixture_references import fixture_reference_reads
 from edgeeagle_persistence.mappings import PostgresMappingRepository
 from edgeeagle_persistence.raw import S3RawPayloadStore
 from edgeeagle_persistence.season_storage import S3SeasonObjectStore
-from tests.integration.test_football_data_import import acceptance_transactions
 from tests.integration.test_mapped_normalization import seed_mapped_context
 from tests.integration.test_raw_storage import raw_bucket as raw_bucket
 from tests.integration.test_repositories import repository_engine as repository_engine
 from tests.unit.test_dataset_manifest import CODEC
 from tests.unit.test_fixture_references import NOW
 from tests.unit.test_football_data_season import season_batch
+
+
+def acceptance_transactions(engine: Engine) -> AcceptanceTransactions:
+    """Bound waits for a competing 380-row transaction, not a single-row fixture.
+
+    A loser waits for the winner's entire atomic import. Keep this test-only
+    budget separate from the smaller fixture helper and production settings.
+    """
+
+    @contextmanager
+    def transactions() -> Iterator[EventAcceptanceRepository]:
+        with engine.begin() as connection:
+            connection.execute(text("SET LOCAL lock_timeout = '30s'"))
+            connection.execute(text("SET LOCAL statement_timeout = '45s'"))
+            yield PostgresEventAcceptanceRepository(connection)
+
+    return transactions
 
 
 def setup_import(

@@ -33,6 +33,12 @@ and crash-replay tests in Floci; see
 [ADR-022](../adr/ADR-022-eventbridge-outbox-publisher.md). Consumer routing,
 transactional deduplication, retries, processing-DLQ redrive, and queue-depth
 monitoring now have local coverage under [ADR-023](../adr/ADR-023-event-acceptance-consumer.md).
+
+The authored 380-row season-import integration fixture uses a test-only 30-second
+lock timeout and 45-second statement timeout. A competing import must wait for
+the entire winning atomic transaction, not one row. Smaller import fixtures keep
+their five-second lock budget; production timeout and retry policies are unchanged.
+
 The EventBridge delivery-DLQ probe is an explicit strict expected failure due to
 the pinned emulator's limitation. Current-state event list/detail API wiring now
 exists under [ADR-024](../adr/ADR-024-event-read-api.md). Run

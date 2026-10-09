@@ -1,17 +1,19 @@
 """Strict whole-capture Odds API receipt v2; separate from legacy market v1."""
 
 import json
-import types
-from dataclasses import fields, is_dataclass
-from datetime import UTC, datetime
-from decimal import Decimal
-from enum import Enum
-from functools import lru_cache
-from typing import Any, Literal, get_args, get_origin, get_type_hints
 
-from edgeeagle_domain._validation import aware_datetime
-
-from .market_receipts import _scalar as _decimal_scalar
+from ._typed_receipt_codec import (
+    decode_typed_value as _decode,
+)
+from ._typed_receipt_codec import (
+    encode_typed_value as _encode,
+)
+from ._typed_receipt_codec import (
+    reject_json_number as _forbidden,
+)
+from ._typed_receipt_codec import (
+    unique_json_object as _pairs,
+)
 from .odds_api_parser import PARSER_VERSION, NativeOddsBookmaker, NativeOddsEvent, NativeOddsOutcome
 from .odds_normalization import (
     NORMALIZER_VERSION,
@@ -20,90 +22,6 @@ from .odds_normalization import (
 )
 
 MAX_RECEIPT_BYTES = 8 * 1024 * 1024
-
-
-@lru_cache(maxsize=64)
-def _hints(cls: type) -> dict[str, Any]:
-    # Only classes reachable from the statically selected root schema are used.
-    # Payload tags never select imports, classes or executable code.
-    return get_type_hints(cls)
-
-
-def _encode(value: Any) -> Any:
-    if is_dataclass(value) and not isinstance(value, type):
-        return {
-            "$type": type(value).__name__,
-            **{f.name: _encode(getattr(value, f.name)) for f in fields(value)},
-        }
-    if isinstance(value, datetime):
-        aware_datetime(value, "receipt timestamp")
-        return value.astimezone(UTC).isoformat()
-    if isinstance(value, Decimal):
-        return _decimal_scalar(value)
-    if isinstance(value, Enum):
-        return value.value
-    if isinstance(value, tuple):
-        return [_encode(v) for v in value]
-    if isinstance(value, frozenset):
-        return sorted(value)
-    if value is None or type(value) in (str, int, bool):
-        return value
-    raise ValueError("unsupported receipt value")
-
-
-def _decode(expected: Any, value: Any, depth: int = 0) -> Any:
-    if depth > 32:
-        raise ValueError("receipt nesting exceeds limit")
-    origin, args = get_origin(expected), get_args(expected)
-    if origin is types.UnionType:
-        for option in args:
-            try:
-                return _decode(option, value, depth + 1)
-            except (ValueError, TypeError):
-                pass
-        raise ValueError("receipt union type mismatch")
-    if origin is Literal:
-        if not any(type(value) is type(option) and value == option for option in args):
-            raise ValueError("unsupported receipt literal")
-        return value
-    if origin in (tuple, frozenset):
-        if not isinstance(value, list) or len(value) > 6000:
-            raise ValueError("invalid receipt collection")
-        items = tuple(_decode(args[0], item, depth + 1) for item in value)
-        if origin is frozenset:
-            if len(set(items)) != len(items):
-                raise ValueError("duplicate set members")
-            return frozenset(items)
-        return items
-    if isinstance(expected, type) and is_dataclass(expected):
-        hints = _hints(expected)
-        if (
-            not isinstance(value, dict)
-            or set(value) != {"$type", *hints}
-            or value["$type"] != expected.__name__
-        ):
-            raise ValueError("invalid typed receipt record")
-        return expected(
-            **{name: _decode(kind, value[name], depth + 1) for name, kind in hints.items()}
-        )
-    if expected is datetime:
-        if not isinstance(value, str):
-            raise ValueError("receipt timestamp must be text")
-        parsed = datetime.fromisoformat(value)
-        aware_datetime(parsed, "receipt timestamp")
-        return parsed.astimezone(UTC)
-    if expected is Decimal:
-        if not isinstance(value, str) or len(value) > 1024:
-            raise ValueError("receipt decimal must be bounded exact text")
-        number = Decimal(value)
-        if not number.is_finite():
-            raise ValueError("nonfinite receipt decimal")
-        return number
-    if isinstance(expected, type) and issubclass(expected, Enum):
-        return expected(value)
-    if expected in (str, int, bool, type(None)) and type(value) is expected:
-        return value
-    raise ValueError("invalid receipt scalar")
 
 
 def _validate(capture: NormalizedOddsCapture) -> None:
@@ -177,19 +95,6 @@ def encode_odds_receipt(capture: NormalizedOddsCapture) -> bytes:
         return body
     except (TypeError, KeyError, AttributeError, RecursionError, ArithmeticError) as exc:
         raise ValueError("invalid odds receipt") from exc
-
-
-def _pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
-    value: dict[str, Any] = {}
-    for key, item in pairs:
-        if key in value:
-            raise ValueError("duplicate receipt key")
-        value[key] = item
-    return value
-
-
-def _forbidden(value: str) -> Any:
-    raise ValueError("receipt requires exact decimal strings")
 
 
 def decode_odds_receipt(body: bytes) -> NormalizedOddsCapture:

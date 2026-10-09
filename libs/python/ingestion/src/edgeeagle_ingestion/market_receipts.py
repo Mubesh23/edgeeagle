@@ -41,6 +41,7 @@ from edgeeagle_domain.sports import (
     Sport,
     SportId,
 )
+from edgeeagle_ingestion._typed_receipt_codec import decimal_text
 from edgeeagle_ingestion.synthetic_events import FixtureEventBinding
 from edgeeagle_ingestion.synthetic_markets import (
     NORMALIZER_VERSION,
@@ -62,16 +63,7 @@ def _scalar(value: object) -> object:
     if isinstance(value, frozenset):
         return sorted(value)
     if isinstance(value, Decimal):
-        # Canonical coefficient/exponent spelling, without ambient-context rounding
-        # or allocating exponent-sized fixed-point strings.
-        sign, digits, exponent = value.as_tuple()
-        if not isinstance(exponent, int):
-            raise ValueError("nonfinite receipt decimal")
-        digits = tuple(digits)
-        end = len(digits)
-        while end > 1 and digits[end - 1] == 0:
-            end -= 1
-        return str(Decimal((sign, digits[:end], exponent + len(digits) - end)))
+        return decimal_text(value)
     raise TypeError("unsupported receipt scalar")
 
 

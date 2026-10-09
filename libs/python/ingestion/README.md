@@ -582,5 +582,7 @@ Durable storage and a verified read-only PostgreSQL reader are implemented in
 `edgeeagle-persistence` under migration `0013_sportmonks_receipts`; see its
 [persistence guide](../persistence/README.md#sportmonks-receipt-reads). The
 reader validates retained receipt bytes and indexed identity without refreshing
-current mappings. Atomic acceptance and the import command remain subsequent
-ADR-038 increments.
+current mappings. The `SportmonksReceiptRepository` port now defines atomic
+1/0 acceptance and verified reads; persistence checks exact selected mapping
+revisions and locked canonical context. The end-to-end import command and raw-to-
+acceptance composition remain subsequent ADR-038 work.

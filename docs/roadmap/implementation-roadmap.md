@@ -114,14 +114,16 @@ receipt storage, multi-source event observations and acceptance follow separatel
 initial-only event acceptance remains unchanged; no live acquisition or model-ready
 data is implied.
 
-[ADR-038](../adr/ADR-038-sportmonks-observation-receipts.md) now has two implemented
+[ADR-038](../adr/ADR-038-sportmonks-observation-receipts.md) now has three implemented
 increments: strict format-1 receipt encoding/decoding, stable capture identity and
 retained-context replay share fresh normalization projection checks; additive
-`0013_sportmonks_receipts` schema and a verified read-only reader retain and validate
-complete receipts. Golden-byte/identity and disposable migration/corruption tests pin
-the contracts. Next come atomic acceptance and local import composition. Acceptance
-records evidence about an existing event; it does not refresh canonical event state.
-Same-identity mapping changes conflict rather than silently supersede.
+`0013_sportmonks_receipts` schema and verified reads retain and validate complete
+receipts; atomic acceptance validates selected mapping revisions and locked current
+canonical context while preserving exact retries. Golden-byte/identity, disposable
+migration and transactional race/drift/rollback tests pin these contracts. Next is
+local import composition. Acceptance records evidence about an existing event; it
+does not refresh canonical event state. Same-identity mapping changes conflict
+rather than silently supersede.
 
 Completed bounded provider goal: [ADR-035](../adr/ADR-035-odds-api-soccer-adapter.md) defines
 a fixture-first The Odds API pre-match soccer 1X2 adapter, retained mapping evidence,

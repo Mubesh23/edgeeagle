@@ -456,3 +456,17 @@ downgrade refuses to remove retained rows. This increment adds no acceptance
 writer, import orchestration, API, or eligibility decision. Run
 `scripts/test-integration -k sportmonks_receipts` for disposable migration,
 immutability, corruption, and reader checks.
+
+`PostgresSportmonksReceiptRepository.accept(receipt)` implements ingestion's
+acceptance port. It requires a caller-owned READ COMMITTED transaction and uses
+an operation savepoint; the caller commits. It returns 1 for a new receipt and 0
+for an exact byte-for-byte retry. A changed projection under the same capture
+identity raises `SportmonksReceiptConflict`; constraint or readback failures roll
+back the operation. For first acceptance only, it locks source, sport, competition,
+season, participant IDs in lexical order, event, then event entries in participant
+ID order; it compares all canonical records and the exact six selected immutable
+mapping revisions. Existing retries and `get` do not refresh current references.
+No event, mapping, or outbox rows are written. Raw verification must be complete
+before the caller begins this transaction; composing that verified path is the
+next ADR-038 increment. Run `scripts/test-integration -k sportmonks_acceptance`
+for retries, distinct-target identity races, drift, lock timeout, and rollback.

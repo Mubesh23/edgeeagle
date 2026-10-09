@@ -1,6 +1,6 @@
 # ADR-038 — Sportmonks observation receipts and atomic acceptance
 
-**Status:** Accepted; codec, identity, replay, additive schema and verified reader implemented; acceptance deferred  
+**Status:** Accepted; codec, identity, replay, additive schema, verified reader and atomic acceptance implemented; composition deferred  
 **Date:** 2026-09-24
 
 ## Context and scope
@@ -146,17 +146,18 @@ Implement in independently committed increments:
    immutable guards, and corrupted retained bytes. Downgrade locks/checks and
    refuses while Sportmonks receipts exist; it never deletes/converts retained
    evidence. No automatic application-database migration.
-3. Atomic acceptance: 1/0 retries, same-identity/different-target races, conflicts,
-   current-context drift, retained retries after revocation, readback corruption,
-   savepoint/outer rollback and no event/mapping/outbox changes.
+3. **Implemented:** atomic acceptance: 1/0 retries, same-identity/different-target
+   races, conflicts, current-context drift, retained retries after revocation,
+   readback corruption, savepoint/outer rollback and no event/mapping/outbox
+   changes. Bounded lock failures propagate to the caller.
 4. Compose approved local file -> retained Floci raw -> pinned PostgreSQL reference
    snapshot -> normalization/receipt/replay -> atomic receipt acceptance/readback.
    Use authored data; prove deterministic replay after mapping/name changes.
 5. Run `scripts/validate`; report local versus hosted/live evidence separately.
 
 This implementation provides the codec, identity, read-only replay, separate
-immutable receipt table and verified read-only PostgreSQL reader. It adds no
-acceptance writer or import entry point.
+immutable receipt table, verified reader and transactional acceptance writer. It
+adds no import entry point or end-to-end composition.
 No API/MCP/browser, dataset-catalog/recovery integration, historical Parquet,
 model-ready dataset, outbox, live provider call or execution capability is added.
 Those consumers need explicit later contracts; existing Football-Data recovery

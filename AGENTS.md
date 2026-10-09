@@ -90,10 +90,10 @@ calls or actual rights/settlement approval are implied. See
 [ADR-035](docs/adr/ADR-035-odds-api-soccer-adapter.md).
 The Sportmonks path now has a strict format-1 observation receipt codec, stable
 capture identity, retained-context replay, additive immutable receipt table
-(`0013_sportmonks_receipts`) and a verified read-only PostgreSQL reader. Golden
-bytes, offline negative tests, disposable migration round trips, downgrade guards
-and corruption checks cover these contracts. Atomic acceptance, import
-orchestration and public/API exposure remain deferred; see
+(`0013_sportmonks_receipts`), verified reader and atomic acceptance repository.
+Golden bytes, offline negative tests, disposable migration round trips, downgrade
+guards, corruption, mapping/canonical drift, race and rollback checks cover these
+contracts. End-to-end import orchestration and public/API exposure remain deferred; see
 [ADR-038](docs/adr/ADR-038-sportmonks-observation-receipts.md).
 The API now exposes current-state event list/detail contracts, with explicit local
 PostgreSQL composition, bounded ID pagination, and read-only request transactions.

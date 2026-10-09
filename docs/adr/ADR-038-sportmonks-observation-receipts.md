@@ -1,6 +1,6 @@
 # ADR-038 — Sportmonks observation receipts and atomic acceptance
 
-**Status:** Accepted; codec, identity and replay implemented; persistence deferred  
+**Status:** Accepted; codec, identity, replay, additive schema and verified reader implemented; acceptance deferred  
 **Date:** 2026-09-24
 
 ## Context and scope
@@ -141,10 +141,11 @@ Implement in independently committed increments:
 1. **Implemented:** strict codec, deterministic identity and retained-context replay,
    with pinned golden-byte and identity digests plus negative offline tests. Fresh
    normalization and replay share deterministic projection validation.
-2. Additive schema and verified reader before enabling writers. Test migration
-   round trips in disposable databases and preservation of all legacy receipts.
-   Downgrade must lock/check and refuse while Sportmonks receipts exist, never
-   delete/convert retained evidence. No automatic application-database migration.
+2. **Implemented:** additive schema and verified reader before enabling writers.
+   Disposable-database tests cover migration round trips, preservation refusal,
+   immutable guards, and corrupted retained bytes. Downgrade locks/checks and
+   refuses while Sportmonks receipts exist; it never deletes/converts retained
+   evidence. No automatic application-database migration.
 3. Atomic acceptance: 1/0 retries, same-identity/different-target races, conflicts,
    current-context drift, retained retries after revocation, readback corruption,
    savepoint/outer rollback and no event/mapping/outbox changes.
@@ -153,8 +154,9 @@ Implement in independently committed increments:
    Use authored data; prove deterministic replay after mapping/name changes.
 5. Run `scripts/validate`; report local versus hosted/live evidence separately.
 
-This implementation provides the codec, identity and read-only replay only. It adds
-no migration, durable reader, acceptance writer or import entry point.
+This implementation provides the codec, identity, read-only replay, separate
+immutable receipt table and verified read-only PostgreSQL reader. It adds no
+acceptance writer or import entry point.
 No API/MCP/browser, dataset-catalog/recovery integration, historical Parquet,
 model-ready dataset, outbox, live provider call or execution capability is added.
 Those consumers need explicit later contracts; existing Football-Data recovery

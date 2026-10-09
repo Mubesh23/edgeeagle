@@ -435,7 +435,7 @@ canonical records. All repositories share one REPEATABLE READ/read-only connecti
 `PostgresSportmonksReferenceResolver` verifies active transaction, isolation and
 read-only mode on every call. The factory sets 5-second statement and idle timeouts
 and closes on success or failure. Caller owns engine lifecycle and pool/connect
-timeouts. There are no migrations, retries or reference writes.
+timeouts. Mapping and canonical-reference writes are not part of this resolver.
 
 Raw retention and verification precede this context. The returned canonical-linked
 candidate is not a persisted receipt, model-ready history or an input to initial-only
@@ -443,3 +443,16 @@ event acceptance. Open snapshots ignore concurrent committed mapping/name change
 fresh ones see them. See [ADR-037](../../../docs/adr/ADR-037-sportmonks-fixture-adapter.md).
 Run `scripts/test-integration -k sportmonks` for snapshot guards, actual write
 rejection, corrections/revocations, cleanup and the authored Floci-to-candidate path.
+
+## Sportmonks receipt reads
+
+`PostgresSportmonksReceiptReader.get(capture_id)` reads one receipt from migration
+`0013_sportmonks_receipts` using the caller's active transaction. It returns None
+when absent; otherwise it decodes the complete canonical format-1 bytes and checks
+capture identity plus the indexed source, event, native fixture and format fields.
+Corrupt or inconsistent evidence raises `SportmonksReceiptIntegrityError`. Reads
+never refresh mappings or canonical display state. The table is immutable and its
+downgrade refuses to remove retained rows. This increment adds no acceptance
+writer, import orchestration, API, or eligibility decision. Run
+`scripts/test-integration -k sportmonks_receipts` for disposable migration,
+immutability, corruption, and reader checks.

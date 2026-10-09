@@ -114,11 +114,12 @@ receipt storage, multi-source event observations and acceptance follow separatel
 initial-only event acceptance remains unchanged; no live acquisition or model-ready
 data is implied.
 
-The first [ADR-038](../adr/ADR-038-sportmonks-observation-receipts.md) increment is
-implemented: strict format-1 receipt encoding/decoding, stable capture identity and
-retained-context replay share the fresh normalization projection checks. Golden-byte,
-identity and offline negative tests pin the contract. Next add the separate observation
-table/verified reader, then atomic acceptance and local import composition. Acceptance
+[ADR-038](../adr/ADR-038-sportmonks-observation-receipts.md) now has two implemented
+increments: strict format-1 receipt encoding/decoding, stable capture identity and
+retained-context replay share fresh normalization projection checks; additive
+`0013_sportmonks_receipts` schema and a verified read-only reader retain and validate
+complete receipts. Golden-byte/identity and disposable migration/corruption tests pin
+the contracts. Next come atomic acceptance and local import composition. Acceptance
 records evidence about an existing event; it does not refresh canonical event state.
 Same-identity mapping changes conflict rather than silently supersede.
 

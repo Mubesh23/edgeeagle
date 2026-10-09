@@ -89,10 +89,12 @@ exact prices and unknown historical availability remain intact; no live provider
 calls or actual rights/settlement approval are implied. See
 [ADR-035](docs/adr/ADR-035-odds-api-soccer-adapter.md).
 The Sportmonks path now has a strict format-1 observation receipt codec, stable
-capture identity and retained-context replay sharing canonical projection checks
-with fresh normalization. Golden bytes and offline negative tests cover these
-contracts. No Sportmonks receipt table, persistence reader, acceptance writer or
-import command exists yet; see [ADR-038](docs/adr/ADR-038-sportmonks-observation-receipts.md).
+capture identity, retained-context replay, additive immutable receipt table
+(`0013_sportmonks_receipts`) and a verified read-only PostgreSQL reader. Golden
+bytes, offline negative tests, disposable migration round trips, downgrade guards
+and corruption checks cover these contracts. Atomic acceptance, import
+orchestration and public/API exposure remain deferred; see
+[ADR-038](docs/adr/ADR-038-sportmonks-observation-receipts.md).
 The API now exposes current-state event list/detail contracts, with explicit local
 PostgreSQL composition, bounded ID pagination, and read-only request transactions.
 The default credential-free app returns 503 for unconfigured event reads; see

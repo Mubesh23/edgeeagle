@@ -578,5 +578,9 @@ tampered-replay cases are covered offline:
 uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_receipts.py
 ```
 
-This is not durable storage or acceptance. The separate table/reader, atomic writer
-and import command remain subsequent ADR-038 increments.
+Durable storage and a verified read-only PostgreSQL reader are implemented in
+`edgeeagle-persistence` under migration `0013_sportmonks_receipts`; see its
+[persistence guide](../persistence/README.md#sportmonks-receipt-reads). The
+reader validates retained receipt bytes and indexed identity without refreshing
+current mappings. Atomic acceptance and the import command remain subsequent
+ADR-038 increments.

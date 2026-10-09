@@ -1,5 +1,15 @@
 # Database migrations
 
+Revision `0013_sportmonks_receipts` adds one immutable format-1 Sportmonks
+observation receipt per globally unique capture identity, linked restrictively to
+its data source and existing canonical event. Complete canonical receipt bytes
+and indexed identity columns are retained together; checks bind source, event,
+fixture and format to the envelope. A verified read-only adapter validates bytes
+and those indexed fields without re-resolving current mappings. Downgrade locks
+and refuses while receipts exist. Tests use disposable databases only; no writer,
+import command, or automatic application-database migration is introduced. See
+[ADR-038](../../../docs/adr/ADR-038-sportmonks-observation-receipts.md).
+
 Revision `0012_odds_captures` adds immutable whole-capture receipts (format 2,
 maximum 8 MiB) and their exact quote projections. Canonical markets/selections
 are shared, but all legacy synthetic receipt/quote tables and guards remain

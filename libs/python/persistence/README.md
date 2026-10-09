@@ -467,6 +467,12 @@ season, participant IDs in lexical order, event, then event entries in participa
 ID order; it compares all canonical records and the exact six selected immutable
 mapping revisions. Existing retries and `get` do not refresh current references.
 No event, mapping, or outbox rows are written. Raw verification must be complete
-before the caller begins this transaction; composing that verified path is the
-next ADR-038 increment. Run `scripts/test-integration -k sportmonks_acceptance`
-for retries, distinct-target identity races, drift, lock timeout, and rollback.
+before the caller begins this transaction. The ADR-038 offline import composition
+uses `sportmonks_receipt_transactions(engine)`, a bounded READ COMMITTED context
+that commits on clean exit and rolls back on exceptions; repository methods
+themselves never commit or retry. Raw I/O,
+reference resolution and retained-context replay happen before this transaction.
+Run `scripts/test-integration -k sportmonks_acceptance` for retries, distinct-target
+identity races, drift, lock timeout and rollback; run
+`scripts/test-integration -k sportmonks_import` for the complete authored
+Floci/PostgreSQL workflow.

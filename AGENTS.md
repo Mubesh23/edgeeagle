@@ -93,7 +93,9 @@ capture identity, retained-context replay, additive immutable receipt table
 (`0013_sportmonks_receipts`), verified reader and atomic acceptance repository.
 Golden bytes, offline negative tests, disposable migration round trips, downgrade
 guards, corruption, mapping/canonical drift, race and rollback checks cover these
-contracts. End-to-end import orchestration and public/API exposure remain deferred; see
+contracts. Authored local-file to Floci/reference/receipt composition now has an
+internal library workflow with deterministic replay and acceptance/readback tests;
+CLI and public/API exposure remain deferred. See
 [ADR-038](docs/adr/ADR-038-sportmonks-observation-receipts.md).
 The API now exposes current-state event list/detail contracts, with explicit local
 PostgreSQL composition, bounded ID pagination, and read-only request transactions.

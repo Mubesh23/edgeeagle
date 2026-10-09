@@ -110,20 +110,24 @@ with offline and local Floci coverage. Source-scoped canonical-reference resolut
 and canonical-linked staging now use pinned read-only PostgreSQL snapshots, with
 offline and local snapshot/correction/revocation tests. The in-memory receipt codec,
 capture identity and retained-context replay are implemented separately. Durable
-receipt storage, multi-source event observations and acceptance follow separately. Existing
-initial-only event acceptance remains unchanged; no live acquisition or model-ready
-data is implied.
+receipt storage, immutable acceptance and the authored local composition are now
+implemented under ADR-038. Multi-source event lifecycle and initial-only event
+acceptance remain unchanged; no live acquisition or model-ready data is implied.
 
-[ADR-038](../adr/ADR-038-sportmonks-observation-receipts.md) now has three implemented
+[ADR-038](../adr/ADR-038-sportmonks-observation-receipts.md) now has four implemented
 increments: strict format-1 receipt encoding/decoding, stable capture identity and
 retained-context replay share fresh normalization projection checks; additive
 `0013_sportmonks_receipts` schema and verified reads retain and validate complete
 receipts; atomic acceptance validates selected mapping revisions and locked current
 canonical context while preserving exact retries. Golden-byte/identity, disposable
-migration and transactional race/drift/rollback tests pin these contracts. Next is
-local import composition. Acceptance records evidence about an existing event; it
-does not refresh canonical event state. Same-identity mapping changes conflict
-rather than silently supersede.
+migration and transactional race/drift/rollback tests pin these contracts. The
+authored local import composition now retains raw bytes in Floci, resolves references
+from a pinned read-only snapshot, normalizes and replays before starting the bounded
+acceptance transaction, then verifies receipt readback before commit. Exact retries
+are idempotent, and retained evidence replays after later mapping/name changes.
+Acceptance records evidence about an existing event; it does not refresh canonical
+event state. Same-identity fresh normalization changes conflict rather than silently
+supersede. This is an internal library workflow, not a CLI/API or live-provider path.
 
 Completed bounded provider goal: [ADR-035](../adr/ADR-035-odds-api-soccer-adapter.md) defines
 a fixture-first The Odds API pre-match soccer 1X2 adapter, retained mapping evidence,

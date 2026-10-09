@@ -189,6 +189,28 @@ and adds no application database setup. See the
 [workflow guide](../../../docs/development/football-data-import.md) for prerequisites,
 composition, failure/retry semantics, and the local acceptance command.
 
+## Sportmonks observation import
+
+`sportmonks_import.import_sportmonks_capture` composes one explicitly supplied
+offline importer and `SportmonksCaptureManifest` through immutable raw retention,
+integrity-checked parsing, one pinned PostgreSQL reference snapshot, receipt replay,
+and atomic receipt acceptance/readback. The acquired raw reference must exactly
+match the manifest. The write transaction starts only after raw verification and
+replay; the workflow returns only after its transaction context commits. Persistence
+provides `sportmonks_receipt_transactions(engine)` with READ COMMITTED isolation
+and bounded statement, lock and idle-transaction timeouts. A failed workflow can
+leave reusable raw bytes but cannot report success without matching committed
+receipt evidence. Exact retries return the retained receipt; replay uses captured
+mapping/name context and does not query current references. Callers retry from the
+original retained receipt via `accept_retained_sportmonks_capture`; it verifies raw,
+then accepts/readbacks without silently normalizing against changed mappings.
+
+This is an internal library composition tested with the authored fixture, local
+Floci and disposable PostgreSQL. It adds no command, live provider call, API,
+publication or historical/model eligibility. See
+[ADR-038](../../../docs/adr/ADR-038-sportmonks-observation-receipts.md) and run
+`scripts/test-integration -k sportmonks_import`.
+
 ## Initial event acceptance
 
 ADR-029 adds `football_data.normalize_season_results` and `replay_season_results`

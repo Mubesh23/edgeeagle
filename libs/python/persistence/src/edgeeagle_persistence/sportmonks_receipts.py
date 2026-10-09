@@ -1,8 +1,10 @@
 """Verified read-only access to immutable Sportmonks observation receipts."""
 
 import re
+from collections.abc import Callable, Iterator
+from contextlib import AbstractContextManager, contextmanager
 
-from sqlalchemy import Connection, text
+from sqlalchemy import Connection, Engine, text
 from sqlalchemy.exc import IntegrityError
 
 from edgeeagle_ingestion.sportmonks_acceptance import SportmonksReceiptConflict
@@ -180,3 +182,24 @@ class PostgresSportmonksReceiptRepository(PostgresSportmonksReceiptReader):
             raise SportmonksReceiptConflict(
                 "Sportmonks receipt acceptance violates stored constraints"
             ) from exc
+
+
+def sportmonks_receipt_transactions(
+    engine: Engine,
+) -> Callable[[], AbstractContextManager[PostgresSportmonksReceiptRepository]]:
+    """Supply bounded READ COMMITTED transactions for the ingestion workflow.
+
+    Engine and pool lifecycle remain caller-owned. Each context commits on normal
+    exit and rolls back on errors; repository methods never commit or retry.
+    """
+
+    @contextmanager
+    def transactions() -> Iterator[PostgresSportmonksReceiptRepository]:
+        with engine.connect().execution_options(isolation_level="READ COMMITTED") as connection:
+            with connection.begin():
+                connection.execute(text("SET LOCAL statement_timeout = '5s'"))
+                connection.execute(text("SET LOCAL lock_timeout = '5s'"))
+                connection.execute(text("SET LOCAL idle_in_transaction_session_timeout = '5s'"))
+                yield PostgresSportmonksReceiptRepository(connection)
+
+    return transactions

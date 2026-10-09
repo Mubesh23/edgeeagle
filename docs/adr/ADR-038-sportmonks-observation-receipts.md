@@ -1,6 +1,6 @@
 # ADR-038 — Sportmonks observation receipts and atomic acceptance
 
-**Status:** Accepted; codec, identity, replay, additive schema, verified reader and atomic acceptance implemented; composition deferred  
+**Status:** Accepted; codec, identity, replay, additive schema, verified reader, atomic acceptance and local composition implemented  
 **Date:** 2026-09-24
 
 ## Context and scope
@@ -150,14 +150,16 @@ Implement in independently committed increments:
    races, conflicts, current-context drift, retained retries after revocation,
    readback corruption, savepoint/outer rollback and no event/mapping/outbox
    changes. Bounded lock failures propagate to the caller.
-4. Compose approved local file -> retained Floci raw -> pinned PostgreSQL reference
-   snapshot -> normalization/receipt/replay -> atomic receipt acceptance/readback.
-   Use authored data; prove deterministic replay after mapping/name changes.
+4. **Implemented:** compose the authored local file -> retained Floci raw -> pinned
+   PostgreSQL reference snapshot -> normalization/receipt/replay -> atomic receipt
+   acceptance/readback. Verify exact retry and deterministic retained-context replay
+   after mapping/name changes. The workflow is an internal library composition, not
+   a CLI or public/API entry point.
 5. Run `scripts/validate`; report local versus hosted/live evidence separately.
 
 This implementation provides the codec, identity, read-only replay, separate
-immutable receipt table, verified reader and transactional acceptance writer. It
-adds no import entry point or end-to-end composition.
+immutable receipt table, verified reader, transactional acceptance writer and
+internal offline import composition. It adds no CLI or public/API entry point.
 No API/MCP/browser, dataset-catalog/recovery integration, historical Parquet,
 model-ready dataset, outbox, live provider call or execution capability is added.
 Those consumers need explicit later contracts; existing Football-Data recovery

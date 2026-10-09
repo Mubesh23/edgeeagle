@@ -29,3 +29,7 @@ test, acquisition, durable receipt or model feature is implemented. Authored exp
 canonical mappings are exercised by `scripts/test-integration -k sportmonks`; they
 are invented review evidence, not approved real-provider mappings. That path returns
 read-only staging candidates and performs no canonical writes.
+
+The offline receipt tests also use the authored bytes and explicit mapping evidence.
+They pin the canonical receipt and capture-identity SHA-256 digests; these are
+regression fingerprints for the serialization contract, not authenticity claims.

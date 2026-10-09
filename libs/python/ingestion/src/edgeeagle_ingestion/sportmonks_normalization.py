@@ -56,6 +56,52 @@ def _keys(
     )
 
 
+def _project(
+    manifest: SportmonksCaptureManifest,
+    native: NativeSportmonksFixture,
+    references: ResolvedSportmonksReferences,
+    *,
+    parser_version: str = PARSER_VERSION,
+    normalizer_version: str = NORMALIZER_VERSION,
+    as_of: datetime | None = None,
+) -> NormalizedSportmonksFixture:
+    """Apply the one canonical projection contract to fresh and retained evidence."""
+    instance(manifest, SportmonksCaptureManifest, "manifest")
+    instance(native, NativeSportmonksFixture, "native")
+    instance(references, ResolvedSportmonksReferences, "references")
+    if parser_version != PARSER_VERSION or normalizer_version != NORMALIZER_VERSION:
+        raise ValueError("unsupported Sportmonks transformation versions")
+    if native.fixture_id != manifest.fixture_id:
+        raise ValueError("native fixture differs from capture manifest")
+    if native.starts_at <= manifest.snapshot_at:
+        raise ValueError("capture snapshot must precede scheduled kickoff")
+    cutoff = references.as_of
+    aware_datetime(cutoff, "reference cutoff")
+    cutoff = cutoff.astimezone(UTC)
+    if as_of is not None:
+        aware_datetime(as_of, "as_of")
+        if as_of.astimezone(UTC) != cutoff:
+            raise ValueError("reference evidence differs from requested cutoff")
+    keys = _keys(manifest, native)
+    if tuple(row.key for row in references.revisions) != keys.ordered():
+        raise ValueError("reference evidence differs from requested keys")
+    if (
+        references.event.status != "SCHEDULED"
+        or references.event.starts_at.astimezone(UTC) != native.starts_at
+    ):
+        raise ValueError("canonical scheduled status or kickoff differs from native fixture")
+    season = references.context.season
+    if not season.starts_at.astimezone(UTC) <= native.starts_at <= season.ends_at.astimezone(UTC):
+        raise ValueError("fixture kickoff falls outside the canonical season")
+    return NormalizedSportmonksFixture(
+        manifest=manifest,
+        native=native,
+        references=references,
+        parser_version=parser_version,
+        normalizer_version=normalizer_version,
+    )
+
+
 def normalize_sportmonks_capture(
     store: RawPayloadStore,
     manifest: SportmonksCaptureManifest,
@@ -76,12 +122,4 @@ def normalize_sportmonks_capture(
     keys = _keys(manifest, native)
     with reads() as resolver:
         refs = resolver.resolve(keys, as_of=cutoff)
-    instance(refs, ResolvedSportmonksReferences, "references")
-    if refs.as_of != cutoff or tuple(r.key for r in refs.revisions) != keys.ordered():
-        raise ValueError("reference evidence differs from requested keys or cutoff")
-    if refs.event.status != "SCHEDULED" or refs.event.starts_at.astimezone(UTC) != native.starts_at:
-        raise ValueError("canonical scheduled status or kickoff differs from native fixture")
-    season = refs.context.season
-    if not season.starts_at.astimezone(UTC) <= native.starts_at <= season.ends_at.astimezone(UTC):
-        raise ValueError("fixture kickoff falls outside the canonical season")
-    return NormalizedSportmonksFixture(manifest=manifest, native=native, references=refs)
+    return _project(manifest, native, refs, as_of=cutoff)

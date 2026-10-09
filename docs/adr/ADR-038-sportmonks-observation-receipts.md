@@ -1,6 +1,6 @@
 # ADR-038 — Sportmonks observation receipts and atomic acceptance
 
-**Status:** Accepted design direction; implementation deferred  
+**Status:** Accepted; codec, identity and replay implemented; persistence deferred  
 **Date:** 2026-09-24
 
 ## Context and scope
@@ -14,7 +14,9 @@ command; its frozen dataclass alone does not establish evidence integrity.
 receipt together. Sportmonks instead references an **existing** event, potentially
 created through another source. Reusing that operation would conflict with its
 initial-only identity and overwrite/correction rules. Reuse the separation of raw,
-reference and write transactions, not that receipt format or the Odds API codec.
+reference and write transactions, not that receipt format or the Odds API codec. The
+provider-specific envelope and projection validation remain independent; only the
+bounded typed-JSON serialization mechanics are shared internally.
 
 ## Decision: store observations, not authoritative event updates
 
@@ -136,9 +138,9 @@ Retained retry takes original evidence and verifies raw again before writing.
 
 Implement in independently committed increments:
 
-1. Strict codec, deterministic identity and retained-context replay, with golden
-   bytes and negative offline tests. Share deterministic validation with fresh
-   normalization; do not create competing projection rules.
+1. **Implemented:** strict codec, deterministic identity and retained-context replay,
+   with pinned golden-byte and identity digests plus negative offline tests. Fresh
+   normalization and replay share deterministic projection validation.
 2. Additive schema and verified reader before enabling writers. Test migration
    round trips in disposable databases and preservation of all legacy receipts.
    Downgrade must lock/check and refuse while Sportmonks receipts exist, never
@@ -151,7 +153,8 @@ Implement in independently committed increments:
    Use authored data; prove deterministic replay after mapping/name changes.
 5. Run `scripts/validate`; report local versus hosted/live evidence separately.
 
-This ADR implements no codec, migration, reader, writer or import entry point.
+This implementation provides the codec, identity and read-only replay only. It adds
+no migration, durable reader, acceptance writer or import entry point.
 No API/MCP/browser, dataset-catalog/recovery integration, historical Parquet,
 model-ready dataset, outbox, live provider call or execution capability is added.
 Those consumers need explicit later contracts; existing Football-Data recovery

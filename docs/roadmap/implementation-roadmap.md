@@ -108,17 +108,19 @@ participant roles and cross-checked UTC kickoff. The pure parser and authored
 fixtures, capture manifests and integrity-checked retained reads are implemented,
 with offline and local Floci coverage. Source-scoped canonical-reference resolution
 and canonical-linked staging now use pinned read-only PostgreSQL snapshots, with
-offline and local snapshot/correction/revocation tests. Durable receipts,
-multi-source event observations and canonical replay follow separately. Existing
+offline and local snapshot/correction/revocation tests. The in-memory receipt codec,
+capture identity and retained-context replay are implemented separately. Durable
+receipt storage, multi-source event observations and acceptance follow separately. Existing
 initial-only event acceptance remains unchanged; no live acquisition or model-ready
 data is implied.
 
-Next: implement [ADR-038](../adr/ADR-038-sportmonks-observation-receipts.md), starting
-with a strict Sportmonks receipt codec, stable capture identity and retained-context
-replay. Then add the separate observation table/reader, atomic acceptance and local
-import composition. Acceptance records evidence about an existing event; it does
-not refresh canonical event state. The design is recorded; these writes are not
-implemented. Same-identity mapping changes conflict rather than silently supersede.
+The first [ADR-038](../adr/ADR-038-sportmonks-observation-receipts.md) increment is
+implemented: strict format-1 receipt encoding/decoding, stable capture identity and
+retained-context replay share the fresh normalization projection checks. Golden-byte,
+identity and offline negative tests pin the contract. Next add the separate observation
+table/verified reader, then atomic acceptance and local import composition. Acceptance
+records evidence about an existing event; it does not refresh canonical event state.
+Same-identity mapping changes conflict rather than silently supersede.
 
 Completed bounded provider goal: [ADR-035](../adr/ADR-035-odds-api-soccer-adapter.md) defines
 a fixture-first The Odds API pre-match soccer 1X2 adapter, retained mapping evidence,

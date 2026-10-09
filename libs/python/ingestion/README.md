@@ -554,3 +554,29 @@ that snapshot. Run `scripts/test-integration -k sportmonks` for the authored loc
 Floci/PostgreSQL candidate path and snapshot/correction/revocation checks.
 Run the offline tests with
 `uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_references.py tests/unit/test_sportmonks_normalization.py`.
+
+### Sportmonks observation receipt codec and replay
+
+`sportmonks_receipts.encode_sportmonks_receipt` and
+`decode_sportmonks_receipt` validate and canonically encode the complete in-memory
+candidate using the independent format-1 Sportmonks envelope. The internal typed
+JSON mechanics are shared with other receipts; Sportmonks keeps its own envelope
+and provider-specific projection validation. `sportmonks_capture_identity` hashes
+identity version 1, the complete capture manifest and the pinned parser/normalizer
+versions. Canonical targets, selected mapping evidence/cutoff and parsed output
+belong to the receipt projection, not capture identity.
+
+`replay_sportmonks_receipt(store, receipt)` re-reads and integrity-checks the exact
+retained raw object, parses with the manifest's explicit clock, rebuilds the
+projection from the receipt's saved six-role mapping context, and compares the
+complete canonical receipt. It never queries current mappings or writes data.
+Unknown `available_at` and the origin-derived `SYNTHETIC_ONLY`/`REPLAY_ONLY` usage
+are preserved. Golden receipt-byte and identity digests plus malformed-input and
+tampered-replay cases are covered offline:
+
+```sh
+uv run --locked --offline --all-packages pytest tests/unit/test_sportmonks_receipts.py
+```
+
+This is not durable storage or acceptance. The separate table/reader, atomic writer
+and import command remain subsequent ADR-038 increments.

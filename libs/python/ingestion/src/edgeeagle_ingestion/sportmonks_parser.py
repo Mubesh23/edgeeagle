@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any, NoReturn
 
-from edgeeagle_domain._validation import aware_datetime
+from edgeeagle_domain._validation import aware_datetime, instance
 
 PARSER_VERSION = "sportmonks-scheduled-fixture-json-v1"
 MAX_BYTES = 1024 * 1024
@@ -17,6 +17,10 @@ MAX_BYTES = 1024 * 1024
 class NativeSportmonksParticipant:
     participant_id: int
     name: str
+
+    def __post_init__(self) -> None:
+        _native_id(self.participant_id)
+        _name(self.name)
 
 
 @dataclass(frozen=True)
@@ -29,6 +33,21 @@ class NativeSportmonksFixture:
     starts_at: datetime
     home: NativeSportmonksParticipant
     away: NativeSportmonksParticipant
+
+    def __post_init__(self) -> None:
+        _native_id(self.fixture_id)
+        if _native_id(self.sport_id) != 1:
+            raise ValueError("only Sportmonks soccer sport ID 1 is supported")
+        _native_id(self.league_id)
+        _native_id(self.season_id)
+        if _native_id(self.state_id) != 1:
+            raise ValueError("only scheduled Sportmonks state ID 1 is supported")
+        aware_datetime(self.starts_at, "starts_at")
+        object.__setattr__(self, "starts_at", self.starts_at.astimezone(UTC))
+        instance(self.home, NativeSportmonksParticipant, "home")
+        instance(self.away, NativeSportmonksParticipant, "away")
+        if self.home.participant_id == self.away.participant_id:
+            raise ValueError("duplicate Sportmonks participant identity")
 
 
 def _object(value: object) -> dict[str, Any]:

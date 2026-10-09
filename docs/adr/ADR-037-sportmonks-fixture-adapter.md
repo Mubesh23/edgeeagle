@@ -88,6 +88,12 @@ before invoking the parser with the declared fixture ID and snapshot instant.
 Missing/corrupt bytes and unsupported payloads fail closed. It performs no raw
 writes, acquisition, reference lookup or canonical transaction. Callers compose
 existing `LocalFileImporter`, `ingest_raw` and `S3RawPayloadStore` for retention.
+
+[ADR-038](ADR-038-sportmonks-observation-receipts.md) now implements the strict
+format-1 receipt codec, capture identity and replay against retained raw bytes plus
+the receipt's selected mapping context. Fresh normalization and replay share one
+canonical projection check. These operations remain in-memory/read-only: no durable
+receipt table or acceptance path is enabled.
 Provider identity stays in the raw reference; the source-scoped mapping boundary
 verifies its registered source kind, not a hard-coded source ID.
 

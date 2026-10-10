@@ -78,4 +78,6 @@ interpreted as canonical semantics.
    existing dependency-security gate is clear; otherwise report that independent
    blocker without suppressing or waiving it.
 
-This ADR authorizes no live capture, API change, schema migration or trade path.
+This ADR by itself authorizes no live capture, API change, schema migration or
+trade path. The bounded local fixture inspection API and binary mapping boundary
+are separately authorized by [ADR-040](ADR-040-binary-market-mapping-and-local-orderbook-api.md).

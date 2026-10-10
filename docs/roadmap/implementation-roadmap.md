@@ -102,11 +102,13 @@ This is a private data-foundation view, not completion of the Phase 8 terminal.
 
 ## Phase 3 — V1 Provider Adapters
 
-Next bounded provider increment: [ADR-039](../adr/ADR-039-kalshi-orderbook-fixture-adapter.md)
-defines an offline, fixture-first read of Kalshi's public binary order book. It
-preserves fixed-point YES/NO bids as order-book levels rather than sportsbook
-decimal odds. It does not establish canonical event/market mapping or add live
-acquisition, persistence, API exposure, execution, or backtest eligibility.
+The fixture-first Kalshi order-book parser and provider-neutral binary bid values
+are implemented under [ADR-039](../adr/ADR-039-kalshi-orderbook-fixture-adapter.md).
+[ADR-040](../adr/ADR-040-binary-market-mapping-and-local-orderbook-api.md) now
+restricts any future canonical mapping to exact outcome/settlement equivalence and
+authorizes an opt-in, loopback-only API view of the single authored fixture. The
+view remains synthetic and unmapped; live acquisition, persistence, execution and
+backtest eligibility remain out of scope.
 
 [ADR-037](../adr/ADR-037-sportmonks-fixture-adapter.md) defines authored Sportmonks
 v3 scheduled-fixture parsing: explicit native IDs, participant roles and

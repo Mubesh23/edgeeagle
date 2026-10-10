@@ -8,10 +8,12 @@ from decimal import Decimal, localcontext
 import pytest
 
 from edgeeagle_domain.markets import (
+    BinaryOrderBook,
     Market,
     MarketId,
     MarketPeriod,
     MarketType,
+    OrderBookLevel,
     Outcome,
     Quote,
     QuoteId,
@@ -208,3 +210,63 @@ def test_typed_ids_reject_blank_and_nontext(kind: type[MarketId | SelectionId | 
             kind(value)
     with pytest.raises(TypeError):
         kind(123)  # type: ignore[arg-type]
+
+
+def test_binary_order_book_preserves_exact_ascending_bid_levels() -> None:
+    yes = (OrderBookLevel(price_dollars=Decimal("0.4100"), contract_count=Decimal("2.50")),)
+    no = (
+        OrderBookLevel(price_dollars=Decimal("0.2000"), contract_count=Decimal("7")),
+        OrderBookLevel(price_dollars=Decimal("0.3500"), contract_count=Decimal("1.25")),
+    )
+    book = BinaryOrderBook(yes_bids=yes, no_bids=no)
+    assert book.yes_bids == yes
+    assert book.no_bids == no
+    assert book.yes_bids[0].price_dollars == Decimal("0.4100")
+    assert book.no_bids[-1].contract_count == Decimal("1.25")
+    with pytest.raises(FrozenInstanceError):
+        book.yes_bids = ()  # type: ignore[misc]
+
+
+@pytest.mark.parametrize(
+    "price",
+    [Decimal("-0.01"), Decimal("1.01"), Decimal("NaN"), Decimal("Infinity")],
+)
+def test_binary_order_book_rejects_invalid_binary_prices(price: Decimal) -> None:
+    with pytest.raises(ValueError):
+        OrderBookLevel(price_dollars=price, contract_count=Decimal("1"))
+
+
+@pytest.mark.parametrize(
+    "contracts",
+    [Decimal("0"), Decimal("-1"), Decimal("NaN"), Decimal("Infinity")],
+)
+def test_binary_order_book_rejects_nonpositive_or_nonfinite_sizes(contracts: Decimal) -> None:
+    with pytest.raises(ValueError):
+        OrderBookLevel(price_dollars=Decimal("0.25"), contract_count=contracts)
+
+
+@pytest.mark.parametrize("value", [0.25, 1, True, "0.25", None])
+def test_binary_order_book_levels_do_not_coerce_values(value: object) -> None:
+    with pytest.raises(TypeError):
+        OrderBookLevel(price_dollars=value, contract_count=Decimal("1"))  # type: ignore[arg-type]
+    with pytest.raises(TypeError):
+        OrderBookLevel(price_dollars=Decimal("0.25"), contract_count=value)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    "levels",
+    [
+        [OrderBookLevel(price_dollars=Decimal("0.2"), contract_count=Decimal("1"))],
+        (
+            OrderBookLevel(price_dollars=Decimal("0.3"), contract_count=Decimal("1")),
+            OrderBookLevel(price_dollars=Decimal("0.2"), contract_count=Decimal("1")),
+        ),
+        (
+            OrderBookLevel(price_dollars=Decimal("0.2"), contract_count=Decimal("1")),
+            OrderBookLevel(price_dollars=Decimal("0.2"), contract_count=Decimal("2")),
+        ),
+    ],
+)
+def test_binary_order_book_requires_immutable_strictly_ascending_levels(levels: object) -> None:
+    with pytest.raises((TypeError, ValueError)):
+        BinaryOrderBook(yes_bids=levels, no_bids=())  # type: ignore[arg-type]

@@ -52,6 +52,41 @@ class Outcome(Enum):
     AWAY = "AWAY"
 
 
+@dataclass(frozen=True, kw_only=True)
+class OrderBookLevel:
+    """One binary-contract bid level; price is dollars per contract, not odds."""
+
+    price_dollars: Decimal
+    contract_count: Decimal
+
+    def __post_init__(self) -> None:
+        instance(self.price_dollars, Decimal, "price_dollars")
+        instance(self.contract_count, Decimal, "contract_count")
+        if not self.price_dollars.is_finite() or not Decimal(0) <= self.price_dollars <= Decimal(1):
+            raise ValueError("binary contract price must be finite and within 0..1 dollars")
+        if not self.contract_count.is_finite() or self.contract_count <= 0:
+            raise ValueError("contract_count must be finite and positive")
+
+
+@dataclass(frozen=True, kw_only=True)
+class BinaryOrderBook:
+    """YES/NO bid ladders, without inferred asks or probability conversions."""
+
+    yes_bids: tuple[OrderBookLevel, ...]
+    no_bids: tuple[OrderBookLevel, ...]
+
+    def __post_init__(self) -> None:
+        for name in ("yes_bids", "no_bids"):
+            levels = getattr(self, name)
+            instance(levels, tuple, name)
+            previous_price: Decimal | None = None
+            for level in levels:
+                instance(level, OrderBookLevel, f"{name} level")
+                if previous_price is not None and level.price_dollars <= previous_price:
+                    raise ValueError(f"{name} must have distinct ascending prices")
+                previous_price = level.price_dollars
+
+
 def _identity(fields: dict[str, str | int]) -> str:
     body = json.dumps(fields, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     return hashlib.sha256(body.encode("ascii")).hexdigest()

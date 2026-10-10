@@ -130,6 +130,25 @@ These are documentation observations, not live contract validation or approval o
 retention/display/redistribution rights. The existing pricing/free-plan snapshot
 above was not reverified by this schema review. No provider request was made.
 
+## Kalshi public order-book contract review
+
+Last verified: 2026-10-09 against the official
+[unauthenticated market-data quick start](https://docs.kalshi.com/getting_started/quick_start_market_data),
+[Get Market Orderbook](https://docs.kalshi.com/api-reference/market/get-market-orderbook)
+and [order-book response guide](https://docs.kalshi.com/getting_started/orderbook_responses).
+
+The public `GET /markets/{ticker}/orderbook` endpoint is documented without
+authentication. Its fixed-point `orderbook_fp` response contains `yes_dollars`
+and `no_dollars`, each an ascending array of string pairs
+`[price_dollars, contract_count]`; the final level is the best bid. Only bids are
+returned. The response body does not carry the requested ticker or a provider
+observation timestamp, so an adapter must retain the request ticker and caller's
+capture metadata separately. Public accessibility does not establish rights to
+retain/display captured data, live-provider validation, executable prices or
+historical availability. The bounded offline contract is in
+[ADR-039](../adr/ADR-039-kalshi-orderbook-fixture-adapter.md); no live request was
+made.
+
 ## Sources
 
 ### Football-Data results importer subset

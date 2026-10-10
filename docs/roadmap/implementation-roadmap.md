@@ -102,17 +102,23 @@ This is a private data-foundation view, not completion of the Phase 8 terminal.
 
 ## Phase 3 — V1 Provider Adapters
 
-Next bounded provider increment: [ADR-037](../adr/ADR-037-sportmonks-fixture-adapter.md)
-defines authored Sportmonks v3 scheduled-fixture parsing: explicit native IDs,
-participant roles and cross-checked UTC kickoff. The pure parser and authored
-fixtures, capture manifests and integrity-checked retained reads are implemented,
-with offline and local Floci coverage. Source-scoped canonical-reference resolution
-and canonical-linked staging now use pinned read-only PostgreSQL snapshots, with
-offline and local snapshot/correction/revocation tests. The in-memory receipt codec,
-capture identity and retained-context replay are implemented separately. Durable
-receipt storage, immutable acceptance and the authored local composition are now
-implemented under ADR-038. Multi-source event lifecycle and initial-only event
-acceptance remain unchanged; no live acquisition or model-ready data is implied.
+Next bounded provider increment: [ADR-039](../adr/ADR-039-kalshi-orderbook-fixture-adapter.md)
+defines an offline, fixture-first read of Kalshi's public binary order book. It
+preserves fixed-point YES/NO bids as order-book levels rather than sportsbook
+decimal odds. It does not establish canonical event/market mapping or add live
+acquisition, persistence, API exposure, execution, or backtest eligibility.
+
+[ADR-037](../adr/ADR-037-sportmonks-fixture-adapter.md) defines authored Sportmonks
+v3 scheduled-fixture parsing: explicit native IDs, participant roles and
+cross-checked UTC kickoff. The pure parser and authored fixtures, capture manifests
+and integrity-checked retained reads are implemented, with offline and local Floci
+coverage. Source-scoped canonical-reference resolution and canonical-linked staging
+use pinned read-only PostgreSQL snapshots, with offline and local
+snapshot/correction/revocation tests. The in-memory receipt codec, capture identity
+and retained-context replay are implemented separately. Durable receipt storage,
+immutable acceptance and the authored local composition are implemented under
+ADR-038. Multi-source event lifecycle and initial-only event acceptance remain
+unchanged; no live acquisition or model-ready data is implied.
 
 [ADR-038](../adr/ADR-038-sportmonks-observation-receipts.md) now has four implemented
 increments: strict format-1 receipt encoding/decoding, stable capture identity and

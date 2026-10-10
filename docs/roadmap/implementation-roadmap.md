@@ -107,7 +107,8 @@ are implemented under [ADR-039](../adr/ADR-039-kalshi-orderbook-fixture-adapter.
 [ADR-040](../adr/ADR-040-binary-market-mapping-and-local-orderbook-api.md) now
 restricts any future canonical mapping to exact outcome/settlement equivalence and
 authorizes an opt-in, loopback-only API view of the single authored fixture. The
-view remains synthetic and unmapped; live acquisition, persistence, execution and
+read-only API route is implemented with generated OpenAPI/client artifacts; the
+view remains synthetic and unmapped. Live acquisition, persistence, execution and
 backtest eligibility remain out of scope.
 
 [ADR-037](../adr/ADR-037-sportmonks-fixture-adapter.md) defines authored Sportmonks

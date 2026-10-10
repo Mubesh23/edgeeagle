@@ -75,3 +75,13 @@ handling, sanitized retained-data failures, GET-only behavior and unchanged
 canonical market reads. Regenerate OpenAPI and its TypeScript client from the
 authoritative FastAPI application. Routine checks remain offline. No real provider
 contract call or production deployment is part of this decision.
+
+## Implementation status
+
+The opt-in route is implemented at
+`GET /v1/provider-order-books/{dataSourceId}/{marketTicker}`. The local factory
+serves only the pinned authored fixture and re-reads its bytes through the
+integrity-checked Kalshi normalizer per request. The default app remains
+unconfigured. OpenAPI and the generated TypeScript schema include the read
+contract. The implementation adds no binary canonical mapping, persistence,
+provider access, UI or execution behavior.

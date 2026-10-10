@@ -25,8 +25,9 @@ artifacts remain detectable. Generator tests cover repeated identical output,
 missing artifacts, stale OpenAPI, stale TypeScript, and non-mutating checks.
 
 Implemented contracts include liveness, event reads, private dataset inspection,
-and retained market/quote observations. Future domain routes and MCP tools in the
-design are not exported until their backend capabilities exist. See the
+retained market/quote observations, and the opt-in fixture-backed provider
+order-book inspection route. Future domain routes and MCP tools in the design are
+not exported until their backend capabilities exist. See the
 [client package](../libs/typescript/api-client/README.md) for usage.
 
 Generated drift is separate from API compatibility. `scripts/check-contracts`

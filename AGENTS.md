@@ -88,6 +88,13 @@ them through the same read-only API. Authored Floci/PostgreSQL/API tests use
 exact prices and unknown historical availability remain intact; no live provider
 calls or actual rights/settlement approval are implied. See
 [ADR-035](docs/adr/ADR-035-odds-api-soccer-adapter.md).
+The fixture-first Kalshi binary order-book parser is implemented under ADR-039.
+ADR-040 authorizes the opt-in loopback-only
+`GET /v1/provider-order-books/{dataSourceId}/{marketTicker}` for one pinned
+authored fixture. It returns exact YES/NO bid levels and provenance with
+`SYNTHETIC_ONLY`, unknown historical availability and `UNMAPPED`; it performs no
+provider, database or S3 access. Canonical binary mapping is limited to exact
+supported-outcome and settlement equivalence. See [local API setup](apps/api/README.md).
 The Sportmonks path now has a strict format-1 observation receipt codec, stable
 capture identity, retained-context replay, additive immutable receipt table
 (`0013_sportmonks_receipts`), verified reader and atomic acceptance repository.

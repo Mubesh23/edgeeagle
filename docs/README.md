@@ -50,8 +50,8 @@ Synthetic markets: [ADR-034 — retained market and quote ingestion](adr/ADR-034
 Provider odds adapter: [ADR-035 — approved fixture-first soccer integration](adr/ADR-035-odds-api-soccer-adapter.md).
 Soccer fundamentals adapter: [ADR-037 — Sportmonks parsing, retained reads and canonical-reference resolution](adr/ADR-037-sportmonks-fixture-adapter.md).
 Soccer observation receipts: [ADR-038 — Sportmonks receipt and atomic acceptance design](adr/ADR-038-sportmonks-observation-receipts.md); strict codec, capture identity, retained-context replay, immutable schema, verified reads, atomic receipt acceptance and authored local import composition are implemented. No CLI, public API, live acquisition or model eligibility is added.
-Kalshi market data: [ADR-039 — fixture-first binary order-book adapter](adr/ADR-039-kalshi-orderbook-fixture-adapter.md); proposed offline slice preserves authored fixed-point YES/NO bids without treating them as decimal odds or canonical event markets.
-Kalshi binary mapping and local inspection API: [ADR-040](adr/ADR-040-binary-market-mapping-and-local-orderbook-api.md); restricts canonical mapping to exact supported outcome equivalence and authorizes only an opt-in, synthetic-fixture-backed loopback read.
+Kalshi market data: [ADR-039 — fixture-first binary order-book adapter](adr/ADR-039-kalshi-orderbook-fixture-adapter.md); offline parser preserves authored fixed-point YES/NO bids without treating them as decimal odds or canonical event markets.
+Kalshi binary mapping and local inspection API: [ADR-040](adr/ADR-040-binary-market-mapping-and-local-orderbook-api.md); restricts canonical mapping to exact supported outcome equivalence and authorizes an opt-in, synthetic-fixture-backed loopback read.
 Soccer research: [ADR-008 — statistical-first baseline](adr/ADR-008-soccer-baseline-model.md)
 and [ADR-036 — chronological model evaluation and market benchmarking](adr/ADR-036-soccer-model-evaluation-and-market-benchmarking.md).
 These are Phase 4+ design requirements, not implemented models or an upgrade of replay-only data.

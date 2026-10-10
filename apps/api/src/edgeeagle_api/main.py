@@ -11,6 +11,8 @@ from edgeeagle_api.datasets import router as datasets_router
 from edgeeagle_api.events import EventReads, router
 from edgeeagle_api.markets import MarketReads
 from edgeeagle_api.markets import router as markets_router
+from edgeeagle_api.orderbooks import OrderBookReads
+from edgeeagle_api.orderbooks import router as orderbooks_router
 
 
 class HealthResponse(BaseModel):
@@ -24,22 +26,29 @@ def create_app(
     event_reads: EventReads | None = None,
     dataset_reads: DatasetReads | None = None,
     market_reads: MarketReads | None = None,
+    orderbook_reads: OrderBookReads | None = None,
 ) -> FastAPI:
     """Create an isolated application for serving or in-process tests."""
     app = FastAPI(title="EdgeEagle API", version="0.0.0")
     app.state.event_reads = event_reads
     app.state.dataset_reads = dataset_reads
     app.state.market_reads = market_reads
+    app.state.orderbook_reads = orderbook_reads
     app.include_router(router)
     app.include_router(datasets_router)
     app.include_router(markets_router)
+    app.include_router(orderbooks_router)
 
     @app.middleware("http")
-    async def private_catalog_cache_policy(
+    async def private_read_cache_policy(
         request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         response = await call_next(request)
-        if request.url.path == "/v1/datasets" or request.url.path.startswith("/v1/datasets/"):
+        if (
+            request.url.path == "/v1/datasets"
+            or request.url.path.startswith("/v1/datasets/")
+            or request.url.path.startswith("/v1/provider-order-books/")
+        ):
             response.headers["Cache-Control"] = "no-store"
         return response
 

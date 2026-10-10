@@ -364,10 +364,86 @@
         "title": "MarketType",
         "type": "string"
       },
+      "OrderBookErrorResponse": {
+        "properties": { "detail": { "title": "Detail", "type": "string" } },
+        "required": ["detail"],
+        "title": "OrderBookErrorResponse",
+        "type": "object"
+      },
+      "OrderBookLevelResponse": {
+        "properties": {
+          "contract_count": { "title": "Contract Count", "type": "string" },
+          "price_dollars": { "title": "Price Dollars", "type": "string" }
+        },
+        "required": ["price_dollars", "contract_count"],
+        "title": "OrderBookLevelResponse",
+        "type": "object"
+      },
       "Outcome": {
         "enum": ["HOME", "DRAW", "AWAY"],
         "title": "Outcome",
         "type": "string"
+      },
+      "ProviderOrderBookResponse": {
+        "properties": {
+          "data_source_id": { "title": "Data Source Id", "type": "string" },
+          "historical_availability": {
+            "const": "UNKNOWN",
+            "title": "Historical Availability",
+            "type": "string"
+          },
+          "mapping_status": {
+            "const": "UNMAPPED",
+            "title": "Mapping Status",
+            "type": "string"
+          },
+          "market_ticker": { "title": "Market Ticker", "type": "string" },
+          "no_bids": {
+            "items": { "$ref": "#/components/schemas/OrderBookLevelResponse" },
+            "title": "No Bids",
+            "type": "array"
+          },
+          "normalizer_version": {
+            "title": "Normalizer Version",
+            "type": "string"
+          },
+          "parser_version": { "title": "Parser Version", "type": "string" },
+          "raw": {
+            "$ref": "#/components/schemas/RawOrderBookReferenceResponse"
+          },
+          "snapshot_at": {
+            "format": "date-time",
+            "title": "Snapshot At",
+            "type": "string"
+          },
+          "usage": {
+            "const": "SYNTHETIC_ONLY",
+            "title": "Usage",
+            "type": "string"
+          },
+          "venue_id": { "title": "Venue Id", "type": "string" },
+          "yes_bids": {
+            "items": { "$ref": "#/components/schemas/OrderBookLevelResponse" },
+            "title": "Yes Bids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "data_source_id",
+          "venue_id",
+          "market_ticker",
+          "snapshot_at",
+          "historical_availability",
+          "mapping_status",
+          "usage",
+          "parser_version",
+          "normalizer_version",
+          "raw",
+          "yes_bids",
+          "no_bids"
+        ],
+        "title": "ProviderOrderBookResponse",
+        "type": "object"
       },
       "QuoteCaptureResponse": {
         "properties": {
@@ -666,6 +742,50 @@
         },
         "required": ["data_source_id", "resource", "ingested_at"],
         "title": "RawCapture",
+        "type": "object"
+      },
+      "RawOrderBookReferenceResponse": {
+        "properties": {
+          "available_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Available At"
+          },
+          "effective_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Effective At"
+          },
+          "ingested_at": {
+            "format": "date-time",
+            "title": "Ingested At",
+            "type": "string"
+          },
+          "observed_at": {
+            "anyOf": [
+              { "format": "date-time", "type": "string" },
+              { "type": "null" }
+            ],
+            "title": "Observed At"
+          },
+          "resource": { "title": "Resource", "type": "string" },
+          "sha256": { "title": "Sha256", "type": "string" },
+          "size_bytes": { "title": "Size Bytes", "type": "integer" }
+        },
+        "required": [
+          "sha256",
+          "size_bytes",
+          "resource",
+          "ingested_at",
+          "effective_at",
+          "observed_at",
+          "available_at"
+        ],
+        "title": "RawOrderBookReferenceResponse",
         "type": "object"
       },
       "RawPayloadReference": {
@@ -1069,6 +1189,77 @@
           }
         },
         "summary": "List Market Quotes"
+      }
+    },
+    "/v1/provider-order-books/{dataSourceId}/{marketTicker}": {
+      "get": {
+        "operationId": "get_provider_order_book",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataSourceId",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "title": "Datasourceid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "marketTicker",
+            "required": true,
+            "schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Z0-9][A-Z0-9_-]{0,127}$",
+              "title": "Marketticker",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderOrderBookResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderBookErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderBookErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Get Provider Order Book"
       }
     }
   }

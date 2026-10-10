@@ -87,6 +87,31 @@ event loop. Builds use the locked Hatchling installation without network access.
 The [migration framework](migrations/README.md) establishes the local Alembic
 baseline. It does not add domain tables or database access to the health endpoint.
 
+## Local Kalshi order-book inspection
+
+`GET /v1/provider-order-books/{dataSourceId}/{marketTicker}` is unconfigured in
+the default app and returns 503. It is available only from the explicit local
+fixture factory below, for the single authored `kalshi_api` / `EE-SYNTH-2026`
+fixture. The response preserves exact YES/NO bid prices and sizes as strings,
+separates data source from venue, and reports `SYNTHETIC_ONLY`, unknown historical
+availability and `UNMAPPED`. Raw bytes are not returned; the response includes
+their checksum, size, resource and capture timestamps. Reads re-open and verify
+the pinned fixture each time. No database, S3, provider request, write or pricing
+logic is involved. Responses use `Cache-Control: no-store`.
+
+Run from the repository root:
+
+```sh
+uv run --locked --package edgeeagle-api uvicorn \
+  edgeeagle_api.local_kalshi:create_local_kalshi_orderbook_app \
+  --factory --host 127.0.0.1 --port 8000 --no-proxy-headers
+```
+
+This unauthenticated diagnostic API is for loopback-only local use. Do not expose
+it to a LAN, the internet, a tunnel, or hosted deployment. It does not assign the
+provider contract to a canonical event or market. See
+[ADR-040](../../docs/adr/ADR-040-binary-market-mapping-and-local-orderbook-api.md).
+
 ## Local market observations
 
 The same local PostgreSQL factory now enables `GET /v1/events/{eventId}/markets`
